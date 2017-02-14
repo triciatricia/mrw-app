@@ -6,7 +6,7 @@ import {
   TextInput,
   Platform,
 } from 'react-native';
-import Button from 'react-native-button'
+import Button from 'react-native-button';
 
 export default class NewGame extends React.Component {
   constructor(props) {

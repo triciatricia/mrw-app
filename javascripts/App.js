@@ -22,7 +22,7 @@ export default class App extends React.Component {
       gameInfo: null,
       playerInfo: null,
     };
-  };
+  }
 
   render() {
     const gameStage = getGameStage(
