@@ -18,12 +18,12 @@ export default class NewGame extends React.Component {
   render() {
     return (
       <View style={styles.main}>
-        <View style={{flex: 1, alignItems: 'center'}}>
+        <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
           <Text style={styles.h1Text}>Hello!</Text>
           <Text style={styles.pText}>Are you ready to react?</Text>
         </View>
 
-        <View style={{flex: 1}}>
+        <View style={{flex: 1, justifyContent: 'center'}}>
           <View style={styles.inputView}>
             <TextInput
               style={styles.input}
@@ -40,7 +40,7 @@ export default class NewGame extends React.Component {
           </Button>
         </View>
 
-        <View style={{flex: 1, alignItems: 'center'}}>
+        <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
           <Button
             containerStyle={styles.newGameContainer}
             style={styles.newGameText}
