@@ -11,7 +11,7 @@ export default class NewGame extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      gameCode: 'Enter game code:'
+      gameCode: ''
     };
   }
 
@@ -27,13 +27,14 @@ export default class NewGame extends React.Component {
           <View style={styles.inputView}>
             <TextInput
               style={styles.input}
+              placeholder='Enter game code:'
               onChangeText={(text) => this.setState({gameCode: text})}
               value={this.state.gameCode}
               autoCorrect={false} />
           </View>
           <Button
-            containerStyle={styles.buttonContainer}
-            style={styles.buttonText}
+            containerStyle={styles.joinGameContainer}
+            style={styles.joinGameText}
             onPress={() => {}} >
             Join an Existing Game
           </Button>
@@ -68,22 +69,21 @@ const styles = StyleSheet.create({
   },
   inputView: {
     borderColor: '#999',
-    padding: 6,
     borderBottomWidth: 1,
   },
   input: {
-    height: 40,
+    height: 36,
     color: '#999',
-    fontSize: 30,
+    fontSize: 26,
   },
-  buttonContainer: {
+  joinGameContainer: {
     padding: 10,
     overflow: 'hidden',
     borderRadius: 10,
     backgroundColor: '#eee',
     marginTop: 10,
   },
-  buttonText: {
+  joinGameText: {
     fontSize: 20,
     color: '#333',
   },
