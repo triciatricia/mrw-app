@@ -4,6 +4,7 @@ import {
   Text,
   View,
   TextInput,
+  Platform,
 } from 'react-native';
 import Button from 'react-native-button'
 
@@ -30,7 +31,10 @@ export default class NewGame extends React.Component {
               placeholder='Enter game code:'
               onChangeText={(text) => this.setState({gameCode: text})}
               value={this.state.gameCode}
-              autoCorrect={false} />
+              autoCorrect={false}
+              autoCapitalize='characters'
+              keyboardType={Platform.OS === 'android' ? 'numeric' : 'numbers-and-punctuation'}
+              underlineColorAndroid='transparent' />
           </View>
           <Button
             containerStyle={styles.joinGameContainer}
@@ -72,9 +76,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   input: {
-    height: 36,
     color: '#999',
     fontSize: 26,
+    borderBottomWidth: 0,
+    height: 40,
   },
   joinGameContainer: {
     padding: 10,
