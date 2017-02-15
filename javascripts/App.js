@@ -6,13 +6,26 @@ import {
   Image,
 } from 'react-native';
 import NewGame from './NewGame';
+import NewPlayer from './NewPlayer';
+import WaitingToStart from './WaitingToStart';
 
 const playAreas = {
-  NewGame: NewGame
+  NewGame: NewGame,
+  NewPlayer: NewPlayer,
+  WaitingToStart: WaitingToStart,
 };
 
-const getGameStage = (playerInfo, gameInfo) => {
-  return 'NewGame';
+const _getGameStage = (playerInfo, gameInfo) => {
+  return 'WaitingToStart';
+};
+
+const _getPlayAreaProps = (gameStage) => {
+  return {
+    errorMessage: 'test',
+    isHost: true,
+    nPlayers: 2,
+    gameCode: 'ABC123'
+  };
 };
 
 export default class App extends React.Component {
@@ -25,11 +38,12 @@ export default class App extends React.Component {
   }
 
   render() {
-    const gameStage = getGameStage(
+    const gameStage = _getGameStage(
       this.state.playerInfo,
       this.state.gameInfo
     );
     const PlayArea = playAreas[gameStage];
+    const props = _getPlayAreaProps(gameStage);
     return (
       <View style={styles.container}>
         <View style={styles.header}>
@@ -40,7 +54,7 @@ export default class App extends React.Component {
           <Text>Settings</Text>
         </View>
         <View style={styles.playArea}>
-          <PlayArea />
+          <PlayArea {...props}/>
         </View>
       </View>
     );
@@ -58,7 +72,7 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingTop: 40,
     alignItems: 'center',
-    height: 130,
+    height: 120,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
