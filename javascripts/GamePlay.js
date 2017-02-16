@@ -29,25 +29,80 @@ export default class GamePlay extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isLoading: false
+      scenario: ''
     };
   }
 
-  _reactorWaitingForm() {
+  _getInstructions() {
+    if (this.props.gameInfo.reactorID == this.props.playerInfo.id) {
+      return (
+        this.props.gameInfo.winningResponse ?
+          'Good choice!' : (this.props.playerInfo.nickname +
+                            ', read this list out loud and pick your favorite!'));
+    }
     return (
-      <Text>reactor waiting form</Text>
+      this.props.gameInfo.winningResponse ?
+        (this.props.gameInfo.reactorNickname + ' has chosen!') :
+        (this.props.gameInfo.reactorNickname + ' is choosing their favorite scenario. Hold tight!'));
+  }
+
+  _reactorWaitingForm() {
+
+    return (
+      <View>
+        <Text style={{fontSize: 16, paddingTop: 10, paddingBottom: 10}}>
+          Waiting for responses. Hold on tight!
+        </Text>
+        <Button
+          containerStyle={styles.buttonContainer}
+          style={styles.buttonText}
+          onPress={() => {}} >
+          Skip Image
+        </Button>
+      </View>
     );
   }
 
   _scenarioSubmissionForm() {
+    let buttonText = 'Submit Response';
+    let helpMessage = '';
+    let placeholder = 'Make up something';
+    if (this.props.playerInfo.submittedScenario) {
+      buttonText = 'Update Response';
+      helpMessage = 'Your response is in!';
+      placeholder = this.props.playerInfo.response;
+    }
+
     return (
-      <Text>scenario submission form</Text>
+      <View>
+        <View style={styles.inputView}>
+          <TextInput
+            style={styles.input}
+            placeholder={placeholder}
+            onChangeText={(text) => this.setState({scenario: text})}
+            value={this.state.scenario}
+            autoCapitalize='none'
+            maxLength={500}
+            underlineColorAndroid='transparent' />
+        </View>
+
+        <Button
+          containerStyle={styles.buttonContainer}
+          style={styles.buttonText}
+          onPress={() => {}} >
+          {buttonText}
+        </Button>
+
+        <Text style={{fontSize: 16, paddingTop: 10, paddingBottom: 10, color: 'green'}}>
+          {helpMessage}
+        </Text>
+      </View>
     );
   }
 
   _scenarioListForm() {
     return (
-      <Text>scenario list form</Text>
+      <Text>{this._getInstructions()}</Text>
     );
   }
 
@@ -55,10 +110,8 @@ export default class GamePlay extends React.Component {
     let responseForm;
 
     if (this.props.gameInfo.waitingForScenarios) {
-      if (this.props.playerInfo.id == this.props.gameInfo.reactorID) {
-        responseForm = this._reactorWaitingForm();
-      }
-      responseForm = this._scenarioSubmissionForm();
+      responseForm = (this.props.playerInfo.id == this.props.gameInfo.reactorID ?
+        this._reactorWaitingForm() : this._scenarioSubmissionForm());
     } else {
       responseForm = this._scenarioListForm();
     }
@@ -87,14 +140,16 @@ export default class GamePlay extends React.Component {
 
         <View style={{flex: 1}}>
           <Image
-            style={{width: WINDOW_WIDTH - 20, height: WINDOW_HEIGHT / 2}}
+            style={{width: WINDOW_WIDTH - 20, height: WINDOW_HEIGHT / 2 - 60, marginBottom: 10}}
             resizeMode='contain'
             source={{uri: this.props.gameInfo.image}} />
         </View>
 
+        <Text style={{fontSize: 16, paddingTop: 10, paddingBottom: 10}}>
+          {this.props.gameInfo.reactorNickname}&#39;s response when...
+        </Text>
 
         {responseForm}
-
 
         <ErrorMessage errorMessage={this.props.errorMessage} />
       </ScrollView>
@@ -112,19 +167,19 @@ const styles = StyleSheet.create({
   },
   input: {
     color: '#999',
-    fontSize: 20,
+    fontSize: 16,
     borderBottomWidth: 0,
-    height: 36,
+    height: 30,
   },
-  submitContainer: {
+  buttonContainer: {
     padding: 10,
     overflow: 'hidden',
     borderRadius: 10,
     backgroundColor: '#eee',
     marginTop: 10,
   },
-  submitText: {
-    fontSize: 20,
+  buttonText: {
+    fontSize: 16,
     color: '#333',
   },
 });
