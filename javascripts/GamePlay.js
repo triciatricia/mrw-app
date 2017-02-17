@@ -4,6 +4,7 @@ import {
   Text,
   View,
   ScrollView,
+  KeyboardAvoidingView,
   TextInput,
   Image,
   Dimensions,
@@ -118,40 +119,42 @@ export default class GamePlay extends React.Component {
 
     return (
       <ScrollView style={styles.main}>
-        <View style={{flexDirection: 'row'}}>
+        <KeyboardAvoidingView behavior='position'>
+          <View style={{flexDirection: 'row'}}>
+            <View style={{flex: 1}}>
+              <Text style={{fontSize: 16}}>
+                {this.props.playerInfo.nickname}
+              </Text>
+              <Text style={{fontSize: 16, paddingBottom: 10}}>
+                Score: {this.props.playerInfo.score}
+              </Text>
+            </View>
+
+            <View style={{flex: 1, alignItems: 'flex-end'}}>
+              <Text style={{fontSize: 16}}>
+                Round: {this.props.gameInfo.round}
+              </Text>
+              <Text style={{fontSize: 16, paddingBottom: 10}}>
+                Game Code: {this.props.gameInfo.id}
+              </Text>
+            </View>
+          </View>
+
           <View style={{flex: 1}}>
-            <Text style={{fontSize: 16}}>
-              {this.props.playerInfo.nickname}
-            </Text>
-            <Text style={{fontSize: 16, paddingBottom: 10}}>
-              Score: {this.props.playerInfo.score}
-            </Text>
+            <Image
+              style={{width: WINDOW_WIDTH - 20, height: WINDOW_HEIGHT / 2 - 60, marginBottom: 10}}
+              resizeMode='contain'
+              source={{uri: this.props.gameInfo.image}} />
           </View>
 
-          <View style={{flex: 1, alignItems: 'flex-end'}}>
-            <Text style={{fontSize: 16}}>
-              Round: {this.props.gameInfo.round}
-            </Text>
-            <Text style={{fontSize: 16, paddingBottom: 10}}>
-              Game Code: {this.props.gameInfo.id}
-            </Text>
-          </View>
-        </View>
+          <Text style={{fontSize: 16, paddingTop: 10, paddingBottom: 10}}>
+            {this.props.gameInfo.reactorNickname}&#39;s response when...
+          </Text>
 
-        <View style={{flex: 1}}>
-          <Image
-            style={{width: WINDOW_WIDTH - 20, height: WINDOW_HEIGHT / 2 - 60, marginBottom: 10}}
-            resizeMode='contain'
-            source={{uri: this.props.gameInfo.image}} />
-        </View>
+          {responseForm}
 
-        <Text style={{fontSize: 16, paddingTop: 10, paddingBottom: 10}}>
-          {this.props.gameInfo.reactorNickname}&#39;s response when...
-        </Text>
-
-        {responseForm}
-
-        <ErrorMessage errorMessage={this.props.errorMessage} />
+          <ErrorMessage errorMessage={this.props.errorMessage} />
+        </KeyboardAvoidingView>
       </ScrollView>
     );
   }
