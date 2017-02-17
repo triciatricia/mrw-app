@@ -12,6 +12,7 @@ import {
 import Button from 'react-native-button';
 import ErrorMessage from './ErrorMessage';
 import ParaText from './ParaText';
+import ScenarioList from './ScenarioList';
 
 const WINDOW_WIDTH = Dimensions.get('window').width;
 const WINDOW_HEIGHT = Dimensions.get('window').height;
@@ -104,7 +105,15 @@ export default class GamePlay extends React.Component {
 
   _scenarioListForm() {
     return (
-      <ParaText>{this._getInstructions()}</ParaText>
+      <View>
+        <ParaText>{this._getInstructions()}</ParaText>
+        <ScenarioList
+          scenarios={this.props.gameInfo.choices}
+          reactorNickname={this.props.gameInfo.reactorNickname}
+          winningResponse={this.props.gameInfo.winningResponse}
+          winningResponseSubmittedBy={this.props.gameInfo.winningResponseSubmittedBy}
+          isReactor={this.props.gameInfo.reactorID == this.props.playerInfo.id} />
+      </View>
     );
   }
 

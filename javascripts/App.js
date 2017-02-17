@@ -25,16 +25,16 @@ const testGameInfo = {
   id: 2,
   round: 2,
   image: 'http://i.imgur.com/rxkWqmt.gif',
-  choices: ['he smells banana', 'he is released into the backyard',
-    'he is jumping off the couch'],
-  waitingForScenarios: true, // false,
+  choices: {'2': 'he smells banana', '4': 'he is released into the backyard',
+    '9': 'he is jumping off the couch'},
+  waitingForScenarios: false,
   reactorID: 2, // 3,
   reactorNickname: 'Momo', // 'Cinna',
   hostID: 2,
-  scores: {'Cinna': 1, 'Momo': 0, 'Tricia': 0},
+  scores: {'Cinna': 1, 'Momo': 0, 'Cara': 0},
   gameOver: false,
-  winningResponse: null,
-  winningResponseSubmittedBy: null,
+  winningResponse: '4', // null,
+  winningResponseSubmittedBy: 'Cara', // null,
 };
 
 const testPlayerInfo = {
