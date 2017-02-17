@@ -119,7 +119,7 @@ export default class GamePlay extends React.Component {
 
     return (
       <ScrollView style={styles.main}>
-        <KeyboardAvoidingView behavior='position'>
+        <KeyboardAvoidingView behavior='position' contentContainerStyle={{paddingBottom: 40}}>
           <View style={{flexDirection: 'row'}}>
             <View style={{flex: 1}}>
               <Text style={{fontSize: 16}}>
