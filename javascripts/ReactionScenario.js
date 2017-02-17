@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
+import ParaText from './ParaText';
 
 export default class ReactionScenario extends React.Component {
   static propTypes = {
@@ -20,20 +21,23 @@ export default class ReactionScenario extends React.Component {
   };
 
   render() {
-    if (this.props.isReactor && this.props.winningResponse === null) {
-      return _radioChoices();
+    if (this.props.useRadio) {
+      return this._radioChoices();
     }
     return (
       <View style={{
         flexDirection: 'row',
-        justifyContent: 'space-between'}}>
-        <Text style={{fontSize: 16, fontWeight: this.props.wasChosen ? 'bold' : 'normal'}}>
-          {this.props.scenario}
-        </Text>
+        justifyContent: 'space-between',
+        alignItems: 'center'}}>
+        <View style={this.props.wasChosen ? styles.selectedTextView : null}>
+          <ParaText style={this.props.wasChosen ? styles.selectedText : {}}>
+            {this.props.scenario}
+          </ParaText>
+        </View>
 
-        <Text style={{fontSize: 16, fontWeight: 'bold'}}>
+        <ParaText style={{fontWeight: 'bold'}}>
           {this.props.wasChosen ? this.props.submittedBy + ' +1' : null}
-        </Text>
+        </ParaText>
       </View>
     )
   }
@@ -72,5 +76,17 @@ const styles = StyleSheet.create({
     width: 8,
     borderRadius: 4,
     backgroundColor: '#999',
+  },
+  selectedText: {
+    fontWeight: 'bold',
+    color: '#fff',
+    paddingTop: 10,
+  },
+  selectedTextView: {
+    borderRadius: 10,
+    backgroundColor: '#2355ad',
+    paddingLeft: 10,
+    paddingRight: 10,
+    marginBottom: 10,
   }
 });

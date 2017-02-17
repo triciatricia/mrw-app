@@ -15,8 +15,6 @@ export default class ScenarioList extends React.Component {
     winningResponseSubmittedBy: React.PropTypes.string,
     isReactor: React.PropTypes.bool,
     chooseScenario: React.PropTypes.func,
-    nextRound: React.PropTypes.func,
-    endGame: React.PropTypes.func,
   };
 
   constructor(props) {
@@ -28,8 +26,6 @@ export default class ScenarioList extends React.Component {
 
   render() {
     let scenarios = this._getScenarios();
-    let button;
-    let endGameButton;
 
     return (
       <View>
@@ -45,6 +41,7 @@ export default class ScenarioList extends React.Component {
           scenario={this.props.scenarios[id]}
           id={id}
           key={id}
+          useRadio={this.props.isReactor && this.props.winningResponse === null}
           isChecked={this.state.selectedScenario == id}
           wasChosen={id == this.props.winningResponse}
           onScenarioSelection={(value) => {

@@ -28,13 +28,13 @@ const testGameInfo = {
   choices: {'2': 'he smells banana', '4': 'he is released into the backyard',
     '9': 'he is jumping off the couch'},
   waitingForScenarios: false,
-  reactorID: 2, // 3,
-  reactorNickname: 'Momo', // 'Cinna',
+  reactorID: 3,
+  reactorNickname: 'Cinna',
   hostID: 2,
   scores: {'Cinna': 1, 'Momo': 0, 'Cara': 0},
   gameOver: false,
-  winningResponse: '4', // null,
-  winningResponseSubmittedBy: 'Cara', // null,
+  winningResponse: '4',
+  winningResponseSubmittedBy: 'Cara',
 };
 
 const testPlayerInfo = {
@@ -127,7 +127,6 @@ const styles = StyleSheet.create({
     height: 50,
   },
   playArea: {
-    padding: 20,
     flex: 1,
     justifyContent: 'space-between',
   },

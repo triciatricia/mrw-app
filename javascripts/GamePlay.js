@@ -13,6 +13,7 @@ import Button from 'react-native-button';
 import ErrorMessage from './ErrorMessage';
 import ParaText from './ParaText';
 import ScenarioList from './ScenarioList';
+import GameStatusBar from './GameStatusBar';
 
 const WINDOW_WIDTH = Dimensions.get('window').width;
 const WINDOW_HEIGHT = Dimensions.get('window').height;
@@ -36,8 +37,12 @@ export default class GamePlay extends React.Component {
     };
   }
 
+  _isReactor() {
+    return this.props.gameInfo.reactorID == this.props.playerInfo.id;
+  }
+
   _getInstructions() {
-    if (this.props.gameInfo.reactorID == this.props.playerInfo.id) {
+    if (this._isReactor()) {
       return (
         this.props.gameInfo.winningResponse ?
           'Good choice!' : (this.props.playerInfo.nickname +
@@ -53,6 +58,9 @@ export default class GamePlay extends React.Component {
 
     return (
       <View>
+        <ParaText style={styles.boldText}>
+          {this.props.gameInfo.reactorNickname}&#39;s response when...
+        </ParaText>
         <ParaText>
           Waiting for responses. Hold on tight!
         </ParaText>
@@ -78,6 +86,9 @@ export default class GamePlay extends React.Component {
 
     return (
       <View>
+        <ParaText style={styles.boldText}>
+          {this.props.gameInfo.reactorNickname}&#39;s response when...
+        </ParaText>
         <View style={styles.inputView}>
           <TextInput
             style={styles.input}
@@ -104,15 +115,45 @@ export default class GamePlay extends React.Component {
   }
 
   _scenarioListForm() {
+    const buttons = (
+      <View style={{flexDirection: 'row'}}>
+        <Button
+          containerStyle={[
+            styles.buttonContainer,
+            {backgroundColor: '#4472C4', marginRight: 10}]}
+          style={[styles.buttonText, {color: '#fff'}]}
+          onPress={() => {}} >
+          Next
+        </Button>
+        <Button
+          containerStyle={styles.buttonContainer}
+          style={styles.buttonText}
+          onPress={() => {}} >
+          End Game
+        </Button>
+      </View>
+    );
+    let waitMessage;
+    if (this.props.gameInfo.winningResponse) {
+      waitMessage = (
+        <ParaText>
+          Waiting for {this.props.gameInfo.reactorNickname} to go to the next round...
+        </ParaText>
+      );
+    }
     return (
       <View>
         <ParaText>{this._getInstructions()}</ParaText>
+        <ParaText style={styles.boldText}>
+          {this.props.gameInfo.reactorNickname}&#39;s response when...
+        </ParaText>
         <ScenarioList
           scenarios={this.props.gameInfo.choices}
           reactorNickname={this.props.gameInfo.reactorNickname}
           winningResponse={this.props.gameInfo.winningResponse}
           winningResponseSubmittedBy={this.props.gameInfo.winningResponseSubmittedBy}
-          isReactor={this.props.gameInfo.reactorID == this.props.playerInfo.id} />
+          isReactor={this._isReactor()} />
+        {this._isReactor() ? buttons : waitMessage}
       </View>
     );
   }
@@ -130,25 +171,11 @@ export default class GamePlay extends React.Component {
     return (
       <ScrollView style={styles.main}>
         <KeyboardAvoidingView behavior='position' contentContainerStyle={{paddingBottom: 40}}>
-          <View style={{flexDirection: 'row'}}>
-            <View style={{flex: 1}}>
-              <Text style={{fontSize: 16}}>
-                {this.props.playerInfo.nickname}
-              </Text>
-              <Text style={{fontSize: 16, paddingBottom: 10}}>
-                Score: {this.props.playerInfo.score}
-              </Text>
-            </View>
-
-            <View style={{flex: 1, alignItems: 'flex-end'}}>
-              <Text style={{fontSize: 16}}>
-                Round: {this.props.gameInfo.round}
-              </Text>
-              <Text style={{fontSize: 16, paddingBottom: 10}}>
-                Game Code: {this.props.gameInfo.id}
-              </Text>
-            </View>
-          </View>
+          <GameStatusBar
+            nickname={this.props.playerInfo.nickname}
+            score={this.props.playerInfo.score}
+            round={this.props.gameInfo.round}
+            gameCode={this.props.gameInfo.id.toString()} />
 
           <View style={{flex: 1}}>
             <Image
@@ -156,10 +183,6 @@ export default class GamePlay extends React.Component {
               resizeMode='contain'
               source={{uri: this.props.gameInfo.image}} />
           </View>
-
-          <ParaText>
-            {this.props.gameInfo.reactorNickname}&#39;s response when...
-          </ParaText>
 
           {responseForm}
 
@@ -195,4 +218,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
+  boldText: {
+    fontWeight: 'bold',
+  }
 });
