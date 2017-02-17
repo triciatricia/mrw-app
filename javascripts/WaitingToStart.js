@@ -71,6 +71,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'stretch',
+    padding: 20,
   },
   inputView: {
     borderColor: '#999',

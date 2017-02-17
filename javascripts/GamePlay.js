@@ -196,6 +196,7 @@ export default class GamePlay extends React.Component {
 const styles = StyleSheet.create({
   main: {
     flex: 1,
+    padding: 20,
   },
   inputView: {
     borderColor: '#999',

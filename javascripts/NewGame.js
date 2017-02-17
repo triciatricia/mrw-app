@@ -62,6 +62,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'stretch',
+    padding: 20,
   },
   h1Text: {
     fontSize: 60,
