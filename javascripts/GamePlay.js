@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import Button from 'react-native-button';
 import ErrorMessage from './ErrorMessage';
+import ParaText from './ParaText';
 
 const WINDOW_WIDTH = Dimensions.get('window').width;
 const WINDOW_HEIGHT = Dimensions.get('window').height;
@@ -51,9 +52,9 @@ export default class GamePlay extends React.Component {
 
     return (
       <View>
-        <Text style={{fontSize: 16, paddingTop: 10, paddingBottom: 10}}>
+        <ParaText>
           Waiting for responses. Hold on tight!
-        </Text>
+        </ParaText>
         <Button
           containerStyle={styles.buttonContainer}
           style={styles.buttonText}
@@ -94,16 +95,16 @@ export default class GamePlay extends React.Component {
           {buttonText}
         </Button>
 
-        <Text style={{fontSize: 16, paddingTop: 10, paddingBottom: 10, color: 'green'}}>
+        <ParaText style={{color: 'green'}}>
           {helpMessage}
-        </Text>
+        </ParaText>
       </View>
     );
   }
 
   _scenarioListForm() {
     return (
-      <Text>{this._getInstructions()}</Text>
+      <ParaText>{this._getInstructions()}</ParaText>
     );
   }
 
@@ -142,14 +143,14 @@ export default class GamePlay extends React.Component {
 
           <View style={{flex: 1}}>
             <Image
-              style={{width: WINDOW_WIDTH - 20, height: WINDOW_HEIGHT / 2 - 60, marginBottom: 10}}
+              style={{width: WINDOW_WIDTH - 20, height: WINDOW_HEIGHT / 2 - 60, marginBottom: 20}}
               resizeMode='contain'
               source={{uri: this.props.gameInfo.image}} />
           </View>
 
-          <Text style={{fontSize: 16, paddingTop: 10, paddingBottom: 10}}>
+          <ParaText>
             {this.props.gameInfo.reactorNickname}&#39;s response when...
-          </Text>
+          </ParaText>
 
           {responseForm}
 
