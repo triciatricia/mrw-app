@@ -9,16 +9,18 @@ import NewGame from './NewGame';
 import NewPlayer from './NewPlayer';
 import WaitingToStart from './WaitingToStart';
 import GamePlay from './GamePlay';
+import GameOver from './GameOver';
 
 const playAreas = {
   NewGame: NewGame,
   NewPlayer: NewPlayer,
   WaitingToStart: WaitingToStart,
   GamePlay: GamePlay,
+  GameOver: GameOver,
 };
 
 const _getGameStage = (playerInfo, gameInfo) => {
-  return 'GamePlay';
+  return 'GameOver';
 };
 
 const testGameInfo = {
