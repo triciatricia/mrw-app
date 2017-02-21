@@ -29,7 +29,7 @@ export default class GameStatusBar extends React.Component {
             Round: {this.props.round}
           </Text>
           <Text style={{fontSize: 16, paddingBottom: 10}}>
-            Game Code: {this.props.id}
+            Game Code: {this.props.gameCode}
           </Text>
         </View>
       </View>
