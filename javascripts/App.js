@@ -10,6 +10,7 @@ import NewPlayer from './NewPlayer';
 import WaitingToStart from './WaitingToStart';
 import GamePlay from './GamePlay';
 import GameOver from './GameOver';
+import networking from './networking';
 
 const playAreas = {
   NewGame: NewGame,
@@ -48,27 +49,26 @@ const testPlayerInfo = {
   submittedScenario: false,
 };
 
-const _getPlayAreaProps = (gameStage) => {
-  /* WaitingToStart
-  return {
-    errorMessage: 'test',
-    isHost: true,
-    nPlayers: 2,
-    gameCode: 'ABC123'
-  }; */
-  return {
-    gameInfo: testGameInfo,
-    playerInfo: testPlayerInfo,
-    errorMessage: null
-  };
-};
-
 export default class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       gameInfo: null,
       playerInfo: null,
+      errorMessage: null
+    };
+  }
+
+  componentWillMount() {
+    this._pollGameInfo();
+    setInterval(this._pollGameInfo, 1000);
+  }
+
+  _getPlayAreaProps() {
+    return {
+      gameInfo: testGameInfo,
+      playerInfo: testPlayerInfo,
+      errorMessage: null
     };
   }
 
@@ -78,7 +78,7 @@ export default class App extends React.Component {
       this.state.gameInfo
     );
     const PlayArea = playAreas[gameStage];
-    const props = _getPlayAreaProps(gameStage);
+    const props = this._getPlayAreaProps();
     return (
       <View style={styles.container}>
         <View style={gameStage == 'NewGame' ? styles.headerLarge : styles.headerSmall}>
@@ -94,6 +94,41 @@ export default class App extends React.Component {
       </View>
     );
   }
+
+  _pollGameInfo = async () => {
+    await this._postToServer('getGameInfo');
+  };
+
+  _postToServer = async (action, data) => {
+    if (!this.state.gameInfo || !this.state.gameInfo.hasOwnProperty('id') ||
+      !this.state.gameInfo.id) {
+      return;
+    }
+    try {
+      let playerID = (
+        (this.state.playerInfo && this.state.playerInfo.hasOwnProperty('id'))
+         ? this.state.playerInfo.id : null);
+      const res = await networking.postToServer(Object.assign({
+        gameInfo: this.state.gameInfo.id,
+        playerInfo: playerID,
+        action: action,
+      }, data));
+      if (res.errorMessage) {
+        this.setState({
+          errorMessage: res.errorMessage
+        });
+      } else {
+        this.setState({
+          gameInfo: res.result.gameInfo,
+          playerInfo: res.result.playerInfo
+        });
+      }
+    } catch(error) {
+      this.setState({
+        errorMesage: 'Error communicating to server'
+      });
+    }
+  };
 }
 
 const styles = StyleSheet.create({
