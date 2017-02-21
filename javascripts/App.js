@@ -12,38 +12,7 @@ import GamePlay from './GamePlay';
 import GameOver from './GameOver';
 import networking from './networking';
 
-const playAreas = {
-  NewGame: NewGame,
-  NewPlayer: NewPlayer,
-  WaitingToStart: WaitingToStart,
-  GamePlay: GamePlay,
-  GameOver: GameOver,
-};
-
-const testGameInfo = {
-  id: 2,
-  round: 2,
-  image: 'http://i.imgur.com/rxkWqmt.gif',
-  choices: {'2': 'he smells banana', '4': 'he is released into the backyard',
-    '9': 'he is jumping off the couch'},
-  waitingForScenarios: false,
-  reactorID: 3,
-  reactorNickname: 'Cinna',
-  hostID: 2,
-  scores: {'Cinna': 1, 'Momo': 0, 'Cara': 0},
-  gameOver: false,
-  winningResponse: '4',
-  winningResponseSubmittedBy: 'Cara',
-};
-
-const testPlayerInfo = {
-  id: 3,
-  nickname: 'Cinna',
-  response: null,
-  score: 1,
-  game: 2,
-  submittedScenario: false,
-};
+const playAreas = {NewGame, NewPlayer, WaitingToStart, GamePlay, GameOver};
 
 export default class App extends React.Component {
   constructor(props) {
