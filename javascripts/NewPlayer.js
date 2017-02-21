@@ -7,8 +7,16 @@ import {
   Platform,
 } from 'react-native';
 import Button from 'react-native-button';
+import ErrorMessage from './ErrorMessage';
 
 export default class NewPlayer extends React.Component {
+  static propTypes = {
+    gameInfo: React.PropTypes.object,
+    playerInfo: React.PropTypes.object,
+    cretePlayer: React.PropTypes.func,
+    errorMessage: React.PropTypes.string,
+  };
+
   constructor(props) {
     super(props);
     this.state = {
@@ -34,9 +42,10 @@ export default class NewPlayer extends React.Component {
           <Button
             containerStyle={styles.submitContainer}
             style={styles.submitText}
-            onPress={() => {}} >
+            onPress={() => this.props.createPlayer(this.state.nickname)} >
             Submit Nickname
           </Button>
+          <ErrorMessage errorMessage={this.props.errorMessage} />
         </View>
       </View>
     );

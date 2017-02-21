@@ -67,7 +67,7 @@ export default class GamePlay extends React.Component {
         <Button
           containerStyle={styles.buttonContainer}
           style={styles.buttonText}
-          onPress={() => {}} >
+          onPress={this.props.skipImage} >
           Skip Image
         </Button>
       </View>
@@ -103,7 +103,7 @@ export default class GamePlay extends React.Component {
         <Button
           containerStyle={styles.buttonContainer}
           style={styles.buttonText}
-          onPress={() => {}} >
+          onPress={() => this.props.submitResponse(this.state.scenario)} >
           {buttonText}
         </Button>
 
@@ -115,24 +115,27 @@ export default class GamePlay extends React.Component {
   }
 
   _scenarioListForm() {
-    const buttons = (
-      <View style={{flexDirection: 'row'}}>
-        <Button
-          containerStyle={[
-            styles.buttonContainer,
-            {backgroundColor: '#4472C4', marginRight: 10}]}
-          style={[styles.buttonText, {color: '#fff'}]}
-          onPress={() => {}} >
-          Next
-        </Button>
-        <Button
-          containerStyle={styles.buttonContainer}
-          style={styles.buttonText}
-          onPress={() => {}} >
-          End Game
-        </Button>
-      </View>
-    );
+    let buttons;
+    if (this.props.gameInfo.winningResponse != null) {
+      buttons = (
+        <View style={{flexDirection: 'row'}}>
+          <Button
+            containerStyle={[
+              styles.buttonContainer,
+              {backgroundColor: '#4472C4', marginRight: 10}]}
+            style={[styles.buttonText, {color: '#fff'}]}
+            onPress={this.props.nextRound} >
+            Next
+          </Button>
+          <Button
+            containerStyle={styles.buttonContainer}
+            style={styles.buttonText}
+            onPress={this.props.endGame} >
+            End Game
+          </Button>
+        </View>
+      );
+    }
     let waitMessage;
     if (this.props.gameInfo.winningResponse) {
       waitMessage = (
@@ -152,6 +155,7 @@ export default class GamePlay extends React.Component {
           reactorNickname={this.props.gameInfo.reactorNickname}
           winningResponse={this.props.gameInfo.winningResponse}
           winningResponseSubmittedBy={this.props.gameInfo.winningResponseSubmittedBy}
+          chooseScenario={this.props.chooseScenario}
           isReactor={this._isReactor()} />
         {this._isReactor() ? buttons : waitMessage}
       </View>

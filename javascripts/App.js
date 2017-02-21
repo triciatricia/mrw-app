@@ -64,12 +64,34 @@ export default class App extends React.Component {
     let props = {
       gameInfo: this.state.gameInfo,
       playerInfo: this.state.playerInfo,
-      errorMessage: null
+      errorMessage: this.state.errorMessage
     };
     switch (gameStage) {
       case 'NewGame':
-        props.joinGame = (gameCode) => this._postToServer('joinGame', {gameCode: gameCode});
+        props.joinGame = (gameCode) => this._postToServer('joinGame', {gameCode});
         props.createGame = () => this._postToServer('createNewGame');
+      case 'NewPlayer':
+        props.createPlayer = (nickname) => this._postToServer('createPlayer', {nickname});
+      case 'WaitingToStart':
+        props.startGame = () => this._postToServer('startGame');
+      case 'GamePlay':
+        props.submitResponse = (response) => this._postToServer(
+          'submitResponse',
+          {
+            round: this.state.gameInfo.round,
+            response: response
+          });
+        props.chooseScenario = (choiceID) => this._postToServer(
+          'chooseScenario',
+          {
+            choiceID: choiceID,
+            round: this.state.gameInfo.round
+          });
+        props.nextRound = () => this._postToServer('nextRound');
+        props.endGame = () => this._postToServer('endGame');
+        props.skipImage = () => this._postToServer('skipImage');
+      case 'GameOver':
+        props.startGame = () => this._postToServer('startGame');
     }
     return props;
   }
@@ -123,8 +145,8 @@ export default class App extends React.Component {
         (this.state.gameInfo && this.state.gameInfo.hasOwnProperty('id'))
         ? this.state.gameInfo.id : null);
       const res = await networking.postToServer(Object.assign({
-        gameInfo: gameID,
-        playerInfo: playerID,
+        gameID: gameID,
+        playerID: playerID,
         action: action,
       }, data));
       if (res.errorMessage) {
@@ -132,10 +154,17 @@ export default class App extends React.Component {
           errorMessage: res.errorMessage
         });
       } else {
-        this.setState({
-          gameInfo: res.result.gameInfo,
-          playerInfo: res.result.playerInfo
-        });
+        if (res.result.gameInfo) {
+          this.setState({gameInfo: res.result.gameInfo});
+        }
+        if (res.result.playerInfo) {
+          this.setState({playerInfo: res.result.playerInfo});
+        }
+        if (action != 'getGameInfo') {
+          this.setState({
+            errorMessage: null
+          });
+        }
       }
     } catch(error) {
       this.setState({

@@ -4,14 +4,16 @@ import React from 'react';
 import {
   Text,
   View,
+  StyleSheet,
 } from 'react-native';
 import ReactionScenario from './ReactionScenario';
+import Button from 'react-native-button';
 
 export default class ScenarioList extends React.Component {
   static propTypes = {
     scenarios: React.PropTypes.object,
     reactorNickname: React.PropTypes.string,
-    winningResponse: React.PropTypes.string,
+    winningResponse: React.PropTypes.number,
     winningResponseSubmittedBy: React.PropTypes.string,
     isReactor: React.PropTypes.bool,
     chooseScenario: React.PropTypes.func,
@@ -25,11 +27,25 @@ export default class ScenarioList extends React.Component {
   }
 
   render() {
-    let scenarios = this._getScenarios();
+    const scenarios = this._getScenarios();
+    let button;
+    if (this.props.isReactor && this.props.winningResponse == null) {
+      button = (
+        <Button
+          containerStyle={styles.buttonContainer}
+          style={styles.buttonText}
+          onPress={() => this.props.chooseScenario(this.state.selectedScenario)} >
+          Submit
+          </Button>
+        );
+    }
 
     return (
       <View>
-        {scenarios}
+        <View>
+          {scenarios}
+        </View>
+        {button}
       </View>
     );
   }
@@ -49,7 +65,21 @@ export default class ScenarioList extends React.Component {
               selectedScenario: value
             });
           }}
-          submittedBy={id === this.props.winningResponse ? this.props.winningResponseSubmittedBy : null} />
+          submittedBy={id == this.props.winningResponse ? this.props.winningResponseSubmittedBy : null} />
         ));
   }
 }
+
+const styles = StyleSheet.create({
+  buttonContainer: {
+    padding: 10,
+    overflow: 'hidden',
+    borderRadius: 10,
+    backgroundColor: '#eee',
+    marginTop: 10,
+  },
+  buttonText: {
+    fontSize: 16,
+    color: '#333',
+  },
+});

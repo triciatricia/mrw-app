@@ -7,6 +7,7 @@ import {
   Platform,
 } from 'react-native';
 import Button from 'react-native-button';
+import ErrorMessage from './ErrorMessage';
 
 export default class NewGame extends React.Component {
   static propTypes = {
@@ -16,7 +17,7 @@ export default class NewGame extends React.Component {
     createGame: React.PropTypes.func,
     errorMessage: React.PropTypes.string,
   };
-  
+
   constructor(props) {
     super(props);
     this.state = {
@@ -50,6 +51,7 @@ export default class NewGame extends React.Component {
             onPress={() => this.props.joinGame(this.state.gameCode)} >
             Join an Existing Game
           </Button>
+          <ErrorMessage errorMessage={this.props.errorMessage} />
         </View>
 
         <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>

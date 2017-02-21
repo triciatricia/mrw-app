@@ -30,7 +30,7 @@ export default class GameOver extends React.Component {
     };
   }
 
-  _startGame() {
+  _startGame = () => {
     this.setState({
       isLoading: true
     });
@@ -63,7 +63,7 @@ export default class GameOver extends React.Component {
         id="rematchButton"
         containerStyle={styles.newGameContainer}
         style={styles.newGameText}
-        onPress={this.startGame}>
+        onPress={this._startGame}>
         {this.state.isLoading && this.props.errorMessage == null ?
           'Loading...' :
           'Again!'}

@@ -9,6 +9,13 @@ import Button from 'react-native-button';
 import ErrorMessage from './ErrorMessage';
 
 export default class WaitingToStart extends React.Component {
+  static propTypes = {
+    gameInfo: React.PropTypes.object,
+    playerInfo: React.PropTypes.object,
+    startGame: React.PropTypes.func,
+    errorMessage: React.PropTypes.string,
+  };
+
   constructor(props) {
     super(props);
     this.state = {
@@ -16,14 +23,29 @@ export default class WaitingToStart extends React.Component {
     };
   }
 
+  _isHost() {
+    return this.props.gameInfo.hostID == this.props.playerInfo.id;
+  }
+
+  _nPlayers() {
+    return Object.keys(this.props.gameInfo.scores).length;
+  }
+
+  _startGame = () => {
+    this.setState({
+      isLoading: true
+    });
+    this.props.startGame();
+  };
+
   render() {
     let button;
-    if (this.props.isHost) {
+    if (this._isHost()) {
       button = (
         <Button
           containerStyle={styles.submitContainer}
           style={styles.submitText}
-          onPress={() => {}}>
+          onPress={this._startGame}>
           Start now!
         </Button>
       );
@@ -32,8 +54,7 @@ export default class WaitingToStart extends React.Component {
       button = (
         <Button
           containerStyle={styles.submitDisabledContainer}
-          style={styles.submitDisabledText}
-          onPress={() => {}}>
+          style={styles.submitDisabledText}>
           Loading...
         </Button>
       );
@@ -50,12 +71,12 @@ export default class WaitingToStart extends React.Component {
 
         <View style={{alignItems: 'center', paddingBottom: 10}}>
           <Text style={{fontSize: 22, color: '#4472C4'}}>
-            {this.props.gameCode}
+            {this.props.gameInfo.id}
           </Text>
         </View>
 
         <Text style={{fontSize: 16, color: '#666'}}>
-          {this.props.nPlayers} players have joined...
+          {this._nPlayers()} players have joined...
         </Text>
 
         {button}
