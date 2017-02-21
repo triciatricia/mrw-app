@@ -20,10 +20,6 @@ const playAreas = {
   GameOver: GameOver,
 };
 
-const _getGameStage = (playerInfo, gameInfo) => {
-  return 'GameOver';
-};
-
 const testGameInfo = {
   id: 2,
   round: 2,
@@ -64,21 +60,24 @@ export default class App extends React.Component {
     setInterval(this._pollGameInfo, 1000);
   }
 
-  _getPlayAreaProps() {
-    return {
-      gameInfo: testGameInfo,
-      playerInfo: testPlayerInfo,
+  _getPlayAreaProps(gameStage) {
+    let props = {
+      gameInfo: this.state.gameInfo,
+      playerInfo: this.state.playerInfo,
       errorMessage: null
     };
+    switch (gameStage) {
+      case 'NewGame':
+        props.joinGame = (gameCode) => this._postToServer('joinGame', {gameCode: gameCode});
+        props.createGame = () => this._postToServer('createNewGame');
+    }
+    return props;
   }
 
   render() {
-    const gameStage = _getGameStage(
-      this.state.playerInfo,
-      this.state.gameInfo
-    );
+    const gameStage = this._gameStage();
     const PlayArea = playAreas[gameStage];
-    const props = this._getPlayAreaProps();
+    const props = this._getPlayAreaProps(gameStage);
     return (
       <View style={styles.container}>
         <View style={gameStage == 'NewGame' ? styles.headerLarge : styles.headerSmall}>
@@ -95,21 +94,36 @@ export default class App extends React.Component {
     );
   }
 
+  _gameStage = () => {
+    if (this.state.gameInfo == null) {
+      return 'NewGame';
+    }
+    if (this.state.playerInfo == null) {
+      return 'NewPlayer';
+    }
+    if (this.state.gameInfo.round) {
+      return 'GamePlay';
+    }
+    if (this.state.gameInfo.gameOver) {
+      return 'GameOver';
+    }
+    return 'WaitingToStart';
+  };
+
   _pollGameInfo = async () => {
     await this._postToServer('getGameInfo');
   };
 
   _postToServer = async (action, data) => {
-    if (!this.state.gameInfo || !this.state.gameInfo.hasOwnProperty('id') ||
-      !this.state.gameInfo.id) {
-      return;
-    }
     try {
       let playerID = (
         (this.state.playerInfo && this.state.playerInfo.hasOwnProperty('id'))
          ? this.state.playerInfo.id : null);
+      let gameID = (
+        (this.state.gameInfo && this.state.gameInfo.hasOwnProperty('id'))
+        ? this.state.gameInfo.id : null);
       const res = await networking.postToServer(Object.assign({
-        gameInfo: this.state.gameInfo.id,
+        gameInfo: gameID,
         playerInfo: playerID,
         action: action,
       }, data));

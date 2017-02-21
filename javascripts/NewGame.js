@@ -9,6 +9,14 @@ import {
 import Button from 'react-native-button';
 
 export default class NewGame extends React.Component {
+  static propTypes = {
+    gameInfo: React.PropTypes.object,
+    playerInfo: React.PropTypes.object,
+    joinGame: React.PropTypes.func,
+    createGame: React.PropTypes.func,
+    errorMessage: React.PropTypes.string,
+  };
+  
   constructor(props) {
     super(props);
     this.state = {
@@ -39,7 +47,7 @@ export default class NewGame extends React.Component {
           <Button
             containerStyle={styles.joinGameContainer}
             style={styles.joinGameText}
-            onPress={() => {}} >
+            onPress={() => this.props.joinGame(this.state.gameCode)} >
             Join an Existing Game
           </Button>
         </View>
@@ -48,7 +56,7 @@ export default class NewGame extends React.Component {
           <Button
             containerStyle={styles.newGameContainer}
             style={styles.newGameText}
-            onPress={() => {}} >
+            onPress={this.props.createGame} >
             + New Game
           </Button>
         </View>
