@@ -80,6 +80,13 @@ export default class GamePlay extends React.Component {
     );
   }
 
+  _submitResponse = () => {
+    this.props.submitResponse(this.state.scenario);
+    this.setState({
+      scenario: ''
+    });
+  };
+
   _scenarioSubmissionForm() {
     let buttonText = 'Submit Response';
     let helpMessage = '';
@@ -107,7 +114,7 @@ export default class GamePlay extends React.Component {
         <Button
           containerStyle={styles.buttonContainer}
           style={styles.buttonText}
-          onPress={() => this.props.submitResponse(this.state.scenario)} >
+          onPress={this._submitResponse} >
           {buttonText}
         </Button>
 
