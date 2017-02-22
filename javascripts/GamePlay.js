@@ -181,9 +181,9 @@ export default class GamePlay extends React.Component {
             round={this.props.gameInfo.round}
             gameCode={this.props.gameInfo.id.toString()} />
 
-          <View style={{flex: 1}}>
+          <View style={{flex: 1, alignItems: 'stretch'}}>
             <Image
-              style={{width: WINDOW_WIDTH - 20, height: WINDOW_HEIGHT / 2 - 60, marginBottom: 20}}
+              style={{height: WINDOW_HEIGHT / 2 - 60, marginBottom: 20}}
               resizeMode='contain'
               source={{uri: this.props.gameInfo.image}} />
           </View>
