@@ -54,13 +54,19 @@ export default class GamePlay extends React.Component {
         (this.props.gameInfo.reactorNickname + ' is choosing their favorite scenario. Hold tight!'));
   }
 
+  _renderHeaderText = () => {
+    return (
+      <ParaText style={[styles.boldText, {fontSize: 20}]}>
+        {this.props.gameInfo.reactorNickname}&#39;s response when...
+      </ParaText>
+    );
+  };
+
   _reactorWaitingForm() {
 
     return (
       <View>
-        <ParaText style={styles.boldText}>
-          {this.props.gameInfo.reactorNickname}&#39;s response when...
-        </ParaText>
+        {this._renderHeaderText()}
         <ParaText>
           Waiting for responses. Hold on tight!
         </ParaText>
@@ -86,9 +92,7 @@ export default class GamePlay extends React.Component {
 
     return (
       <View>
-        <ParaText style={styles.boldText}>
-          {this.props.gameInfo.reactorNickname}&#39;s response when...
-        </ParaText>
+        {this._renderHeaderText()}
         <View style={styles.inputView}>
           <TextInput
             style={styles.input}
@@ -147,9 +151,7 @@ export default class GamePlay extends React.Component {
     return (
       <View>
         <ParaText>{this._getInstructions()}</ParaText>
-        <ParaText style={styles.boldText}>
-          {this.props.gameInfo.reactorNickname}&#39;s response when...
-        </ParaText>
+        {this._renderHeaderText()}
         <ScenarioList
           scenarios={this.props.gameInfo.choices}
           reactorNickname={this.props.gameInfo.reactorNickname}

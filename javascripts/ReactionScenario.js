@@ -8,6 +8,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import ParaText from './ParaText';
+import COLORS from '../constants/colors';
 
 export default class ReactionScenario extends React.Component {
   static propTypes = {
@@ -25,19 +26,18 @@ export default class ReactionScenario extends React.Component {
       return this._radioChoices();
     }
     return (
-      <View style={{
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center'}}>
+      <View>
         <View style={this.props.wasChosen ? styles.selectedTextView : null}>
           <ParaText style={this.props.wasChosen ? styles.selectedText : {}}>
             {this.props.scenario}
+            <ParaText style={{color: COLORS.blue}}>
+              {this.props.wasChosen ? ' ' + this.props.submittedBy + ' +1' : null}
+            </ParaText>
+          </ParaText>
+          <ParaText style={[styles.selectedText, {position: 'absolute', right: 10, bottom: 0, backgroundColor: 'transparent'}]}>
+            {this.props.wasChosen ? this.props.submittedBy + ' +1' : null}
           </ParaText>
         </View>
-
-        <ParaText style={{fontWeight: 'bold'}}>
-          {this.props.wasChosen ? this.props.submittedBy + ' +1' : null}
-        </ParaText>
       </View>
     )
   }
@@ -47,7 +47,7 @@ export default class ReactionScenario extends React.Component {
       <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 10}}>
         <TouchableOpacity
           onPress={() => {this.props.onScenarioSelection(this.props.id)}}
-          style={styles.radioButton}>
+          style={this.props.isChecked ? styles.radioButtonChecked : styles.radioButton}>
           {this.props.isChecked ? <TouchableOpacity style={styles.radioButtonCenter} /> : null}
         </TouchableOpacity>
         <TouchableOpacity onPress={() => {this.props.onScenarioSelection(this.props.id)}}>
@@ -71,11 +71,21 @@ const styles = StyleSheet.create({
     borderColor: '#999',
     marginRight: 5
   },
+  radioButtonChecked: {
+    height: 16,
+    width: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: COLORS.blue,
+    marginRight: 5
+  },
   radioButtonCenter: {
     height: 8,
     width: 8,
     borderRadius: 4,
-    backgroundColor: '#999',
+    backgroundColor: COLORS.blue,
   },
   selectedText: {
     fontWeight: 'bold',
@@ -84,9 +94,10 @@ const styles = StyleSheet.create({
   },
   selectedTextView: {
     borderRadius: 10,
-    backgroundColor: '#2355ad',
+    backgroundColor: COLORS.blue,
     paddingLeft: 10,
     paddingRight: 10,
     marginBottom: 10,
+    flex: 1,
   }
 });
