@@ -13,7 +13,7 @@ export default class NewPlayer extends React.Component {
   static propTypes = {
     gameInfo: React.PropTypes.object,
     playerInfo: React.PropTypes.object,
-    cretePlayer: React.PropTypes.func,
+    createPlayer: React.PropTypes.func,
     errorMessage: React.PropTypes.string,
   };
 
