@@ -148,16 +148,13 @@ export default class App extends React.Component {
 
   // Compare the result from a network message to current state
   _invalidState = (res, action) => {
-    if (!res.hasOwnProperty('result') || !res.result.hasOwnProperty('gameInfo') || !res.result.hasOwnProperty('playerInfo')) {
-      return true;
-    }
-    if (this.state.gameInfo && this.state.gameInfo.hasOwnProperty('id') && action != 'leaveGame') {
+    if (res.hasOwnProperty('result') && this.state.gameInfo && this.state.gameInfo.hasOwnProperty('id') && action != 'leaveGame') {
       if (!res.result.gameInfo.hasOwnProperty('id') || res.result.gameInfo.id != this.state.gameInfo.id) {
         return true;
       }
     }
-    if (this.state.playerInfo && this.state.playerInfo.hasOwnProperty('id') && action != 'logOut') {
-      if (!res.result.playerInfo.hasOwnProperty('id') || res.result.playerInfo.id != this.state.gameInfo.id) {
+    if (res.hasOwnProperty('result') && res.result.hasOwnProperty('playerInfo') && this.state.playerInfo && this.state.playerInfo.hasOwnProperty('id') && action != 'logOut') {
+      if (!res.result.playerInfo.hasOwnProperty('id') || res.result.playerInfo.id != this.state.playerInfo.id) {
         return true;
       }
     }

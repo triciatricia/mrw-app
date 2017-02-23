@@ -52,9 +52,7 @@ export default class WaitingToStart extends React.Component {
     }
     if (this.state.isLoading && this.props.errorMessage == null) {
       button = (
-        <Button
-          containerStyle={styles.submitDisabledContainer}
-          style={styles.submitDisabledText}>
+        <Button>
           Loading...
         </Button>
       );
