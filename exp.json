@@ -1,8 +1,8 @@
 {
   "name": "mrw-app",
-  "description": "An empty new project",
+  "description": "A really fun party game!",
   "slug": "mrw-app",
-  "privacy": "public",
+  "privacy": "unlisted",
   "sdkVersion": "13.0.0",
   "version": "1.0.0",
   "orientation": "portrait",
