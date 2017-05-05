@@ -2,6 +2,7 @@ import React from 'react';
 import {
   StyleSheet,
   Text,
+  TouchableHighlight,
   View,
   Image,
 } from 'react-native';
@@ -11,6 +12,7 @@ import WaitingToStart from './WaitingToStart';
 import GamePlay from './GamePlay';
 import GameOver from './GameOver';
 import networking from './networking';
+import Settings from './Settings';
 
 const playAreas = {NewGame, NewPlayer, WaitingToStart, GamePlay, GameOver};
 
@@ -20,13 +22,18 @@ export default class App extends React.Component {
     this.state = {
       gameInfo: null,
       playerInfo: null,
-      errorMessage: null
+      errorMessage: null,
+      settingsVisible: false,
     };
   }
 
   componentWillMount() {
     this._pollGameInfo();
     setInterval(this._pollGameInfo, 1000);
+  }
+
+  _setSettingsVisible(isVisible) {
+    this.setState({settingsVisible: isVisible});
   }
 
   _getPlayAreaProps(gameStage) {
@@ -75,9 +82,18 @@ export default class App extends React.Component {
           <Image
             source={require('../images/mrw.png')}
             style={gameStage == 'NewGame' ? styles.mrwLogoLarge : styles.mrwLogoSmall} />
-          <Text>Info</Text>
-          <Text>Settings</Text>
+          <TouchableHighlight
+            underlayColor='transparent'
+            onPress={() => {
+              this._setSettingsVisible(true)
+            }} >
+            <Text>Settings</Text>
+          </TouchableHighlight>
         </View>
+        <Settings
+          setSettingsVisible={(visible) => {this._setSettingsVisible(visible)}}
+          settingsVisible={this.state.settingsVisible}
+          leaveGame={() => {this._postToServer('leaveGame')}} />
         <View style={styles.playArea}>
           <PlayArea {...props}/>
         </View>
@@ -118,7 +134,16 @@ export default class App extends React.Component {
         playerID: playerID,
         action: action,
       }, data));
-      if (res.errorMessage) {
+      // If the player wanted to leave the game, reset everything.
+      // For now, ignore what the server says since it hasn't been updated.
+      if (action == 'leaveGame') {
+        this.setState({
+          gameInfo: null,
+          playerInfo: null,
+          errorMessage: null
+        });
+        return;
+      } else if (res.errorMessage) {
         this.setState({
           errorMessage: res.errorMessage
         });
