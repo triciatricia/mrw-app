@@ -22,7 +22,7 @@ export default class Settings extends React.Component {
             <Text style={{
               fontSize: 20,
               paddingBottom: 10
-            }}>Settings</Text>
+            }}>Leave the game?</Text>
 
             <Button
               containerStyle={{
@@ -37,7 +37,7 @@ export default class Settings extends React.Component {
                 this.props.leaveGame();
                 this.props.setSettingsVisible(false);
               }} >
-              Leave Game
+              Yes, leave game
             </Button>
           </View>
 
@@ -55,7 +55,7 @@ export default class Settings extends React.Component {
                 color: colors.blue,
                 paddingTop: 10,
                 paddingBottom:10
-              }}>Close</Text>
+              }}>Cancel</Text>
             </TouchableHighlight>
           </View>
 

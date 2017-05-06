@@ -76,19 +76,27 @@ export default class App extends React.Component {
     const gameStage = this._gameStage();
     const PlayArea = playAreas[gameStage];
     const props = this._getPlayAreaProps(gameStage);
+
+    let settingsLink;
+    if (this.state.gameInfo || this.state.playerInfo) {
+      settingsLink = (
+        <TouchableHighlight
+          underlayColor='transparent'
+          onPress={() => {
+            this._setSettingsVisible(true)
+          }} >
+          <Text>Leave Game</Text>
+        </TouchableHighlight>
+      );
+    }
+
     return (
       <View style={styles.container}>
         <View style={gameStage == 'NewGame' ? styles.headerLarge : styles.headerSmall}>
           <Image
             source={require('../images/mrw.png')}
             style={gameStage == 'NewGame' ? styles.mrwLogoLarge : styles.mrwLogoSmall} />
-          <TouchableHighlight
-            underlayColor='transparent'
-            onPress={() => {
-              this._setSettingsVisible(true)
-            }} >
-            <Text>Settings</Text>
-          </TouchableHighlight>
+          {settingsLink}
         </View>
         <Settings
           setSettingsVisible={(visible) => {this._setSettingsVisible(visible)}}
