@@ -2,7 +2,7 @@
   "name": "mrw-app",
   "description": "A really fun party game!",
   "slug": "mrw-app",
-  "privacy": "unlisted",
+  "privacy": "public",
   "sdkVersion": "13.0.0",
   "version": "1.0.0",
   "orientation": "portrait",
