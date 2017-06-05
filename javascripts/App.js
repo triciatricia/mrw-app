@@ -142,22 +142,22 @@ export default class App extends React.Component {
         playerID: playerID,
         action: action,
       }, data));
-      // If the player wanted to leave the game, reset everything.
-      // For now, ignore what the server says since it hasn't been updated.
-      if (action == 'leaveGame') {
-        this.setState({
-          gameInfo: null,
-          playerInfo: null,
-          errorMessage: null
-        });
-        return;
-      } else if (res.errorMessage) {
+      if (res.errorMessage) {
         this.setState({
           errorMessage: res.errorMessage
         });
       } else {
         // Check for an invalid state
         if (this._invalidState(res, action)) {
+          return;
+        }
+        // If the player wanted to leave the game, reset everything.
+        if (action == 'leaveGame') {
+          this.setState({
+            gameInfo: null,
+            playerInfo: null,
+            errorMessage: null
+          });
           return;
         }
         if (res.result.gameInfo) {
@@ -186,10 +186,16 @@ export default class App extends React.Component {
         return true;
       }
     }
-    if (res.hasOwnProperty('result') && res.result.hasOwnProperty('playerInfo') && this.state.playerInfo && this.state.playerInfo.hasOwnProperty('id') && action != 'logOut') {
+    if (res.hasOwnProperty('result') && res.result.hasOwnProperty('playerInfo') &&
+        this.state.playerInfo && this.state.playerInfo.hasOwnProperty('id') &&
+        action != 'logOut' && action != 'leaveGame') {
       if (!res.result.playerInfo.hasOwnProperty('id') || res.result.playerInfo.id != this.state.playerInfo.id) {
         return true;
       }
+    }
+    if (res.hasOwnProperty('result') && this.state.gameInfo == null && res.result.gameInfo &&
+        action != 'joinGame' && action != 'createNewGame') {
+      return true;
     }
     return false;
   };
