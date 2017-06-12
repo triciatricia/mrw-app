@@ -1,4 +1,5 @@
 import React from 'react';
+import {SQLite} from 'expo';
 import {
   StyleSheet,
   Text,
@@ -16,6 +17,8 @@ import Settings from './Settings';
 
 const playAreas = {NewGame, NewPlayer, WaitingToStart, GamePlay, GameOver};
 
+const db = SQLite.openDatabase('db.db');
+
 export default class App extends React.Component {
   constructor(props) {
     super(props);
@@ -28,8 +31,58 @@ export default class App extends React.Component {
   }
 
   componentWillMount() {
+    // Create the sqlite tables if they haven't been created.
+    db.transaction(
+      tx => {
+        tx.executeSql(
+          'CREATE TABLE IF NOT EXISTS info (key TEXT PRIMARY KEY, value TEXT);',
+          [],
+          (tx, res) => {
+            tx.executeSql(
+              'INSERT OR IGNORE INTO info VALUES ("gameInfo", null), ("playerInfo", null), ("errorMessage", "saved");'
+            );
+          },
+          (tx, err) => {
+            console.log(err);
+            this.setState({errorMessage: 'Error accessing database'});
+          });
+      });
+
+    this._loadSavedState();
+
+    // Start polling game info
     this._pollGameInfo();
     setInterval(this._pollGameInfo, 1000);
+  }
+
+  _loadSavedState() {
+    // Load saved state from sqlite database
+    db.transaction(
+      tx => {
+        tx.executeSql(
+          'SELECT * FROM info',
+          [],
+          (tx, res) => {
+            let savedVals = {}
+            for (row in res.rows._array) {
+              savedVals[res.rows._array[row].key] = JSON.parse(res.rows._array[row].value);
+            }
+
+            console.log('Loading saved state');
+            console.log(savedVals);
+
+            this.setState({
+              gameInfo: savedVals.hasOwnProperty('gameInfo') ? savedVals.gameInfo : null,
+              playerInfo: savedVals.hasOwnProperty('playerInfo') ? savedVals.playerInfo : null,
+              errorMessage: savedVals.hasOwnProperty('errorMessage') ? savedVals.errorMessage : null,
+              settingsVisible: false,
+            });
+          },
+          (tx, err) => {
+            console.log('No saved state.');
+          }
+        );
+      });
   }
 
   _setSettingsVisible(isVisible) {
