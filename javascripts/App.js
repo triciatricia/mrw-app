@@ -85,6 +85,24 @@ export default class App extends React.Component {
       });
   }
 
+  _saveState() {
+    // Save state to sqlite database
+    this._updateSavedInfo('gameInfo', this.state.gameInfo);
+    this._updateSavedInfo('playerInfo', this.state.playerInfo);
+    this._updateSavedInfo('errorMessage', this.state.errorMessage);
+  }
+
+  _updateSavedInfo(key, value) {
+    db.transaction(
+      tx => {
+        tx.executeSql(
+          'UPDATE info SET value=? WHERE key=?',
+          [JSON.stringify(value), key],
+          (tx, res) => {},
+          (tx, err) => {console.log('Error saving state.')});
+      });
+  }
+
   _setSettingsVisible(isVisible) {
     this.setState({settingsVisible: isVisible});
   }
@@ -211,13 +229,16 @@ export default class App extends React.Component {
             playerInfo: null,
             errorMessage: null
           });
+          this._saveState();
           return;
         }
         if (res.result.gameInfo) {
           this.setState({gameInfo: res.result.gameInfo});
+          this._saveState();
         }
         if (res.result.playerInfo) {
           this.setState({playerInfo: res.result.playerInfo});
+          this._saveState();
         }
         if (action != 'getGameInfo') {
           this.setState({
