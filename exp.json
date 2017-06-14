@@ -7,9 +7,9 @@
   "version": "1.0.0",
   "orientation": "portrait",
   "primaryColor": "#cccccc",
-  "icon": "https://s3.amazonaws.com/exp-brand-assets/ExponentEmptyManifest_192.png",
+  "icon": "images/mrw_face.png",
   "loading": {
-    "icon": "https://s3.amazonaws.com/exp-brand-assets/ExponentEmptyManifest_192.png",
+    "icon": "images/mrw_face.png",
     "hideExponentText": false
   },
   "packagerOpts": {
