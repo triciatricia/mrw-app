@@ -39,7 +39,7 @@ export default class App extends React.Component {
           [],
           (tx, res) => {
             tx.executeSql(
-              'INSERT OR IGNORE INTO info VALUES ("gameInfo", null), ("playerInfo", null), ("errorMessage", "saved");'
+              'INSERT OR IGNORE INTO info VALUES ("gameInfo", null), ("playerInfo", null), ("errorMessage", null);'
             );
           },
           (tx, err) => {
