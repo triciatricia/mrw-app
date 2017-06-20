@@ -46,7 +46,8 @@ export default class App extends React.Component {
             console.log(err);
             this.setState({errorMessage: 'Error accessing database'});
           });
-      });
+      },
+      err => console.log(err));
 
     this._loadSavedState();
 
@@ -64,8 +65,15 @@ export default class App extends React.Component {
           [],
           (tx, res) => {
             let savedVals = {}
-            for (row in res.rows._array) {
-              savedVals[res.rows._array[row].key] = JSON.parse(res.rows._array[row].value);
+            try {
+              for (row in res.rows._array) {
+                savedVals[res.rows._array[row].key] = JSON.parse(res.rows._array[row].value);
+              }
+            } catch (err) {
+              console.log('Error processing saved data.');
+              console.log(err);
+              this.setState({errorMessage: 'Error processing saved data.'});
+              return;
             }
 
             console.log('Loading saved state');
@@ -82,7 +90,8 @@ export default class App extends React.Component {
             console.log('No saved state.');
           }
         );
-      });
+    },
+    err => console.log(err));
   }
 
   _saveState() {
