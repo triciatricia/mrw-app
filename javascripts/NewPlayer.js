@@ -42,7 +42,7 @@ export default class NewPlayer extends React.Component {
           <Button
             containerStyle={styles.submitContainer}
             style={styles.submitText}
-            onPress={() => this.props.createPlayer(this.state.nickname)} >
+            onPress={() => this.props.createPlayer(this.state.nickname.trim())} >
             Submit Nickname
           </Button>
           <ErrorMessage errorMessage={this.props.errorMessage} />

@@ -48,7 +48,7 @@ export default class NewGame extends React.Component {
           <Button
             containerStyle={styles.joinGameContainer}
             style={styles.joinGameText}
-            onPress={() => this.props.joinGame(this.state.gameCode)} >
+            onPress={() => this.props.joinGame(this.state.gameCode.trim())} >
             Join an Existing Game
           </Button>
           <ErrorMessage errorMessage={this.props.errorMessage} />
