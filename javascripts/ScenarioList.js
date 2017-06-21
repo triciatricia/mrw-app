@@ -13,7 +13,7 @@ export default class ScenarioList extends React.Component {
   static propTypes = {
     scenarios: React.PropTypes.object,
     reactorNickname: React.PropTypes.string,
-    winningResponse: React.PropTypes.number,
+    winningResponse: React.PropTypes.string,
     winningResponseSubmittedBy: React.PropTypes.string,
     isReactor: React.PropTypes.bool,
     chooseScenario: React.PropTypes.func,
