@@ -283,7 +283,7 @@ export default class App extends React.Component {
         // Check for an invalid state
         if (this._invalidState(res, action)) {
           this._setSentryContext();
-          Sentry.captureMessage('postToServer response invalid state: ', {
+          Sentry.captureMessage('postToServer response invalid state: ' + action, {
             level: action === 'leaveGame' ? 'info' : 'warning',
             extra: res
           });
