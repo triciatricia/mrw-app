@@ -17,5 +17,17 @@
   },
   "ios": {
     "supportsTablet": true
+  },
+  "hooks": {
+    "postPublish": [
+      {
+        "file": "sentry-expo/upload-sourcemaps",
+        "config": {
+          "organization": "tricia",
+          "project": "mrw-app",
+          "authToken": "140fd1df7b764ef79947e7085df59350d7b33710163a42919cb1e6a2b3f56543"
+        }
+      }
+    ]
   }
 }
