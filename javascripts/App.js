@@ -7,6 +7,7 @@ import {
   View,
   Image,
 } from 'react-native';
+import Sentry from 'sentry-expo';
 import NewGame from './NewGame';
 import NewPlayer from './NewPlayer';
 import WaitingToStart from './WaitingToStart';
@@ -85,6 +86,8 @@ export default class App extends React.Component {
               errorMessage: savedVals.hasOwnProperty('errorMessage') ? savedVals.errorMessage : null,
               settingsVisible: false,
             });
+
+            this._setSentryContext();
           },
           (tx, err) => {
             console.log('No saved state.');
@@ -99,6 +102,7 @@ export default class App extends React.Component {
     this._updateSavedInfo('gameInfo', this.state.gameInfo);
     this._updateSavedInfo('playerInfo', this.state.playerInfo);
     this._updateSavedInfo('errorMessage', this.state.errorMessage);
+    this._setSentryContext();
   }
 
   _updateSavedInfo(key, value) {
@@ -114,6 +118,41 @@ export default class App extends React.Component {
 
   _setSettingsVisible(isVisible) {
     this.setState({settingsVisible: isVisible});
+  }
+
+  _redactPlayerInfo() {
+    // Remove the response.
+    let redactedPlayerInfo = Object.assign({}, this.state.playerInfo);
+    if (redactedPlayerInfo.hasOwnProperty('response') && redactedPlayerInfo.response) {
+      redactedPlayerInfo.response = 'hidden';
+    }
+    return redactedPlayerInfo;
+  }
+
+  _redactGameInfo() {
+    // Remove choices
+    let redactedGameInfo = Object.assign({}, this.state.gameInfo);
+
+    if (redactedGameInfo.hasOwnProperty('choices') && redactedGameInfo.choices) {
+      redactedGameInfo.choices = Object.assign({}, this.state.gameInfo.choices);
+      for (let i in redactedGameInfo.choices) {
+        redactedGameInfo.choices[i] = 'hidden';
+      }
+    }
+
+    return redactedGameInfo;
+  }
+
+  _setSentryContext() {
+    Sentry.setUserContext({
+      id: this.state.playerInfo && this.state.playerInfo.hasOwnProperty('id') ? this.state.playerInfo.id : null
+    });
+    Sentry.setExtraContext({
+      playerInfo: this._redactPlayerInfo(),
+      gameInfo: this._redactGameInfo(),
+      errorMessage: this.state.errorMessage,
+      settingsVisible: this.state.settingsVisible
+    });
   }
 
   _getPlayAreaProps(gameStage) {
@@ -217,6 +256,16 @@ export default class App extends React.Component {
       let gameID = (
         (this.state.gameInfo && this.state.gameInfo.hasOwnProperty('id'))
         ? this.state.gameInfo.id : null);
+
+      // Log actions
+      if (action !== 'getGameInfo') {
+        this._setSentryContext();
+        Sentry.captureMessage('postToServer action: ' + action, {
+          level: 'info',
+          tags: {type: 'postToServer_action'}
+        });
+      }
+
       const res = await networking.postToServer(Object.assign({
         gameID: gameID,
         playerID: playerID,
@@ -226,9 +275,18 @@ export default class App extends React.Component {
         this.setState({
           errorMessage: res.errorMessage
         });
+        this._setSentryContext();
+        Sentry.captureMessage('Error message set: ' + res.errorMessage, {
+          level: 'info'
+        });
       } else {
         // Check for an invalid state
         if (this._invalidState(res, action)) {
+          this._setSentryContext();
+          Sentry.captureMessage('postToServer response invalid state: ', {
+            level: action === 'leaveGame' ? 'info' : 'warning',
+            extra: res
+          });
           return;
         }
         // If the player wanted to leave the game, reset everything.
