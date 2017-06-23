@@ -26,6 +26,11 @@ export default class NewGame extends React.Component {
   }
 
   render() {
+    const joinGameBackground = this.state.gameCode === '' ? '#eee' : '#4472C4';
+    const joinGameTextColor = this.state.gameCode === '' ? '#333' : '#fff';
+    const newGameBackground = this.state.gameCode === '' ? '#4472C4' : '#eee';
+    const newGameTextColor = this.state.gameCode === '' ? '#fff' : '#333';
+
     return (
       <View style={styles.main}>
         <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
@@ -46,8 +51,8 @@ export default class NewGame extends React.Component {
               underlineColorAndroid='transparent' />
           </View>
           <Button
-            containerStyle={styles.joinGameContainer}
-            style={styles.joinGameText}
+            containerStyle={[styles.joinGameContainer, {backgroundColor: joinGameBackground}]}
+            style={[styles.joinGameText, {color: joinGameTextColor}]}
             onPress={() => this.props.joinGame(this.state.gameCode.trim())} >
             Join an Existing Game
           </Button>
@@ -56,8 +61,8 @@ export default class NewGame extends React.Component {
 
         <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
           <Button
-            containerStyle={styles.newGameContainer}
-            style={styles.newGameText}
+            containerStyle={[styles.newGameContainer, {backgroundColor: newGameBackground}]}
+            style={[styles.newGameText, {color: newGameTextColor}]}
             onPress={this.props.createGame} >
             + New Game
           </Button>
