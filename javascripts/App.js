@@ -393,7 +393,7 @@ const styles = StyleSheet.create({
   headerSmall: {
     paddingLeft: 20,
     paddingRight: 20,
-    paddingTop: 40,
+    paddingTop: 45,
     paddingBottom: 20,
     alignItems: 'center',
     height: 70,
