@@ -57,6 +57,8 @@ export default class WaitingToStart extends React.Component {
         </Button>
       );
     }
+    const playersJoinedMessage = (this._nPlayers() + ' player' +
+      (this._nPlayers() === 1 ? ' has' : 's have') + ' joined...');
     return (
       <View style={styles.main}>
         <Text style={{fontSize: 40, paddingBottom: 10}}>
@@ -74,7 +76,7 @@ export default class WaitingToStart extends React.Component {
         </View>
 
         <Text style={{fontSize: 16, color: '#666'}}>
-          {this._nPlayers()} players have joined...
+          {playersJoinedMessage}
         </Text>
 
         {button}
