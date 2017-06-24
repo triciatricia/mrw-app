@@ -53,7 +53,7 @@ class ScenarioListForm extends React.Component {
   _renderHeaderText = () => {
     return (
       <ParaText style={[styles.boldText, {fontSize: 20}]}>
-        {this.props.gameInfo.reactorNickname}&#39;s response when...
+        {this.props.gameInfo.reactorNickname}&#39;s reaction when...
       </ParaText>
     );
   };
@@ -142,7 +142,7 @@ export default class GamePlay extends React.Component {
   _renderHeaderText = () => {
     return (
       <ParaText style={[styles.boldText, {fontSize: 20}]}>
-        {this.props.gameInfo.reactorNickname}&#39;s response when...
+        {this.props.gameInfo.reactorNickname}&#39;s reaction when...
       </ParaText>
     );
   };
