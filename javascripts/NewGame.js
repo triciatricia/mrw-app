@@ -34,7 +34,8 @@ export default class NewGame extends React.Component {
 
     return (
       <View style={styles.main}>
-        <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+
+        <View style={{flex: 0.7, alignItems: 'center', justifyContent: 'center'}}>
           <Text style={styles.h1Text}>Hello!</Text>
           <Text style={styles.pText}>Are you ready to react?</Text>
         </View>
