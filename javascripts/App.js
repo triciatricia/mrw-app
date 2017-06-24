@@ -53,7 +53,11 @@ export default class App extends React.Component {
       },
       err => console.log(err));
 
-    this._loadSavedState();
+    try {
+      this._loadSavedState();
+    } catch (err) {
+      this.setState({appIsReady: true});
+    }
 
     // Start polling game info
     this._pollGameInfo();
