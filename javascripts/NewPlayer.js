@@ -6,6 +6,7 @@ import {
   TextInput,
   Platform,
   Keyboard,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import Button from 'react-native-button';
 import ErrorMessage from './ErrorMessage';
@@ -27,31 +28,33 @@ export default class NewPlayer extends React.Component {
 
   render() {
     return (
-      <View style={styles.main}>
-        <View style={{flex: 1, justifyContent: 'center'}}>
-          <View style={styles.inputView}>
-            <TextInput
-              style={styles.input}
-              placeholder='What do you want to be called?'
-              onChangeText={(text) => this.setState({nickname: text})}
-              value={this.state.nickname}
-              autoCorrect={false}
-              autoCapitalize='words'
-              maxLength={35}
-              underlineColorAndroid='transparent' />
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.main}>
+          <View style={{flex: 1, justifyContent: 'center'}}>
+            <View style={styles.inputView}>
+              <TextInput
+                style={styles.input}
+                placeholder='What do you want to be called?'
+                onChangeText={(text) => this.setState({nickname: text})}
+                value={this.state.nickname}
+                autoCorrect={false}
+                autoCapitalize='words'
+                maxLength={35}
+                underlineColorAndroid='transparent' />
+            </View>
+            <Button
+              containerStyle={styles.submitContainer}
+              style={styles.submitText}
+              onPress={() => {
+                Keyboard.dismiss();
+                this.props.createPlayer(this.state.nickname.trim());
+              }} >
+              Submit Nickname
+            </Button>
+            <ErrorMessage errorMessage={this.props.errorMessage} />
           </View>
-          <Button
-            containerStyle={styles.submitContainer}
-            style={styles.submitText}
-            onPress={() => {
-              Keyboard.dismiss();
-              this.props.createPlayer(this.state.nickname.trim());
-            }} >
-            Submit Nickname
-          </Button>
-          <ErrorMessage errorMessage={this.props.errorMessage} />
         </View>
-      </View>
+      </TouchableWithoutFeedback>
     );
   }
 }

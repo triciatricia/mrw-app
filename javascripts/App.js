@@ -6,8 +6,6 @@ import {
   TouchableHighlight,
   View,
   Image,
-  TouchableWithoutFeedback,
-  Keyboard,
 } from 'react-native';
 import Sentry from 'sentry-expo';
 import NewGame from './NewGame';
@@ -229,7 +227,6 @@ export default class App extends React.Component {
     }
 
     return (
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.container}>
           <View style={gameStage == 'NewGame' ? styles.headerLarge : styles.headerSmall}>
             <Image
@@ -245,7 +242,6 @@ export default class App extends React.Component {
             <PlayArea {...props}/>
           </View>
         </View>
-      </TouchableWithoutFeedback>
     );
   }
 

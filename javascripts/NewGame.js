@@ -6,6 +6,7 @@ import {
   TextInput,
   Platform,
   Keyboard,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import Button from 'react-native-button';
 import ErrorMessage from './ErrorMessage';
@@ -33,46 +34,47 @@ export default class NewGame extends React.Component {
     const newGameTextColor = this.state.gameCode === '' ? '#fff' : '#333';
 
     return (
-      <View style={styles.main}>
-
-        <View style={{flex: 0.7, alignItems: 'center', justifyContent: 'center'}}>
-          <Text style={styles.h1Text}>Hello!</Text>
-          <Text style={styles.pText}>Are you ready to react?</Text>
-        </View>
-
-        <View style={{flex: 1, justifyContent: 'center'}}>
-          <View style={styles.inputView}>
-            <TextInput
-              style={styles.input}
-              placeholder='Enter game code:'
-              onChangeText={(text) => this.setState({gameCode: text})}
-              value={this.state.gameCode}
-              autoCorrect={false}
-              autoCapitalize='characters'
-              keyboardType={Platform.OS === 'android' ? 'numeric' : 'numbers-and-punctuation'}
-              underlineColorAndroid='transparent' />
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.main}>
+          <View style={{flex: 0.7, alignItems: 'center', justifyContent: 'center'}}>
+            <Text style={styles.h1Text}>Hello!</Text>
+            <Text style={styles.pText}>Are you ready to react?</Text>
           </View>
-          <Button
-            containerStyle={[styles.joinGameContainer, {backgroundColor: joinGameBackground}]}
-            style={[styles.joinGameText, {color: joinGameTextColor}]}
-            onPress={() => {
-              Keyboard.dismiss();
-              this.props.joinGame(this.state.gameCode.trim());
-            }} >
-            Join an Existing Game
-          </Button>
-          <ErrorMessage errorMessage={this.props.errorMessage} />
-        </View>
 
-        <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-          <Button
-            containerStyle={[styles.newGameContainer, {backgroundColor: newGameBackground}]}
-            style={[styles.newGameText, {color: newGameTextColor}]}
-            onPress={this.props.createGame} >
-            + New Game
-          </Button>
+          <View style={{flex: 1, justifyContent: 'center'}}>
+            <View style={styles.inputView}>
+              <TextInput
+                style={styles.input}
+                placeholder='Enter game code:'
+                onChangeText={(text) => this.setState({gameCode: text})}
+                value={this.state.gameCode}
+                autoCorrect={false}
+                autoCapitalize='characters'
+                keyboardType={Platform.OS === 'android' ? 'numeric' : 'numbers-and-punctuation'}
+                underlineColorAndroid='transparent' />
+            </View>
+            <Button
+              containerStyle={[styles.joinGameContainer, {backgroundColor: joinGameBackground}]}
+              style={[styles.joinGameText, {color: joinGameTextColor}]}
+              onPress={() => {
+                Keyboard.dismiss();
+                this.props.joinGame(this.state.gameCode.trim());
+              }} >
+              Join an Existing Game
+            </Button>
+            <ErrorMessage errorMessage={this.props.errorMessage} />
+          </View>
+
+          <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+            <Button
+              containerStyle={[styles.newGameContainer, {backgroundColor: newGameBackground}]}
+              style={[styles.newGameText, {color: newGameTextColor}]}
+              onPress={this.props.createGame} >
+              + New Game
+            </Button>
+          </View>
         </View>
-      </View>
+      </TouchableWithoutFeedback>
     );
   }
 }
