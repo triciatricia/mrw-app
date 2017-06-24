@@ -157,16 +157,20 @@ export default class App extends React.Component {
     return redactedGameInfo;
   }
 
-  _setSentryContext() {
-    Sentry.setUserContext({
-      id: this.state.playerInfo && this.state.playerInfo.hasOwnProperty('id') ? this.state.playerInfo.id : null
-    });
-    Sentry.setExtraContext({
+  _redactedStateData() {
+    return {
       playerInfo: this._redactPlayerInfo(),
       gameInfo: this._redactGameInfo(),
       errorMessage: this.state.errorMessage,
       settingsVisible: this.state.settingsVisible
+    };
+  }
+
+  _setSentryContext() {
+    Sentry.setUserContext({
+      id: this.state.playerInfo && this.state.playerInfo.hasOwnProperty('id') ? this.state.playerInfo.id : null
     });
+    Sentry.setExtraContext(this._redactedStateData());
   }
 
   _getPlayAreaProps(gameStage) {
@@ -287,11 +291,18 @@ export default class App extends React.Component {
         ? this.state.gameInfo.id : null);
 
       // Log actions
-      if (action !== 'getGameInfo') {
+      if (action === 'submitResponse' || action === 'joinGame' || action === 'leaveGame') {
         this._setSentryContext();
         Sentry.captureMessage('postToServer action: ' + action, {
           level: 'info',
           tags: {type: 'postToServer_action'}
+        });
+      } else if (action !== 'getGameInfo') {
+        this._setSentryContext();
+        Sentry.captureBreadcrumb({
+          message: 'postToServer action: ' + action,
+          category: 'action',
+          data: this._redactedStateData()
         });
       }
 
