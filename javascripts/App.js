@@ -15,6 +15,7 @@ import GamePlay from './GamePlay';
 import GameOver from './GameOver';
 import networking from './networking';
 import Settings from './Settings';
+import Button from 'react-native-button';
 
 const playAreas = {NewGame, NewPlayer, WaitingToStart, GamePlay, GameOver};
 
@@ -216,13 +217,24 @@ export default class App extends React.Component {
     let settingsLink;
     if (this.state.gameInfo || this.state.playerInfo) {
       settingsLink = (
-        <TouchableHighlight
-          underlayColor='transparent'
+        <Button
+          containerStyle={{
+            padding: 6,
+            overflow: 'hidden',
+            borderRadius: 8,
+            backgroundColor: '#fff',
+            width: 120,
+            height: 30,
+          }}
+          style={{
+            fontSize: 14,
+            color: '#333',
+          }}
           onPress={() => {
             this._setSettingsVisible(true)
           }} >
-          <Text>Leave Game</Text>
-        </TouchableHighlight>
+          Leave Game
+        </Button>
       );
     }
 
