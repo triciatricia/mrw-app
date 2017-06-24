@@ -1,5 +1,5 @@
 import React from 'react';
-import {SQLite} from 'expo';
+import {SQLite, AppLoading} from 'expo';
 import {
   StyleSheet,
   Text,
@@ -30,10 +30,11 @@ export default class App extends React.Component {
       playerInfo: null,
       errorMessage: null,
       settingsVisible: false,
+      appIsReady: false,
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     // Create the sqlite tables if they haven't been created.
     db.transaction(
       tx => {
@@ -75,7 +76,10 @@ export default class App extends React.Component {
             } catch (err) {
               console.log('Error processing saved data.');
               console.log(err);
-              this.setState({errorMessage: 'Error processing saved data.'});
+              this.setState({
+                errorMessage: 'Error processing saved data.',
+                appIsReady: true,
+              });
               return;
             }
 
@@ -87,16 +91,21 @@ export default class App extends React.Component {
               playerInfo: savedVals.hasOwnProperty('playerInfo') ? savedVals.playerInfo : null,
               errorMessage: savedVals.hasOwnProperty('errorMessage') ? savedVals.errorMessage : null,
               settingsVisible: false,
+              appIsReady: true,
             });
 
             this._setSentryContext();
           },
           (tx, err) => {
             console.log('No saved state.');
+            this.setState({appIsReady: true});
           }
         );
     },
-    err => console.log(err));
+    err => {
+      console.log(err);
+      this.setState({appIsReady: true});
+    });
   }
 
   _saveState() {
@@ -194,6 +203,10 @@ export default class App extends React.Component {
   }
 
   render() {
+    if (!this.state.appIsReady) {
+      return <AppLoading />;
+    }
+
     const gameStage = this._gameStage();
     const PlayArea = playAreas[gameStage];
     const props = this._getPlayAreaProps(gameStage);
