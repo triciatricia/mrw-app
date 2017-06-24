@@ -32,8 +32,8 @@ export default class ScenarioList extends React.Component {
     if (this.props.isReactor && this.props.winningResponse == null) {
       button = (
         <Button
-          containerStyle={styles.buttonContainer}
-          style={styles.buttonText}
+          containerStyle={[styles.buttonContainer, {backgroundColor: this.state.selectedScenario ? '#4472C4' : '#eee'}]}
+          style={[styles.buttonText, {color: this.state.selectedScenario ? '#fff' : '#333'}]}
           onPress={() => this.props.chooseScenario(this.state.selectedScenario)} >
           Submit
           </Button>

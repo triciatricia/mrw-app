@@ -181,6 +181,8 @@ export default class GamePlay extends React.Component {
       helpMessage = 'Your response is in!';
       placeholder = this.props.playerInfo.response;
     }
+    const responseChanged = (this.state.scenario.trim() === '' ||
+      this.state.scenario.trim() === this.props.playerInfo.response);
 
     return (
       <View>
@@ -197,8 +199,8 @@ export default class GamePlay extends React.Component {
         </View>
 
         <Button
-          containerStyle={styles.buttonContainer}
-          style={styles.buttonText}
+          containerStyle={[styles.buttonContainer, {backgroundColor: responseChanged ? '#eee' : '#4472C4'}]}
+          style={[styles.buttonText, {color: responseChanged ? '#333' : '#fff'}]}
           onPress={this._submitResponse} >
           {buttonText}
         </Button>
