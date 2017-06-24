@@ -5,6 +5,7 @@ import {
   View,
   TextInput,
   Platform,
+  Keyboard,
 } from 'react-native';
 import Button from 'react-native-button';
 import ErrorMessage from './ErrorMessage';
@@ -42,7 +43,10 @@ export default class NewPlayer extends React.Component {
           <Button
             containerStyle={styles.submitContainer}
             style={styles.submitText}
-            onPress={() => this.props.createPlayer(this.state.nickname.trim())} >
+            onPress={() => {
+              Keyboard.dismiss();
+              this.props.createPlayer(this.state.nickname.trim());
+            }} >
             Submit Nickname
           </Button>
           <ErrorMessage errorMessage={this.props.errorMessage} />

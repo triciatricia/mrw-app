@@ -5,6 +5,7 @@ import {
   View,
   TextInput,
   Platform,
+  Keyboard,
 } from 'react-native';
 import Button from 'react-native-button';
 import ErrorMessage from './ErrorMessage';
@@ -53,7 +54,10 @@ export default class NewGame extends React.Component {
           <Button
             containerStyle={[styles.joinGameContainer, {backgroundColor: joinGameBackground}]}
             style={[styles.joinGameText, {color: joinGameTextColor}]}
-            onPress={() => this.props.joinGame(this.state.gameCode.trim())} >
+            onPress={() => {
+              Keyboard.dismiss();
+              this.props.joinGame(this.state.gameCode.trim());
+            }} >
             Join an Existing Game
           </Button>
           <ErrorMessage errorMessage={this.props.errorMessage} />

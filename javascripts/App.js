@@ -6,6 +6,8 @@ import {
   TouchableHighlight,
   View,
   Image,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from 'react-native';
 import Sentry from 'sentry-expo';
 import NewGame from './NewGame';
@@ -210,21 +212,23 @@ export default class App extends React.Component {
     }
 
     return (
-      <View style={styles.container}>
-        <View style={gameStage == 'NewGame' ? styles.headerLarge : styles.headerSmall}>
-          <Image
-            source={require('../images/mrw.png')}
-            style={gameStage == 'NewGame' ? styles.mrwLogoLarge : styles.mrwLogoSmall} />
-          {settingsLink}
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.container}>
+          <View style={gameStage == 'NewGame' ? styles.headerLarge : styles.headerSmall}>
+            <Image
+              source={require('../images/mrw.png')}
+              style={gameStage == 'NewGame' ? styles.mrwLogoLarge : styles.mrwLogoSmall} />
+            {settingsLink}
+          </View>
+          <Settings
+            setSettingsVisible={(visible) => {this._setSettingsVisible(visible)}}
+            settingsVisible={this.state.settingsVisible}
+            leaveGame={() => {this._postToServer('leaveGame')}} />
+          <View style={styles.playArea}>
+            <PlayArea {...props}/>
+          </View>
         </View>
-        <Settings
-          setSettingsVisible={(visible) => {this._setSettingsVisible(visible)}}
-          settingsVisible={this.state.settingsVisible}
-          leaveGame={() => {this._postToServer('leaveGame')}} />
-        <View style={styles.playArea}>
-          <PlayArea {...props}/>
-        </View>
-      </View>
+      </TouchableWithoutFeedback>
     );
   }
 

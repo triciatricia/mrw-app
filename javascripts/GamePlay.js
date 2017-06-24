@@ -227,7 +227,7 @@ export default class GamePlay extends React.Component {
     }
 
     return (
-      <ScrollView style={styles.main}>
+      <ScrollView style={styles.main} keyboardShouldPersistTaps='handled'>
         <KeyboardAvoidingView behavior='position' contentContainerStyle={{paddingBottom: 40}}>
           <GameStatusBar
             nickname={this.props.playerInfo.nickname}
