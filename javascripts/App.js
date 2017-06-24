@@ -382,10 +382,12 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     paddingRight: 20,
     paddingTop: 40,
+    paddingBottom: 20,
     alignItems: 'center',
     height: 70,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    backgroundColor: '#eee',
   },
   mrwLogoSmall: {
     width: 85,
