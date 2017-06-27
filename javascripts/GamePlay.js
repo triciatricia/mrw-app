@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import Button from 'react-native-button';
 import ErrorMessage from './ErrorMessage';
+import Gif from './Gif';
 import ParaText from './ParaText';
 import ScenarioList from './ScenarioList';
 import GameStatusBar from './GameStatusBar';
@@ -237,21 +238,14 @@ export default class GamePlay extends React.Component {
             round={this.props.gameInfo.round}
             gameCode={this.props.gameInfo.id.toString()} />
 
-          <View style={{flex: 1, alignItems: 'stretch', justifyContent: 'center'}}>
-            <Text style={{
-              fontSize: 16,
-              textAlign: 'center',
-              position: 'absolute',
-              width: WINDOW_WIDTH - 40,
-              padding: 10
-            }}>
-              Loading image...
-            </Text>
-            <Image
-              style={{height: WINDOW_HEIGHT / 2 - 60, marginBottom: 20}}
-              resizeMode='contain'
-              source={{uri: this.props.gameInfo.image}} />
-          </View>
+          <Gif
+            style={{flex: 1, alignItems: 'stretch', justifyContent: 'center'}}
+            width={WINDOW_WIDTH - 40}
+            fontSize={16}
+            textPadding={10}
+            height={WINDOW_HEIGHT / 2 - 60}
+            marginBottom={20}
+            sourceURI={this.props.gameInfo.image} />
 
           {responseForm}
 
