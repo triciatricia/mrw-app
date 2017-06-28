@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "mrw-app",
+    "description": "A really fun party game!",
+    "slug": "mrw-app",
+    "privacy": "public",
+    "sdkVersion": "18.0.0",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "primaryColor": "#cccccc",
+    "icon": "images/mrw_face.png",
+    "loading": {
+      "icon": "images/mrw_face.png",
+      "hideExponentText": false
+    },
+    "packagerOpts": {
+      "assetExts": ["ttf", "mp4"]
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "hooks": {
+      "postPublish": [
+        {
+          "file": "sentry-expo/upload-sourcemaps",
+          "config": {
+            "organization": "tricia",
+            "project": "mrw-app",
+            "authToken": "140fd1df7b764ef79947e7085df59350d7b33710163a42919cb1e6a2b3f56543"
+          }
+        }
+      ]
+    }
+  }
+}
