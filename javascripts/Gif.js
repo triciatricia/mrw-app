@@ -10,11 +10,16 @@ export default class Gif extends React.Component {
     super(props);
     this.state = {
       imageLoading: true,
+      mounted: false,
     };
   }
 
   componentWillMount() {
     this._loadImage(this.props.sourceURI);
+  }
+
+  componentDidMount() {
+    this.setState({mounted: true});
   }
 
   componentWillReceiveProps(nextProps) {
@@ -26,9 +31,15 @@ export default class Gif extends React.Component {
     }
   }
 
+  componentWillUnmount() {
+    this.setState({mounted: false});
+  }
+
   async _loadImage(URI) {
     await Image.prefetch(URI);
-    this.setState({imageLoading: false});
+    if (this.state.mounted) {
+      this.setState({imageLoading: false});
+    }
   }
 
   render() {
