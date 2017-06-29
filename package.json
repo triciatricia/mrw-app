@@ -13,6 +13,6 @@
     "sentry-expo": "^1.0.2"
   },
   "devDependencies": {
-    "react-native-button": "^1.8.2"
+    "react-native-button": "^2.0.0"
   }
 }
