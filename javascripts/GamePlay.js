@@ -130,12 +130,12 @@ class ScenarioListForm extends React.Component {
 type propTypes = {
   gameInfo: GameInfo,
   playerInfo: PlayerInfo,
-  submitResponse: (scenario: string) => void,
-  chooseScenario: (choiceID: string) => void,
-  nextRound: () => void,
-  endGame: () => void,
-  skipImage: () => void,
-  errorMessage: string,
+  submitResponse: (scenario: string) => Promise<void>,
+  chooseScenario: (choiceID: string) => Promise<void>,
+  nextRound: () => Promise<void>,
+  endGame: () => Promise<void>,
+  skipImage: () => Promise<void>,
+  errorMessage: ?string,
 };
 
 export default class GamePlay extends React.Component {

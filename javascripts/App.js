@@ -236,42 +236,40 @@ export default class App extends React.Component {
   }
 
   _getPlayArea = () => {
+    const gameInfo = this.state.gameInfo;
+    const playerInfo = this.state.playerInfo;
+    const errorMessage = this.state.errorMessage;
     const sharedProps = {
       gameInfo: this.state.gameInfo,
       playerInfo: this.state.playerInfo,
       errorMessage: this.state.errorMessage,
     };
 
-    if (sharedProps.gameInfo == null) {
+    if (this.state.gameInfo == null) {
       return (
         <NewGame
           joinGame={(gameCode: string) => this._postToServer('joinGame', {gameCode})}
           createGame={() => this._postToServer('createNewGame')}
-          {...sharedProps} />
+          errorMessage={this.state.errorMessage} />
       );
     }
-    if (sharedProps.playerInfo == null) {
+    if (this.state.playerInfo == null) {
       return (
         <NewPlayer
           createPlayer={
             (nickname: string) => this._postToServer('createPlayer', {nickname})
           }
-          {...sharedProps} />
+          errorMessage={this.state.errorMessage} />
       );
     }
-    if (this.state.gameInfo.round) {
+    const round = this.state.gameInfo.round;
+    if (round != null) {
       const chooseScenario = (choiceID) => this._postToServer(
         'chooseScenario',
-        {
-          choiceID: choiceID,
-          round: this.state.gameInfo.round
-        });
+        { choiceID, round });
       const submitResponse = (response: string) => this._postToServer(
         'submitResponse',
-        {
-          round: this.state.gameInfo.round,
-          response: response
-        });
+        { round, response });
 
       return (
         <GamePlay
@@ -280,20 +278,26 @@ export default class App extends React.Component {
           nextRound={() => this._postToServer('nextRound')}
           endGame={() => this._postToServer('endGame')}
           skipImage={() => this._postToServer('skipImage')}
-          {...sharedProps} />
+          gameInfo={this.state.gameInfo}
+          playerInfo={this.state.playerInfo}
+          errorMessage={this.state.errorMessage} />
       );
     }
     if (this.state.gameInfo.gameOver) {
       return (
         <GameOver
           startGame={() => this._postToServer('startGame')}
-          {...sharedProps} />
+          gameInfo={this.state.gameInfo}
+          playerInfo={this.state.playerInfo}
+          errorMessage={this.state.errorMessage} />
       );
     }
     return (
       <WaitingToStart
         startGame={() => this._postToServer('startGame')}
-        {...sharedProps} />
+        gameInfo={this.state.gameInfo}
+        playerInfo={this.state.playerInfo}
+        errorMessage={this.state.errorMessage} />
     );
   };
 
@@ -326,11 +330,16 @@ export default class App extends React.Component {
         });
       }
 
-      const res = await networking.postToServer(Object.assign({
+      let postData = {};
+      Object.assign(postData, {
         gameID: gameID,
         playerID: playerID,
         action: action,
-      }, data));
+      });
+      Object.assign(postData, data);
+
+      const res = await networking.postToServer(postData);
+
       if (res.errorMessage) {
         this.setState({
           errorMessage: res.errorMessage
@@ -359,11 +368,11 @@ export default class App extends React.Component {
           this._saveState();
           return;
         }
-        if (res.result.gameInfo) {
+        if (res.result.hasOwnProperty('gameInfo') && res.result.gameInfo) {
           this.setState({gameInfo: res.result.gameInfo});
           this._saveState();
         }
-        if (res.result.playerInfo) {
+        if (res.result.hasOwnProperty('playerInfo') && res.result.playerInfo) {
           this.setState({playerInfo: res.result.playerInfo});
           this._saveState();
         }
@@ -374,27 +383,39 @@ export default class App extends React.Component {
         }
       }
     } catch(error) {
+      console.log(error);
       this.setState({
-        errorMesage: 'Error communicating to server'
+        errorMessage: 'Error communicating to server'
       });
     }
   };
 
   // Compare the result from a network message to current state
   _invalidState = (res, action) => {
-    if (res.hasOwnProperty('result') && this.state.gameInfo && this.state.gameInfo.hasOwnProperty('id') && action != 'leaveGame') {
-      if (!res.result.gameInfo.hasOwnProperty('id') || res.result.gameInfo.id != this.state.gameInfo.id) {
-        return true;
-      }
+    if (!res.hasOwnProperty('result')) {
+      return true;
+    }
+    const gameInfo = this.state.gameInfo;
+    const playerInfo = this.state.playerInfo;
+    if (
+      action != 'leaveGame' &&
+      res.hasOwnProperty('result') &&
+      res.result.gameInfo &&
+      gameInfo != null &&
+      gameInfo.hasOwnProperty('id') &&
+      (!res.result.gameInfo.hasOwnProperty('id') ||
+       res.result.gameInfo.id != gameInfo.id)
+    ) {
+      return true;
     }
     if (res.hasOwnProperty('result') && res.result.hasOwnProperty('playerInfo') &&
-        this.state.playerInfo && this.state.playerInfo.hasOwnProperty('id') &&
-        action != 'logOut' && action != 'leaveGame') {
-      if (!res.result.playerInfo.hasOwnProperty('id') || res.result.playerInfo.id != this.state.playerInfo.id) {
+        playerInfo != null && playerInfo.hasOwnProperty('id') &&
+        action != 'logOut' && action != 'leaveGame' && res.result.playerInfo != null) {
+      if (!res.result.playerInfo.hasOwnProperty('id') || res.result.playerInfo.id != playerInfo.id) {
         return true;
       }
     }
-    if (res.hasOwnProperty('result') && this.state.gameInfo == null && res.result.gameInfo &&
+    if (res.hasOwnProperty('result') && gameInfo == null && res.result.gameInfo &&
         action != 'joinGame' && action != 'createNewGame') {
       return true;
     }

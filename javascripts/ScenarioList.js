@@ -17,7 +17,7 @@ type propTypes = {
   winningResponse: ?string,
   winningResponseSubmittedBy: ?string,
   isReactor: boolean,
-  chooseScenario: (choiceID: string) => void,
+  chooseScenario: (choiceID: string) => Promise<void>,
 }
 
 export default class ScenarioList extends React.Component {

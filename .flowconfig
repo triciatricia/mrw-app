@@ -2,7 +2,8 @@
 .*/node_modules/react-native/IntegrationTests/.*
 
 [libs]
-node_modules/react-native/flow
+./node_modules/react-native/flow
+./node_modules/fbjs/flow/lib
 
 [options]
 emoji=true

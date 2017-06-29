@@ -15,7 +15,7 @@ type propTypes = {
   gameInfo: GameInfo,
   playerInfo: PlayerInfo,
   startGame: () => Promise<void>,
-  errorMessage: string,
+  errorMessage: ?string,
 };
 
 export default class WaitingToStart extends React.Component {

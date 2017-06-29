@@ -12,13 +12,10 @@ import {
 } from 'react-native';
 import Button from 'react-native-button';
 import ErrorMessage from './ErrorMessage';
-import type { GameInfo, PlayerInfo } from './flow/types';
 
 type propTypes = {
-  gameInfo: GameInfo,
-  playerInfo: PlayerInfo,
-  createPlayer: (nickname: string) => void,
-  errorMessage: string,
+  createPlayer: (nickname: string) => Promise<void>,
+  errorMessage: ?string,
 };
 
 export default class NewPlayer extends React.Component {
