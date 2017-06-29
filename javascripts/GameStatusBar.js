@@ -1,3 +1,5 @@
+/* @flow */
+
 import React from 'react';
 import {
   Text,
@@ -5,11 +7,11 @@ import {
 } from 'react-native';
 
 export default class GameStatusBar extends React.Component {
-  static propTypes = {
-    nickname: React.PropTypes.string,
-    score: React.PropTypes.number,
-    round: React.PropTypes.number,
-    gameCode: React.PropTypes.string,
+  props: {
+    nickname: string,
+    score: number,
+    round: number,
+    gameCode: string,
   };
 
   render() {

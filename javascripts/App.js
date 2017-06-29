@@ -1,3 +1,5 @@
+/* @flow */
+
 import React from 'react';
 import {SQLite, AppLoading} from 'expo';
 import {
@@ -16,13 +18,22 @@ import GameOver from './GameOver';
 import networking from './networking';
 import Settings from './Settings';
 import Button from 'react-native-button';
-
-const playAreas = {NewGame, NewPlayer, WaitingToStart, GamePlay, GameOver};
+import type { GameInfo, PlayerInfo } from './flow/types';
 
 const db = SQLite.openDatabase('db.db');
 
+type propTypes = {};
+
 export default class App extends React.Component {
-  constructor(props) {
+  props: propTypes;
+  state: {
+    gameInfo: ?GameInfo,
+    playerInfo: ?PlayerInfo,
+    errorMessage: ?string,
+    settingsVisible: boolean,
+    appIsReady: boolean,
+  }
+  constructor(props: propTypes) {
     super(props);
     this.state = {
       gameInfo: null,
@@ -73,7 +84,7 @@ export default class App extends React.Component {
           (tx, res) => {
             let savedVals = {}
             try {
-              for (row in res.rows._array) {
+              for (const row in res.rows._array) {
                 savedVals[res.rows._array[row].key] = JSON.parse(res.rows._array[row].value);
               }
             } catch (err) {
@@ -147,7 +158,7 @@ export default class App extends React.Component {
     // Remove choices
     let redactedGameInfo = Object.assign({}, this.state.gameInfo);
 
-    if (redactedGameInfo.hasOwnProperty('choices') && redactedGameInfo.choices) {
+    if (this.state.gameInfo && redactedGameInfo.hasOwnProperty('choices') && redactedGameInfo.choices) {
       redactedGameInfo.choices = Object.assign({}, this.state.gameInfo.choices);
       for (let i in redactedGameInfo.choices) {
         redactedGameInfo.choices[i] = 'hidden';
@@ -173,50 +184,10 @@ export default class App extends React.Component {
     Sentry.setExtraContext(this._redactedStateData());
   }
 
-  _getPlayAreaProps(gameStage) {
-    let props = {
-      gameInfo: this.state.gameInfo,
-      playerInfo: this.state.playerInfo,
-      errorMessage: this.state.errorMessage
-    };
-    switch (gameStage) {
-      case 'NewGame':
-        props.joinGame = (gameCode) => this._postToServer('joinGame', {gameCode});
-        props.createGame = () => this._postToServer('createNewGame');
-      case 'NewPlayer':
-        props.createPlayer = (nickname) => this._postToServer('createPlayer', {nickname});
-      case 'WaitingToStart':
-        props.startGame = () => this._postToServer('startGame');
-      case 'GamePlay':
-        props.submitResponse = (response) => this._postToServer(
-          'submitResponse',
-          {
-            round: this.state.gameInfo.round,
-            response: response
-          });
-        props.chooseScenario = (choiceID) => this._postToServer(
-          'chooseScenario',
-          {
-            choiceID: choiceID,
-            round: this.state.gameInfo.round
-          });
-        props.nextRound = () => this._postToServer('nextRound');
-        props.endGame = () => this._postToServer('endGame');
-        props.skipImage = () => this._postToServer('skipImage');
-      case 'GameOver':
-        props.startGame = () => this._postToServer('startGame');
-    }
-    return props;
-  }
-
   render() {
     if (!this.state.appIsReady) {
       return <AppLoading />;
     }
-
-    const gameStage = this._gameStage();
-    const PlayArea = playAreas[gameStage];
-    const props = this._getPlayAreaProps(gameStage);
 
     let settingsLink;
     if (this.state.gameInfo || this.state.playerInfo) {
@@ -242,39 +213,88 @@ export default class App extends React.Component {
       );
     }
 
+    const playArea = this._getPlayArea();
+    const isNewGame = playArea instanceof NewGame;
+
     return (
-        <View style={styles.container}>
-          <View style={gameStage == 'NewGame' ? styles.headerLarge : styles.headerSmall}>
-            <Image
-              source={require('../images/mrw.png')}
-              style={gameStage == 'NewGame' ? styles.mrwLogoLarge : styles.mrwLogoSmall} />
-            {settingsLink}
-          </View>
-          <Settings
-            setSettingsVisible={(visible) => {this._setSettingsVisible(visible)}}
-            settingsVisible={this.state.settingsVisible}
-            leaveGame={() => {this._postToServer('leaveGame')}} />
-          <View style={styles.playArea}>
-            <PlayArea {...props}/>
-          </View>
+      <View style={styles.container}>
+        <View style={isNewGame ? styles.headerLarge : styles.headerSmall}>
+          <Image
+            source={require('../images/mrw.png')}
+            style={isNewGame ? styles.mrwLogoLarge : styles.mrwLogoSmall} />
+          {settingsLink}
         </View>
+        <Settings
+          setSettingsVisible={(visible) => {this._setSettingsVisible(visible)}}
+          settingsVisible={this.state.settingsVisible}
+          leaveGame={() => {this._postToServer('leaveGame')}} />
+        <View style={styles.playArea}>
+          {playArea}
+        </View>
+      </View>
     );
   }
 
-  _gameStage = () => {
-    if (this.state.gameInfo == null) {
-      return 'NewGame';
+  _getPlayArea = () => {
+    const sharedProps = {
+      gameInfo: this.state.gameInfo,
+      playerInfo: this.state.playerInfo,
+      errorMessage: this.state.errorMessage,
+    };
+
+    if (sharedProps.gameInfo == null) {
+      return (
+        <NewGame
+          joinGame={(gameCode: string) => this._postToServer('joinGame', {gameCode})}
+          createGame={() => this._postToServer('createNewGame')}
+          {...sharedProps} />
+      );
     }
-    if (this.state.playerInfo == null) {
-      return 'NewPlayer';
+    if (sharedProps.playerInfo == null) {
+      return (
+        <NewPlayer
+          createPlayer={
+            (nickname: string) => this._postToServer('createPlayer', {nickname})
+          }
+          {...sharedProps} />
+      );
     }
     if (this.state.gameInfo.round) {
-      return 'GamePlay';
+      const chooseScenario = (choiceID) => this._postToServer(
+        'chooseScenario',
+        {
+          choiceID: choiceID,
+          round: this.state.gameInfo.round
+        });
+      const submitResponse = (response: string) => this._postToServer(
+        'submitResponse',
+        {
+          round: this.state.gameInfo.round,
+          response: response
+        });
+
+      return (
+        <GamePlay
+          chooseScenario={chooseScenario}
+          submitResponse={submitResponse}
+          nextRound={() => this._postToServer('nextRound')}
+          endGame={() => this._postToServer('endGame')}
+          skipImage={() => this._postToServer('skipImage')}
+          {...sharedProps} />
+      );
     }
     if (this.state.gameInfo.gameOver) {
-      return 'GameOver';
+      return (
+        <GameOver
+          startGame={() => this._postToServer('startGame')}
+          {...sharedProps} />
+      );
     }
-    return 'WaitingToStart';
+    return (
+      <WaitingToStart
+        startGame={() => this._postToServer('startGame')}
+        {...sharedProps} />
+    );
   };
 
   _pollGameInfo = async () => {

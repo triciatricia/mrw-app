@@ -1,3 +1,5 @@
+/* @flow */
+
 import React from 'react';
 import {
   StyleSheet,
@@ -11,19 +13,25 @@ import {
 import Button from 'react-native-button';
 import ParaText from './ParaText';
 import ErrorMessage from './ErrorMessage';
+import type { GameInfo, PlayerInfo } from './flow/types';
 
-const WINDOW_HEIGHT = Dimensions.get('window').height;
+const WINDOW_HEIGHT: number = Dimensions.get('window').height;
 const HEADER_HEIGHT = 70;
 
+type propTypes = {
+  gameInfo: GameInfo,
+  playerInfo: PlayerInfo,
+  startGame: () => Promise<void>,
+  errorMessage: ?string,
+};
+
 export default class GameOver extends React.Component {
-  static propTypes = {
-    gameInfo: React.PropTypes.object,
-    playerInfo: React.PropTypes.object,
-    startGame: React.PropTypes.func,
-    errorMessage: React.PropTypes.string,
+  props: propTypes;
+  state: {
+    isLoading: boolean,
   };
 
-  constructor(props) {
+  constructor(props: propTypes) {
     super(props);
     this.state = {
       isLoading: false

@@ -1,3 +1,5 @@
+/* @flow */
+
 import React from 'react';
 import {
   Image,
@@ -5,8 +7,23 @@ import {
   View,
 } from 'react-native';
 
+type propTypes = {
+  width: number,
+  fontSize: number,
+  textPadding: number,
+  height: number,
+  marginBottom: number,
+  sourceURI: string,
+};
+
 export default class Gif extends React.Component {
-  constructor(props) {
+  props: propTypes;
+  state: {
+    imageLoading: boolean,
+    mounted: boolean,
+  };
+
+  constructor(props: propTypes) {
     super(props);
     this.state = {
       imageLoading: true,
@@ -22,7 +39,7 @@ export default class Gif extends React.Component {
     this.setState({mounted: true});
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: propTypes) {
     if (nextProps.sourceURI !== this.props.sourceURI) {
       this.setState({
         imageLoading: true,

@@ -1,3 +1,5 @@
+/* @flow */
+
 import React from 'react';
 import {
   StyleSheet,
@@ -10,17 +12,23 @@ import {
 } from 'react-native';
 import Button from 'react-native-button';
 import ErrorMessage from './ErrorMessage';
+import type { GameInfo, PlayerInfo } from './flow/types';
+
+type propTypes = {
+  gameInfo: GameInfo,
+  playerInfo: PlayerInfo,
+  joinGame: (gameCode: string) => Promise<void>,
+  createGame: () => Promise<void>,
+  errorMessage: string,
+};
 
 export default class NewGame extends React.Component {
-  static propTypes = {
-    gameInfo: React.PropTypes.object,
-    playerInfo: React.PropTypes.object,
-    joinGame: React.PropTypes.func,
-    createGame: React.PropTypes.func,
-    errorMessage: React.PropTypes.string,
+  props: propTypes;
+  state: {
+    gameCode: string,
   };
 
-  constructor(props) {
+  constructor(props: propTypes) {
     super(props);
     this.state = {
       gameCode: ''

@@ -1,5 +1,7 @@
 /* List of scenarios submitted by players */
 
+/* @flow */
+
 import React from 'react';
 import {
   Text,
@@ -9,17 +11,22 @@ import {
 import ReactionScenario from './ReactionScenario';
 import Button from 'react-native-button';
 
+type propTypes = {
+  scenarios: { [scenarioID: string]: string },
+  reactorNickname: string,
+  winningResponse: ?string,
+  winningResponseSubmittedBy: ?string,
+  isReactor: boolean,
+  chooseScenario: (choiceID: string) => void,
+}
+
 export default class ScenarioList extends React.Component {
-  static propTypes = {
-    scenarios: React.PropTypes.object,
-    reactorNickname: React.PropTypes.string,
-    winningResponse: React.PropTypes.string,
-    winningResponseSubmittedBy: React.PropTypes.string,
-    isReactor: React.PropTypes.bool,
-    chooseScenario: React.PropTypes.func,
+  props: propTypes;
+  state: {
+    selectedScenario: ?string,
   };
 
-  constructor(props) {
+  constructor(props: propTypes) {
     super(props);
     this.state = {
       selectedScenario: null
@@ -34,7 +41,11 @@ export default class ScenarioList extends React.Component {
         <Button
           containerStyle={[styles.buttonContainer, {backgroundColor: this.state.selectedScenario ? '#4472C4' : '#eee'}]}
           style={[styles.buttonText, {color: this.state.selectedScenario ? '#fff' : '#333'}]}
-          onPress={() => this.props.chooseScenario(this.state.selectedScenario)} >
+          onPress={() => {
+            if (this.state.selectedScenario != null) {
+              this.props.chooseScenario(this.state.selectedScenario);
+            }
+          }} >
           Submit
           </Button>
         );
@@ -65,7 +76,9 @@ export default class ScenarioList extends React.Component {
               selectedScenario: value
             });
           }}
-          submittedBy={id == this.props.winningResponse ? this.props.winningResponseSubmittedBy : null} />
+          submittedBy={
+            (this.props.winningResponseSubmittedBy != null && id == this.props.winningResponse ?
+              this.props.winningResponseSubmittedBy : '')} />
         ));
   }
 }

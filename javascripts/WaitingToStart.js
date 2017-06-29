@@ -1,3 +1,5 @@
+/* @flow */
+
 import React from 'react';
 import {
   StyleSheet,
@@ -7,16 +9,22 @@ import {
 } from 'react-native';
 import Button from 'react-native-button';
 import ErrorMessage from './ErrorMessage';
+import type { GameInfo, PlayerInfo } from './flow/types';
+
+type propTypes = {
+  gameInfo: GameInfo,
+  playerInfo: PlayerInfo,
+  startGame: () => Promise<void>,
+  errorMessage: string,
+};
 
 export default class WaitingToStart extends React.Component {
-  static propTypes = {
-    gameInfo: React.PropTypes.object,
-    playerInfo: React.PropTypes.object,
-    startGame: React.PropTypes.func,
-    errorMessage: React.PropTypes.string,
+  props: propTypes;
+  state: {
+    isLoading: boolean,
   };
 
-  constructor(props) {
+  constructor(props: propTypes) {
     super(props);
     this.state = {
       isLoading: false

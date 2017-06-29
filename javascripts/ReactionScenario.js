@@ -1,5 +1,7 @@
 /* Individual scenarios submitted by players */
 
+/* @flow */
+
 import React from 'react';
 import {
   Text,
@@ -10,16 +12,17 @@ import {
 import ParaText from './ParaText';
 import COLORS from '../constants/colors';
 
-export default class ReactionScenario extends React.Component {
-  static propTypes = {
-    scenario: React.PropTypes.string,
-    id: React.PropTypes.string,
-    isChecked: React.PropTypes.bool,
-    onScenarioSelection: React.PropTypes.func,
-    wasChosen: React.PropTypes.bool,
-    submittedBy: React.PropTypes.string,
+type propTypes = {
+  scenario: string,
+  id: string,
+  isChecked: boolean,
+  onScenarioSelection: (scenarioID: string) => void,
+  wasChosen: boolean,
+  submittedBy: string,
+};
 
-  };
+export default class ReactionScenario extends React.Component {
+  props: propTypes;
 
   render() {
     if (this.props.useRadio) {

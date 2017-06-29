@@ -1,3 +1,5 @@
+/* @flow */
+
 import React from 'react';
 import {
   StyleSheet,
@@ -15,6 +17,7 @@ import Gif from './Gif';
 import ParaText from './ParaText';
 import ScenarioList from './ScenarioList';
 import GameStatusBar from './GameStatusBar';
+import type { GameInfo, PlayerInfo } from './flow/types';
 
 const WINDOW_WIDTH = Dimensions.get('window').width;
 const WINDOW_HEIGHT = Dimensions.get('window').height;
@@ -39,16 +42,20 @@ class ScenarioListForm extends React.Component {
   };
 
   _getInstructions() {
+    const reactor = (this.props.gameInfo.reactorNickname ?
+      this.props.gameInfo.reactorNickname : 'The reactor');
+
     if (this._isReactor()) {
       return (
         this.props.gameInfo.winningResponse ?
-          'Good choice!' : (this.props.playerInfo.nickname +
+          'Good choice!' : (reactor +
                             ', read this list out loud and pick your favorite!'));
     }
+
     return (
       this.props.gameInfo.winningResponse ?
-        (this.props.gameInfo.reactorNickname + ' has chosen!') :
-        (this.props.gameInfo.reactorNickname + ' is choosing their favorite scenario. Hold tight!'));
+        (reactor + ' has chosen!') :
+        (reactor + ' is choosing their favorite scenario. Hold tight!'));
   }
 
   _renderHeaderText = () => {
@@ -100,13 +107,16 @@ class ScenarioListForm extends React.Component {
         </ParaText>
       );
     }
+
+    const reactor = this.props.gameInfo.reactorNickname == null ? 'The reactor' : this.props.gameInfo.reactorNickname;
+
     return (
       <View>
         <ParaText>{this._getInstructions()}</ParaText>
         {this._renderHeaderText()}
         <ScenarioList
           scenarios={this.props.gameInfo.choices}
-          reactorNickname={this.props.gameInfo.reactorNickname}
+          reactorNickname={reactor}
           winningResponse={this.props.gameInfo.winningResponse}
           winningResponseSubmittedBy={this.props.gameInfo.winningResponseSubmittedBy}
           chooseScenario={this.props.chooseScenario}
@@ -117,19 +127,24 @@ class ScenarioListForm extends React.Component {
   }
 }
 
+type propTypes = {
+  gameInfo: GameInfo,
+  playerInfo: PlayerInfo,
+  submitResponse: (scenario: string) => void,
+  chooseScenario: (choiceID: string) => void,
+  nextRound: () => void,
+  endGame: () => void,
+  skipImage: () => void,
+  errorMessage: string,
+};
+
 export default class GamePlay extends React.Component {
-  static propTypes = {
-    gameInfo: React.PropTypes.object,
-    playerInfo: React.PropTypes.object,
-    submitResponse: React.PropTypes.func,
-    chooseScenario: React.PropTypes.func,
-    nextRound: React.PropTypes.func,
-    endGame: React.PropTypes.func,
-    skipImage: React.PropTypes.func,
-    errorMessage: React.PropTypes.string,
+  props: propTypes;
+  state: {
+    scenario: string,
   };
 
-  constructor(props) {
+  constructor(props: propTypes) {
     super(props);
     this.state = {
       scenario: ''
@@ -229,6 +244,27 @@ export default class GamePlay extends React.Component {
         chooseScenario={this.props.chooseScenario} />;
     }
 
+    if (this.props.playerInfo.score === null || this.props.gameInfo.round === null) {
+      console.log('Error retrieving score or round.');
+      return;
+    }
+
+    if (this.props.gameInfo.image === null) {
+      console.log('Error retrieving gif url.');
+      return;
+    }
+
+    const gif = (
+      <Gif
+        style={{flex: 1, alignItems: 'stretch', justifyContent: 'center'}}
+        width={WINDOW_WIDTH - 40}
+        fontSize={16}
+        textPadding={10}
+        height={WINDOW_HEIGHT / 2 - 60}
+        marginBottom={20}
+        sourceURI={this.props.gameInfo.image} />
+    );
+
     return (
       <ScrollView style={styles.main} keyboardShouldPersistTaps='handled'>
         <KeyboardAvoidingView behavior='position' contentContainerStyle={{paddingBottom: 40}}>
@@ -238,14 +274,7 @@ export default class GamePlay extends React.Component {
             round={this.props.gameInfo.round}
             gameCode={this.props.gameInfo.id.toString()} />
 
-          <Gif
-            style={{flex: 1, alignItems: 'stretch', justifyContent: 'center'}}
-            width={WINDOW_WIDTH - 40}
-            fontSize={16}
-            textPadding={10}
-            height={WINDOW_HEIGHT / 2 - 60}
-            marginBottom={20}
-            sourceURI={this.props.gameInfo.image} />
+          {gif}
 
           {responseForm}
 
