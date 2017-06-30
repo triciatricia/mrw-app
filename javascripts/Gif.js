@@ -5,12 +5,11 @@ import {
   Image,
   Text,
   View,
+  ActivityIndicator,
 } from 'react-native';
 
 type propTypes = {
   width: number,
-  fontSize: number,
-  textPadding: number,
   height: number,
   marginBottom: number,
   sourceURI: string,
@@ -70,21 +69,16 @@ export default class Gif extends React.Component {
     }
 
     return (
+      // Loading indicator
       <View style={{
         justifyContent: 'center',
         height: this.props.height,
         marginBottom: this.props.marginBottom,
       }}>
-        <Text
-          style={{
-            fontSize: this.props.fontSize,
-            textAlign: 'center',
-            position: 'absolute',
-            width: this.props.width,
-            padding: this.props.textPadding,
-          }}>
-          Loading image...
-        </Text>
+        <ActivityIndicator
+          style={{ width: this.props.width, height: 16, position: 'absolute' }}
+          animating={true}
+          size={'large'} />
       </View>
     );
 
