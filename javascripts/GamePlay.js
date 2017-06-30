@@ -256,11 +256,11 @@ export default class GamePlay extends React.Component {
 
     const gif = (
       <Gif
-        style={{flex: 1, alignItems: 'stretch', justifyContent: 'center'}}
-        width={WINDOW_WIDTH - 40}
-        height={WINDOW_HEIGHT / 2 - 60}
-        marginBottom={20}
-        sourceURI={this.props.gameInfo.image} />
+        style={{ flex: 1, alignItems: 'stretch', justifyContent: 'center' }}
+        width={ WINDOW_WIDTH - 40 }
+        height={ WINDOW_HEIGHT / 2 - 60 }
+        marginBottom={ 20 }
+        sourceURI={ this.props.gameInfo.image } /> 
     );
 
     return (

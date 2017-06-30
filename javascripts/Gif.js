@@ -7,6 +7,8 @@ import {
   View,
   ActivityIndicator,
 } from 'react-native';
+import Expo, { Video } from 'expo';
+import Sentry from 'sentry-expo';
 
 type propTypes = {
   width: number,
@@ -21,12 +23,14 @@ export default class Gif extends React.Component {
     imageLoading: boolean,
     mounted: boolean,
   };
+  playbackInstance: ?Expo.Video = null;
 
   constructor(props: propTypes) {
     super(props);
     this.state = {
       imageLoading: true,
       mounted: false,
+      playbackInstance: null,
     };
   }
 
@@ -35,7 +39,7 @@ export default class Gif extends React.Component {
   }
 
   componentDidMount() {
-    this.setState({mounted: true});
+    this.setState({ mounted: true });
   }
 
   componentWillReceiveProps(nextProps: propTypes) {
@@ -48,39 +52,107 @@ export default class Gif extends React.Component {
   }
 
   componentWillUnmount() {
-    this.setState({mounted: false});
+    this.setState({ mounted: false });
+  }
+
+  _isGif(URI) {
+    return URI.endsWith('.gif');
   }
 
   async _loadImage(URI) {
-    await Image.prefetch(URI);
-    if (this.state.mounted) {
-      this.setState({imageLoading: false});
+    if (this._isGif(URI)) {
+      await Image.prefetch(URI);
+      if (this.state.mounted) {
+        this.setState({ imageLoading: false });
+      }
     }
   }
 
-  render() {
-    if (!this.state.imageLoading) {
-      return (
-        <Image
-          style={{height: this.props.height, marginBottom: this.props.marginBottom}}
-          resizeMode='contain'
-          source={{uri: this.props.sourceURI}} />
+  _unloadCurVideo = async () => {
+    if (this.playbackInstance != null) {
+      await this.playbackInstance.unloadAsync();
+    }
+    if (this.playbackInstance != null) {
+      this.playbackInstance.setCallback(null);
+      this.playbackInstance = null;
+    }
+  }
+
+  _handleVideoRef = async (component) => {
+    const playbackObject = component;
+    await this._unloadCurVideo();
+
+    // Play Video
+    const source = { uri: this.props.sourceURI };
+
+    playbackObject.setCallback(status => {
+      if (status.error) {
+        console.log('Error playing ' + source.uri);
+        // TODO Set an error message
+      }
+    });
+
+    try {
+      await playbackObject.loadAsync(
+        source,
+        {
+          shouldPlay: true,
+          isMuted: true,
+          isLooping: true,
+        });
+    }
+    catch(error) {
+      console.log('Error playing ' + source.uri);
+      Sentry.captureMessage(
+        'Error playing ' + source.uri,
+        { level: 'warning' },
       );
     }
 
+    this.playbackInstance = playbackObject;
+
+    this.setState({ imageLoading: false });
+  }
+
+  render() {
+    let gif = (
+      <Expo.Video
+        style={{
+          height: this.props.height,
+          marginBottom: this.props.marginBottom,
+        }}
+        resizeMode={Expo.Video.RESIZE_MODE_CONTAIN}
+        ref={this._handleVideoRef} />
+    );
+
+    if (this._isGif(this.props.sourceURI)) {
+      if (!this.state.imageLoading) {
+        gif = (
+          <Image
+            style={{ height: this.props.height, marginBottom: this.props.marginBottom }}
+            resizeMode='contain'
+            source={{ uri: this.props.sourceURI }} />
+        );
+      } else {
+        gif = null;
+      }
+    }
+
     return (
-      // Loading indicator
       <View style={{
         justifyContent: 'center',
         height: this.props.height,
         marginBottom: this.props.marginBottom,
       }}>
+
+        { gif }
+
         <ActivityIndicator
           style={{ width: this.props.width, height: 16, position: 'absolute' }}
-          animating={true}
+          animating={this.state.imageLoading}
           size={'large'} />
+
       </View>
     );
-
   }
 }
