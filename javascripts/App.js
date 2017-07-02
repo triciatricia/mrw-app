@@ -302,7 +302,9 @@ export default class App extends React.Component {
   };
 
   _pollGameInfo = async () => {
-    await this._postToServer('getGameInfo');
+    if (this.state.gameInfo !== null) {
+      await this._postToServer('getGameInfo');
+    }
   };
 
   _postToServer = async (action, data) => {
@@ -338,6 +340,16 @@ export default class App extends React.Component {
       });
       Object.assign(postData, data);
 
+      // If the player wanted to leave the game, reset everything.
+      if (action == 'leaveGame') {
+        this.setState({
+          gameInfo: null,
+          playerInfo: null,
+          errorMessage: null
+        });
+        this._saveState();
+      }
+
       const res = await networking.postToServer(postData);
 
       if (res.errorMessage) {
@@ -356,16 +368,6 @@ export default class App extends React.Component {
             level: action === 'leaveGame' ? 'info' : 'warning',
             extra: res
           });
-          return;
-        }
-        // If the player wanted to leave the game, reset everything.
-        if (action == 'leaveGame') {
-          this.setState({
-            gameInfo: null,
-            playerInfo: null,
-            errorMessage: null
-          });
-          this._saveState();
           return;
         }
         if (res.result.hasOwnProperty('gameInfo') && res.result.gameInfo) {

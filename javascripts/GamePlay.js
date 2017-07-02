@@ -164,7 +164,6 @@ export default class GamePlay extends React.Component {
   };
 
   _reactorWaitingForm() {
-
     return (
       <View>
         {this._renderHeaderText()}
@@ -260,7 +259,7 @@ export default class GamePlay extends React.Component {
         width={ WINDOW_WIDTH - 40 }
         height={ WINDOW_HEIGHT / 2 - 60 }
         marginBottom={ 20 }
-        sourceURI={ this.props.gameInfo.image } /> 
+        sourceURI={ this.props.gameInfo.image } />
     );
 
     return (

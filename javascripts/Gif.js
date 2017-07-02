@@ -17,33 +17,32 @@ type propTypes = {
   sourceURI: string,
 };
 
+type stateTypes = {
+  imageLoading: boolean,
+  mounted: boolean,
+};
+
 export default class Gif extends React.Component {
   props: propTypes;
-  state: {
-    imageLoading: boolean,
-    mounted: boolean,
-  };
-  playbackInstance: ?Expo.Video = null;
+  state: stateTypes;
 
   constructor(props: propTypes) {
     super(props);
     this.state = {
       imageLoading: true,
       mounted: false,
-      playbackInstance: null,
     };
   }
 
-  componentWillMount() {
-    this._loadImage(this.props.sourceURI);
-  }
-
   componentDidMount() {
+    this._loadImage(this.props.sourceURI);
     this.setState({ mounted: true });
   }
 
   componentWillReceiveProps(nextProps: propTypes) {
     if (nextProps.sourceURI !== this.props.sourceURI) {
+      console.log('switching from ' + this.props.sourceURI + ' to ' +
+        nextProps.sourceURI);
       this.setState({
         imageLoading: true,
       });
@@ -62,96 +61,73 @@ export default class Gif extends React.Component {
   async _loadImage(URI) {
     if (this._isGif(URI)) {
       await Image.prefetch(URI);
-      if (this.state.mounted) {
+    } else {
+      // Can't prefetch a video.
+      // await Expo.Asset.???.downloadAsync();
+    }
+
+    if (this.state.mounted) {
+      this.setState({ imageLoading: false });
+    }
+  }
+
+  _onLoadVideo(playbackStatus: Object) {
+    if (playbackStatus.isLoaded) {
+      if (this.state && this.state.mounted) {
         this.setState({ imageLoading: false });
       }
     }
   }
 
-  _unloadCurVideo = async () => {
-    if (this.playbackInstance != null) {
-      await this.playbackInstance.unloadAsync();
-    }
-    if (this.playbackInstance != null) {
-      this.playbackInstance.setCallback(null);
-      this.playbackInstance = null;
-    }
-  }
-
-  _handleVideoRef = async (component) => {
-    const playbackObject = component;
-    await this._unloadCurVideo();
-
-    // Play Video
-    const source = { uri: this.props.sourceURI };
-
-    playbackObject.setCallback(status => {
-      if (status.error) {
-        console.log('Error playing ' + source.uri);
-        // TODO Set an error message
+  _renderMedia() {
+    if (this._isGif(this.props.sourceURI)) {
+      if (this.state.imageLoading) {
+        return (
+          <ActivityIndicator
+            style={{ width: this.props.width, height: 16, position: 'absolute' }}
+            animating={this.state.imageLoading}
+            size={'large'} />
+        );
       }
-    });
 
-    try {
-      await playbackObject.loadAsync(
-        source,
-        {
-          shouldPlay: true,
-          isMuted: true,
-          isLooping: true,
-        });
-    }
-    catch(error) {
-      console.log('Error playing ' + source.uri);
-      Sentry.captureMessage(
-        'Error playing ' + source.uri,
-        { level: 'warning' },
+      return (
+        <Image
+          style={{ height: this.props.height, marginBottom: this.props.marginBottom }}
+          resizeMode='contain'
+          source={{ uri: this.props.sourceURI }} />
       );
     }
 
-    this.playbackInstance = playbackObject;
-
-    this.setState({ imageLoading: false });
-  }
-
-  render() {
-    let gif = (
+    return (
       <Expo.Video
         style={{
           height: this.props.height,
           marginBottom: this.props.marginBottom,
         }}
-        resizeMode={Expo.Video.RESIZE_MODE_CONTAIN}
-        ref={this._handleVideoRef} />
+        resizeMode={ Expo.Video.RESIZE_MODE_CONTAIN }
+        source={{ uri: this.props.sourceURI }}
+        shouldPlay={ true }
+        isMuted={ true }
+        isLooping={ true }
+        onLoad={ this._onLoadVideo }
+        onError={
+          (e) => {
+            console.log('Error loading video ' + this.props.sourceURI);
+            console.log(e);
+          }
+        }
+        />
     );
+  }
 
-    if (this._isGif(this.props.sourceURI)) {
-      if (!this.state.imageLoading) {
-        gif = (
-          <Image
-            style={{ height: this.props.height, marginBottom: this.props.marginBottom }}
-            resizeMode='contain'
-            source={{ uri: this.props.sourceURI }} />
-        );
-      } else {
-        gif = null;
-      }
-    }
-
+  render() {
     return (
       <View style={{
         justifyContent: 'center',
         height: this.props.height,
         marginBottom: this.props.marginBottom,
       }}>
-
-        { gif }
-
-        <ActivityIndicator
-          style={{ width: this.props.width, height: 16, position: 'absolute' }}
-          animating={this.state.imageLoading}
-          size={'large'} />
-
+        { this._renderMedia() }
       </View>
     );
   }
