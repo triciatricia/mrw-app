@@ -1,10 +1,16 @@
 // Flow type aliases
 /* @flow */
 
+export type ImageUrl = {
+  url: string,
+  id: number,
+  prefetched?: boolean,
+};
+
 export type GameInfo = {
   id: number,
   round: ?number,
-  image: ?string,
+  image: ?ImageUrl,
   waitingForScenarios: boolean,
   reactorID: ?number,
   reactorNickname: ?string,
@@ -16,6 +22,7 @@ export type GameInfo = {
   choices: Object,
   lastGif: ?string,
   displayOrder: ?string,
+  imageQueue: ?Array<ImageUrl>,
 };
 
 export type PlayerInfo = {

@@ -245,12 +245,13 @@ export default class GamePlay extends React.Component {
 
     if (this.props.playerInfo.score === null || this.props.gameInfo.round === null) {
       console.log('Error retrieving score or round.');
-      return;
+      return <ErrorMessage errorMessage={ 'Error retrieving score or round.' } />;
     }
 
-    if (this.props.gameInfo.image === null) {
+    if (this.props.gameInfo.image == null ||
+      !this.props.gameInfo.image.hasOwnProperty('url')) {
       console.log('Error retrieving gif url.');
-      return;
+      return <ErrorMessage errorMessage={ 'Error retrieving gif url.' } />;
     }
 
     const gif = (
@@ -259,7 +260,7 @@ export default class GamePlay extends React.Component {
         width={ WINDOW_WIDTH - 40 }
         height={ WINDOW_HEIGHT / 2 - 60 }
         marginBottom={ 20 }
-        sourceURI={ this.props.gameInfo.image } />
+        source={ this.props.gameInfo.image } />
     );
 
     return (

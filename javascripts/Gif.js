@@ -10,11 +10,13 @@ import {
 import Expo, { Video } from 'expo';
 import Sentry from 'sentry-expo';
 
+import type { ImageUrl } from './flow/types';
+
 type propTypes = {
   width: number,
   height: number,
   marginBottom: number,
-  sourceURI: string,
+  source: ImageUrl,
 };
 
 type stateTypes = {
@@ -35,18 +37,18 @@ export default class Gif extends React.Component {
   }
 
   componentDidMount() {
-    this._loadImage(this.props.sourceURI);
+    this._loadImage(this.props.source.url);
     this.setState({ mounted: true });
   }
 
   componentWillReceiveProps(nextProps: propTypes) {
-    if (nextProps.sourceURI !== this.props.sourceURI) {
-      console.log('switching from ' + this.props.sourceURI + ' to ' +
-        nextProps.sourceURI);
+    if (nextProps.source.url != this.props.source.url) {
+      console.log('switching from ' + this.props.source.url + ' to ' +
+        nextProps.source.url);
       this.setState({
         imageLoading: true,
       });
-      this._loadImage(nextProps.sourceURI);
+      this._loadImage(nextProps.source.url);
     }
   }
 
@@ -73,6 +75,7 @@ export default class Gif extends React.Component {
 
   _onLoadVideo(playbackStatus: Object) {
     if (playbackStatus.isLoaded) {
+      console.log('Finished loading.');
       if (this.state && this.state.mounted) {
         this.setState({ imageLoading: false });
       }
@@ -80,7 +83,7 @@ export default class Gif extends React.Component {
   }
 
   _renderMedia() {
-    if (this._isGif(this.props.sourceURI)) {
+    if (this._isGif(this.props.source.url)) {
       if (this.state.imageLoading) {
         return (
           <ActivityIndicator
@@ -94,7 +97,7 @@ export default class Gif extends React.Component {
         <Image
           style={{ height: this.props.height, marginBottom: this.props.marginBottom }}
           resizeMode='contain'
-          source={{ uri: this.props.sourceURI }} />
+          source={{ uri: this.props.source.url }} />
       );
     }
 
@@ -105,14 +108,14 @@ export default class Gif extends React.Component {
           marginBottom: this.props.marginBottom,
         }}
         resizeMode={ Expo.Video.RESIZE_MODE_CONTAIN }
-        source={{ uri: this.props.sourceURI }}
+        source={{ uri: this.props.source.url }}
         shouldPlay={ true }
         isMuted={ true }
         isLooping={ true }
         onLoad={ this._onLoadVideo }
         onError={
           (e) => {
-            console.log('Error loading video ' + this.props.sourceURI);
+            console.log('Error loading video ' + this.props.source.url);
             console.log(e);
           }
         }

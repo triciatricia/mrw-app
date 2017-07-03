@@ -18,7 +18,7 @@ import GameOver from './GameOver';
 import networking from './networking';
 import Settings from './Settings';
 import Button from 'react-native-button';
-import type { GameInfo, PlayerInfo } from './flow/types';
+import type { GameInfo, PlayerInfo, ImageUrl } from './flow/types';
 
 const db = SQLite.openDatabase('db.db');
 
@@ -235,6 +235,21 @@ export default class App extends React.Component {
     );
   }
 
+  _nextGifFromQueue = () => {
+    // Set the game image to the next gif in the queue if available.
+    let gameInfo = this.state.gameInfo;
+    if (gameInfo &&
+      gameInfo.imageQueue &&
+      gameInfo.imageQueue.length > 0) {
+      gameInfo.image = gameInfo.imageQueue.pop();
+      this.setState({ gameInfo: gameInfo });
+
+
+    } else {
+      console.log('No more images in list. Waiting to hear from server.');
+    }
+  };
+
   _getPlayArea = () => {
     const gameInfo = this.state.gameInfo;
     const playerInfo = this.state.playerInfo;
@@ -277,7 +292,11 @@ export default class App extends React.Component {
           submitResponse={submitResponse}
           nextRound={() => this._postToServer('nextRound')}
           endGame={() => this._postToServer('endGame')}
-          skipImage={() => this._postToServer('skipImage')}
+          skipImage={() => {
+            const prevImage = this.state.gameInfo ? this.state.gameInfo.image : null;
+            this._nextGifFromQueue();
+            return(this._postToServer('skipImage', { image: prevImage }));
+          }}
           gameInfo={this.state.gameInfo}
           playerInfo={this.state.playerInfo}
           errorMessage={this.state.errorMessage} />
@@ -401,7 +420,6 @@ export default class App extends React.Component {
     const playerInfo = this.state.playerInfo;
     if (
       action != 'leaveGame' &&
-      res.hasOwnProperty('result') &&
       res.result.gameInfo &&
       gameInfo != null &&
       gameInfo.hasOwnProperty('id') &&
@@ -410,17 +428,28 @@ export default class App extends React.Component {
     ) {
       return true;
     }
-    if (res.hasOwnProperty('result') && res.result.hasOwnProperty('playerInfo') &&
+    if (res.result.hasOwnProperty('playerInfo') &&
         playerInfo != null && playerInfo.hasOwnProperty('id') &&
         action != 'logOut' && action != 'leaveGame' && res.result.playerInfo != null) {
       if (!res.result.playerInfo.hasOwnProperty('id') || res.result.playerInfo.id != playerInfo.id) {
         return true;
       }
     }
-    if (res.hasOwnProperty('result') && gameInfo == null && res.result.gameInfo &&
+    if (gameInfo == null && res.result.gameInfo &&
         action != 'joinGame' && action != 'createNewGame') {
       return true;
     }
+    // Check if the gif is older.
+    if (res.result.hasOwnProperty('gameInfo') &&
+      res.result.gameInfo != null &&
+      res.result.gameInfo.hasOwnProperty('image') &&
+      gameInfo != null &&
+      gameInfo.hasOwnProperty('image') &&
+      res.result.gameInfo.image != null &&
+      gameInfo.image != null &&
+      res.result.gameInfo.image.id < gameInfo.image.id) {
+        return true;
+      }
     return false;
   };
 }
