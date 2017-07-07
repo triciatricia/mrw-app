@@ -427,7 +427,7 @@ export default class App extends React.Component {
         });
       } else {
         // Check for an invalid state
-        if (this._invalidState(res, action)) {
+        if (this._invalidState(res, action, postData)) {
           this._setSentryContext();
           Sentry.captureMessage('postToServer response invalid state: ' + action, {
             level: action === 'leaveGame' ? 'info' : 'warning',
@@ -464,7 +464,7 @@ export default class App extends React.Component {
   };
 
   // Compare the result from a network message to current state
-  _invalidState = (res, action) => {
+  _invalidState = (res, action, postData) => {
     if (!res.hasOwnProperty('result')) {
       return true;
     }
@@ -499,7 +499,9 @@ export default class App extends React.Component {
       gameInfo.hasOwnProperty('image') &&
       res.result.gameInfo.image != null &&
       gameInfo.image != null &&
-      res.result.gameInfo.image.id < gameInfo.image.id) {
+      res.result.gameInfo.image.id < gameInfo.image.id &&
+      (action !== 'skipImage' || (postData.image &&
+        postData.image.id !== res.result.gameInfo.image.id))) {
         return true;
       }
     return false;
