@@ -16,9 +16,10 @@ import WaitingToStart from './WaitingToStart';
 import GamePlay from './GamePlay';
 import GameOver from './GameOver';
 import networking from './networking';
+import {preloadGif} from './preloading';
 import Settings from './Settings';
 import Button from 'react-native-button';
-import type { GameInfo, PlayerInfo, ImageUrl } from './flow/types';
+import type {GameInfo, PlayerInfo, ImageUrl} from './flow/types';
 
 const db = SQLite.openDatabase('db.db');
 
@@ -32,7 +33,11 @@ export default class App extends React.Component {
     errorMessage: ?string,
     settingsVisible: boolean,
     appIsReady: boolean,
+    imageCache: {[number]: string},
+    lastImageIdCached: ?number,
   }
+  downloading: boolean;
+
   constructor(props: propTypes) {
     super(props);
     this.state = {
@@ -41,7 +46,10 @@ export default class App extends React.Component {
       errorMessage: null,
       settingsVisible: false,
       appIsReady: false,
+      imageCache: {},
+      lastImageIdCached: null,
     };
+    this.downloading = false;
   }
 
   componentDidMount() {
@@ -235,20 +243,46 @@ export default class App extends React.Component {
     );
   }
 
-  _nextGifFromQueue = () => {
+  async _nextGifFromQueue() {
     // Set the game image to the next gif in the queue if available.
     let gameInfo = this.state.gameInfo;
-    if (gameInfo &&
-      gameInfo.imageQueue &&
-      gameInfo.imageQueue.length > 0) {
-      gameInfo.image = gameInfo.imageQueue.pop();
-      this.setState({ gameInfo: gameInfo });
+    if (gameInfo && gameInfo.imageQueue && gameInfo.imageQueue.length > 0) {
 
+      gameInfo.image = gameInfo.imageQueue.pop();
+      this.setState({gameInfo: gameInfo});
 
     } else {
       console.log('No more images in list. Waiting to hear from server.');
     }
-  };
+  }
+
+  async _fillImageCache(): Promise<void> {
+    // Refresh the local image cache.
+    // Prefetch if the image hasn't been saved.
+    let gameInfo = this.state.gameInfo;
+
+    if (gameInfo &&
+      gameInfo.imageQueue &&
+      gameInfo.imageQueue.length > 0 &&
+      !this.downloading) {
+      this.downloading = true;
+      let imageCache = this.state.imageCache;
+
+      // TODO Promise.all
+      for (let i = gameInfo.imageQueue.length - 1; i >= 0; i--) {
+        const image = gameInfo.imageQueue[i];
+        if (!imageCache.hasOwnProperty(image.id)) {
+          imageCache[image.id] = await preloadGif(image);
+        }
+      }
+
+      this.setState({
+        imageCache: imageCache,
+        lastImageIdCached: gameInfo.imageQueue[0].id,
+      });
+      this.downloading = false;
+    }
+  }
 
   _getPlayArea = () => {
     const gameInfo = this.state.gameInfo;
@@ -281,10 +315,10 @@ export default class App extends React.Component {
     if (round != null) {
       const chooseScenario = (choiceID) => this._postToServer(
         'chooseScenario',
-        { choiceID, round });
+        {choiceID, round});
       const submitResponse = (response: string) => this._postToServer(
         'submitResponse',
-        { round, response });
+        {round, response});
 
       return (
         <GamePlay
@@ -295,9 +329,10 @@ export default class App extends React.Component {
           skipImage={() => {
             const prevImage = this.state.gameInfo ? this.state.gameInfo.image : null;
             this._nextGifFromQueue();
-            return(this._postToServer('skipImage', { image: prevImage }));
+            return(this._postToServer('skipImage', {image: prevImage}));
           }}
           gameInfo={this.state.gameInfo}
+          imageCache={this.state.imageCache}
           playerInfo={this.state.playerInfo}
           errorMessage={this.state.errorMessage} />
       );
@@ -364,7 +399,17 @@ export default class App extends React.Component {
         this.setState({
           gameInfo: null,
           playerInfo: null,
-          errorMessage: null
+          errorMessage: null,
+          imageCache: {},
+          lastImageIdCached: null,
+        });
+        this._saveState();
+      }
+
+      if (action == 'joinGame' || action == 'createNewGame') {
+        this.setState({
+          imageCache: {},
+          lastImageIdCached: null,
         });
         this._saveState();
       }
@@ -391,6 +436,12 @@ export default class App extends React.Component {
         }
         if (res.result.hasOwnProperty('gameInfo') && res.result.gameInfo) {
           this.setState({gameInfo: res.result.gameInfo});
+          if (this.state.lastImageIdCached === null ||
+            (res.result.gameInfo.imageQueue &&
+              res.result.gameInfo.imageQueue.length > 0 &&
+              this.state.lastImageIdCached < res.result.gameInfo.imageQueue[0].id)) {
+            this._fillImageCache();
+          }
           this._saveState();
         }
         if (res.result.hasOwnProperty('playerInfo') && res.result.playerInfo) {

@@ -7,10 +7,11 @@ import {
   View,
   ActivityIndicator,
 } from 'react-native';
-import Expo, { Video } from 'expo';
+import Expo, {Video} from 'expo';
+import {preloadGif} from './preloading';
 import Sentry from 'sentry-expo';
 
-import type { ImageUrl } from './flow/types';
+import type {ImageUrl} from './flow/types';
 
 type propTypes = {
   width: number,
@@ -21,24 +22,28 @@ type propTypes = {
 
 type stateTypes = {
   imageLoading: boolean,
+  localUri: ?string,
   mounted: boolean,
 };
 
 export default class Gif extends React.Component {
   props: propTypes;
   state: stateTypes;
+  videoComponent: ?Expo.Video;
 
   constructor(props: propTypes) {
     super(props);
     this.state = {
       imageLoading: true,
       mounted: false,
+      localUri: null,
     };
+    this.videoComponent = null;
   }
 
   componentDidMount() {
-    this._loadImage(this.props.source.url);
-    this.setState({ mounted: true });
+    this.setState({mounted: true});
+    this._loadImage(this.props.source);
   }
 
   componentWillReceiveProps(nextProps: propTypes) {
@@ -48,56 +53,52 @@ export default class Gif extends React.Component {
       this.setState({
         imageLoading: true,
       });
-      this._loadImage(nextProps.source.url);
+      this._loadImage(nextProps.source);
     }
   }
 
   componentWillUnmount() {
-    this.setState({ mounted: false });
+    this.setState({mounted: false});
   }
 
   _isGif(URI) {
     return URI.endsWith('.gif');
   }
 
-  async _loadImage(URI) {
-    if (this._isGif(URI)) {
-      await Image.prefetch(URI);
-    } else {
-      // Can't prefetch a video.
-      // await Expo.Asset.???.downloadAsync();
-    }
-
-    if (this.state.mounted) {
-      this.setState({ imageLoading: false });
-    }
+  async _loadImage(source) {
+    source.localUri = await preloadGif(source);
+    this.setState({
+      imageLoading: false,
+      localUri: source.localUri,
+    });
   }
 
-  _onLoadVideo(playbackStatus: Object) {
-    if (playbackStatus.isLoaded) {
-      console.log('Finished loading.');
-      if (this.state && this.state.mounted) {
-        this.setState({ imageLoading: false });
-      }
+  async _handleVideoRef(videoComponent: Expo.Video) {
+    // TODO, See how to update the Expo.Video
+    // component to automatically unload the video.
+    const prevVideo = this.videoComponent;
+    if (prevVideo && prevVideo._root) {
+      await prevVideo.unloadAsync();
     }
+    this.videoComponent = videoComponent;
   }
 
   _renderMedia() {
-    if (this._isGif(this.props.source.url)) {
-      if (this.state.imageLoading) {
-        return (
-          <ActivityIndicator
-            style={{ width: this.props.width, height: 16, position: 'absolute' }}
-            animating={this.state.imageLoading}
-            size={'large'} />
-        );
-      }
+    if (this.state.imageLoading) {
+      return (
+        <ActivityIndicator
+          style={{width: this.props.width, height: 16, position: 'absolute'}}
+          animating={this.state.imageLoading}
+          size={'large'} />
+      );
+    }
+    if (this._isGif(this.props.source.url) && this.state.localUri != null) {
 
       return (
         <Image
-          style={{ height: this.props.height, marginBottom: this.props.marginBottom }}
+          style={{height: this.props.height, marginBottom: this.props.marginBottom}}
           resizeMode='contain'
-          source={{ uri: this.props.source.url }} />
+          source={{uri: this.state.localUri}} />
       );
     }
 
@@ -107,12 +108,12 @@ export default class Gif extends React.Component {
           height: this.props.height,
           marginBottom: this.props.marginBottom,
         }}
-        resizeMode={ Expo.Video.RESIZE_MODE_CONTAIN }
-        source={{ uri: this.props.source.url }}
-        shouldPlay={ true }
-        isMuted={ true }
-        isLooping={ true }
-        onLoad={ this._onLoadVideo }
+        resizeMode={Expo.Video.RESIZE_MODE_CONTAIN}
+        source={{uri: this.state.localUri}}
+        shouldPlay={true}
+        isMuted={true}
+        isLooping={true}
+        ref={this._handleVideoRef}
         onError={
           (e) => {
             console.log('Error loading video ' + this.props.source.url);
@@ -130,7 +131,7 @@ export default class Gif extends React.Component {
         height: this.props.height,
         marginBottom: this.props.marginBottom,
       }}>
-        { this._renderMedia() }
+        {this._renderMedia()}
       </View>
     );
   }

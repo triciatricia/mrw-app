@@ -17,7 +17,7 @@ import Gif from './Gif';
 import ParaText from './ParaText';
 import ScenarioList from './ScenarioList';
 import GameStatusBar from './GameStatusBar';
-import type { GameInfo, PlayerInfo } from './flow/types';
+import type {GameInfo, PlayerInfo} from './flow/types';
 
 const WINDOW_WIDTH = Dimensions.get('window').width;
 const WINDOW_HEIGHT = Dimensions.get('window').height;
@@ -136,6 +136,7 @@ type propTypes = {
   endGame: () => Promise<void>,
   skipImage: () => Promise<void>,
   errorMessage: ?string,
+  imageCache: {[number]: string},
 };
 
 export default class GamePlay extends React.Component {
@@ -243,24 +244,31 @@ export default class GamePlay extends React.Component {
         chooseScenario={this.props.chooseScenario} />;
     }
 
-    if (this.props.playerInfo.score === null || this.props.gameInfo.round === null) {
-      console.log('Error retrieving score or round.');
-      return <ErrorMessage errorMessage={ 'Error retrieving score or round.' } />;
-    }
-
     if (this.props.gameInfo.image == null ||
       !this.props.gameInfo.image.hasOwnProperty('url')) {
       console.log('Error retrieving gif url.');
-      return <ErrorMessage errorMessage={ 'Error retrieving gif url.' } />;
+      return <ErrorMessage errorMessage={'Error retrieving gif url.'} />;
+    }
+
+    let gifSource = this.props.gameInfo.image;
+    if (this.props.imageCache.hasOwnProperty(gifSource.id)) {
+      // TODO Can we assume the OS has not deleted the downloded image?
+      gifSource.localUri = this.props.imageCache[gifSource.id];
+      gifSource.prefetched = true;
+    }
+
+    if (this.props.playerInfo.score === null || this.props.gameInfo.round === null) {
+      console.log('Error retrieving score or round.');
+      return <ErrorMessage errorMessage={'Error retrieving score or round.'} />;
     }
 
     const gif = (
       <Gif
-        style={{ flex: 1, alignItems: 'stretch', justifyContent: 'center' }}
-        width={ WINDOW_WIDTH - 40 }
-        height={ WINDOW_HEIGHT / 2 - 60 }
-        marginBottom={ 20 }
-        source={ this.props.gameInfo.image } />
+        style={{flex: 1, alignItems: 'stretch', justifyContent: 'center'}}
+        width={WINDOW_WIDTH - 40}
+        height={WINDOW_HEIGHT / 2 - 60}
+        marginBottom={20}
+        source={gifSource} />
     );
 
     return (

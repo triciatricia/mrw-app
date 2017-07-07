@@ -5,6 +5,7 @@ export type ImageUrl = {
   url: string,
   id: number,
   prefetched?: boolean,
+  localUri?: string,
 };
 
 export type GameInfo = {
