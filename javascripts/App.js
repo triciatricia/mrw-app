@@ -267,10 +267,11 @@ export default class App extends React.Component {
       !this.downloading) {
       this.downloading = true;
       let imageCache = this.state.imageCache;
+      let imageQueue = gameInfo.imageQueue;
 
       // TODO Promise.all
-      for (let i = gameInfo.imageQueue.length - 1; i >= 0; i--) {
-        const image = gameInfo.imageQueue[i];
+      for (let i = imageQueue.length - 1; i >= 0; i--) {
+        const image = imageQueue[i];
         if (!imageCache.hasOwnProperty(image.id)) {
           imageCache[image.id] = await preloadGif(image);
         }
@@ -278,7 +279,7 @@ export default class App extends React.Component {
 
       this.setState({
         imageCache: imageCache,
-        lastImageIdCached: gameInfo.imageQueue[0].id,
+        lastImageIdCached: imageQueue[0].id,
       });
       this.downloading = false;
     }
