@@ -222,7 +222,7 @@ export default class App extends React.Component {
     }
 
     const playArea = this._getPlayArea();
-    const isNewGame = playArea instanceof NewGame;
+    const isNewGame = this.state.gameInfo === null;
 
     return (
       <View style={styles.container}>
