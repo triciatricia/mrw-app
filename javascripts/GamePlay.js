@@ -143,17 +143,35 @@ export default class GamePlay extends React.Component {
   props: propTypes;
   state: {
     scenario: string,
+    loading: boolean,
   };
 
   constructor(props: propTypes) {
     super(props);
     this.state = {
-      scenario: ''
+      scenario: '',
+      loading: false,
     };
+  }
+
+  componentDidUpdate(prevProps: propTypes) {
+    if (prevProps.gameInfo.image &&
+      this.props.gameInfo.image &&
+      prevProps.gameInfo.image.id < this.props.gameInfo.image.id) {
+      // Finished getting a new image url.
+      this.setState({loading: false});
+    }
   }
 
   _isReactor() {
     return this.props.gameInfo.reactorID == this.props.playerInfo.id;
+  }
+
+  _skipImage = () => {
+    this.setState({
+      loading: true,
+    });
+    this.props.skipImage();
   }
 
   _renderHeaderText = () => {
@@ -172,10 +190,14 @@ export default class GamePlay extends React.Component {
           Waiting for responses. Hold on tight!
         </ParaText>
         <Button
-          containerStyle={styles.buttonContainer}
+          containerStyle={[
+            styles.buttonContainer,
+            {backgroundColor: this.state.loading ? "#ffffff" : "#eeeeee"}
+          ]}
           style={styles.buttonText}
-          onPress={this.props.skipImage} >
-          Skip Image
+          onPress={this._skipImage}
+          disabled={this.state.loading} >
+          {this.state.loading ? "Getting next image..." : "Skip Image"}
         </Button>
       </View>
     );

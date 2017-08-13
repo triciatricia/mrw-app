@@ -53,7 +53,11 @@ export default class Gif extends React.Component {
       this.setState({
         imageLoading: true,
       });
-      this._loadImage(nextProps.source);
+      if (nextProps.source.url !== null &&
+        nextProps.source.url !== '' &&
+        nextProps.source.id > this.props.source.id) {
+        this._loadImage(nextProps.source);
+      }
     }
   }
 
@@ -84,7 +88,7 @@ export default class Gif extends React.Component {
   }
 
   _renderMedia() {
-    if (this.state.imageLoading) {
+    if (this.state.imageLoading || this.props.source.url == '') {
       return (
         <ActivityIndicator
           style={{width: this.props.width, height: 16, position: 'absolute'}}

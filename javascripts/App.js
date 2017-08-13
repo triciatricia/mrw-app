@@ -243,19 +243,6 @@ export default class App extends React.Component {
     );
   }
 
-  async _nextGifFromQueue() {
-    // Set the game image to the next gif in the queue if available.
-    let gameInfo = this.state.gameInfo;
-    if (gameInfo && gameInfo.imageQueue && gameInfo.imageQueue.length > 0) {
-
-      gameInfo.image = gameInfo.imageQueue.pop();
-      this.setState({gameInfo: gameInfo});
-
-    } else {
-      console.log('No more images in list. Waiting to hear from server.');
-    }
-  }
-
   async _fillImageCache(): Promise<void> {
     // Refresh the local image cache.
     // Prefetch if the image hasn't been saved.
@@ -329,7 +316,11 @@ export default class App extends React.Component {
           endGame={() => this._postToServer('endGame')}
           skipImage={() => {
             const prevImage = this.state.gameInfo ? this.state.gameInfo.image : null;
-            this._nextGifFromQueue();
+            let gameInfo = this.state.gameInfo;
+            if (gameInfo && gameInfo.image && gameInfo.image.hasOwnProperty('url')) {
+              gameInfo.image.url = '';
+            }
+            this.setState({gameInfo: gameInfo});
             return(this._postToServer('skipImage', {image: prevImage}));
           }}
           gameInfo={this.state.gameInfo}
