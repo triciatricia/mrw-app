@@ -54,7 +54,7 @@ export default class ReactionScenario extends React.Component {
           {this.props.isChecked ? <TouchableOpacity style={styles.radioButtonCenter} /> : null}
         </TouchableOpacity>
         <TouchableOpacity onPress={() => {this.props.onScenarioSelection(this.props.id)}}>
-          <Text style={{fontSize: 16}}>
+          <Text style={{fontSize: 16, marginRight: 20}}>
             {this.props.scenario}
           </Text>
         </TouchableOpacity>
