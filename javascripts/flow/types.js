@@ -24,6 +24,7 @@ export type GameInfo = {
   lastGif: ?string,
   displayOrder: ?string,
   imageQueue: ?Array<ImageUrl>,
+  responsesIn: number,
 };
 
 export type PlayerInfo = {

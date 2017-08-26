@@ -137,6 +137,7 @@ type propTypes = {
   skipImage: () => Promise<void>,
   errorMessage: ?string,
   imageCache: {[number]: string},
+  timeLeft: ?number,
 };
 
 export default class GamePlay extends React.Component {
@@ -211,6 +212,15 @@ export default class GamePlay extends React.Component {
   };
 
   _scenarioSubmissionForm() {
+    if (
+      typeof this.props.timeLeft !== 'undefined' &&
+      this.props.timeLeft !== null &&
+      this.props.timeLeft <= 0
+    ) {
+      // Time is up for this round.
+      return <View><Text style={{fontSize: 18}}>Time&#39;s up! Gathering responses...</Text></View>;
+    }
+
     let buttonText = 'Submit Response';
     let helpMessage = '';
     let placeholder = 'Make up something';
@@ -300,7 +310,10 @@ export default class GamePlay extends React.Component {
             nickname={this.props.playerInfo.nickname}
             score={this.props.playerInfo.score}
             round={this.props.gameInfo.round}
-            gameCode={this.props.gameInfo.id.toString()} />
+            gameCode={this.props.gameInfo.id.toString()}
+            waitingForScenarios={this.props.gameInfo.waitingForScenarios}
+            timeLeft={this.props.timeLeft}
+            responsesIn={this.props.gameInfo.responsesIn} />
 
           {gif}
 

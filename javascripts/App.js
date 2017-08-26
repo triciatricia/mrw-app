@@ -35,6 +35,7 @@ export default class App extends React.Component {
     appIsReady: boolean,
     imageCache: {[number]: string},
     lastImageIdCached: ?number,
+    timeLeft: ?number,
   }
   downloading: boolean;
 
@@ -48,6 +49,7 @@ export default class App extends React.Component {
       appIsReady: false,
       imageCache: {},
       lastImageIdCached: null,
+      timeLeft: null,
     };
     this.downloading = false;
   }
@@ -80,6 +82,9 @@ export default class App extends React.Component {
     // Start polling game info
     this._pollGameInfo();
     setInterval(this._pollGameInfo, 1000);
+
+    // Set the countdown timer for waiting for responses
+    setInterval(this._roundCountdown, 1000);
   }
 
   _loadSavedState() {
@@ -326,7 +331,8 @@ export default class App extends React.Component {
           gameInfo={this.state.gameInfo}
           imageCache={this.state.imageCache}
           playerInfo={this.state.playerInfo}
-          errorMessage={this.state.errorMessage} />
+          errorMessage={this.state.errorMessage}
+          timeLeft={this.state.timeLeft} />
       );
     }
     if (this.state.gameInfo.gameOver) {
@@ -350,6 +356,14 @@ export default class App extends React.Component {
   _pollGameInfo = async () => {
     if (this.state.gameInfo !== null) {
       await this._postToServer('getGameInfo');
+    }
+  };
+
+  _roundCountdown = async () => {
+    if (typeof this.state.timeLeft !== 'undefined' && this.state.timeLeft !== null) {
+      this.setState({
+        timeLeft: Math.max(this.state.timeLeft - 1000, 0),
+      });
     }
   };
 
@@ -394,6 +408,7 @@ export default class App extends React.Component {
           errorMessage: null,
           imageCache: {},
           lastImageIdCached: null,
+          timeLeft: null,
         });
         this._saveState();
       }
@@ -428,6 +443,17 @@ export default class App extends React.Component {
         }
         if (res.result.hasOwnProperty('gameInfo') && res.result.gameInfo) {
           this.setState({gameInfo: res.result.gameInfo});
+
+          // Update time left in round if applicable and over 2000 ms off
+          if (res.result.gameInfo.hasOwnProperty('timeLeft') &&
+            (typeof this.state.timeLeft === 'undefined' ||
+              this.state.timeLeft === null ||
+              Math.abs(this.state.timeLeft - res.result.gameInfo.timeLeft) > 2000)) {
+            this.setState({
+              timeLeft: res.result.gameInfo.timeLeft < 0 ? 0 : res.result.gameInfo.timeLeft
+            });
+          }
+
           if (this.state.lastImageIdCached === null ||
             (res.result.gameInfo.imageQueue &&
               res.result.gameInfo.imageQueue.length > 0 &&

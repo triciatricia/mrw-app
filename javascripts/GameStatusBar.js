@@ -7,32 +7,66 @@ import {
 } from 'react-native';
 
 export default class GameStatusBar extends React.Component {
+  formatTime(ms: number) {
+    // ms is in milliseconds.
+    // Returns a string in the xx:xx (mins:secs) format.
+    const mins = Math.floor(ms / 60000);
+    let secs = Math.floor((ms - mins * 60000)/1000);
+    if (secs <= 9) {
+      secs = "0" + secs;
+    }
+    return '' + mins + ':' + secs;
+  }
+
   props: {
     nickname: string,
     score: number,
     round: number,
     gameCode: string,
+    waitingForScenarios: bool,
+    timeLeft: ?number,
+    responsesIn: number,
   };
 
   render() {
+    let timeLeft;
+    let responsesInMessage;
+    if (
+      this.props.waitingForScenarios &&
+      this.props.timeLeft !== null &&
+      typeof this.props.timeLeft !== 'undefined'
+    ) {
+      timeLeft = <Text>{this.formatTime(this.props.timeLeft)}</Text>;
+      if (this.props.responsesIn > 0) {
+        responsesInMessage = this.props.responsesIn + ' ';
+        responsesInMessage += this.props.responsesIn == 1 ? 'player has' : 'players have';
+        responsesInMessage += ' responded so far.';
+      }
+    }
     return (
-      <View style={{flexDirection: 'row'}}>
-        <View style={{flex: 1}}>
-          <Text style={{fontSize: 16}}>
-            {this.props.nickname}
-          </Text>
-          <Text style={{fontSize: 16, paddingBottom: 10}}>
-            Score: {this.props.score}
-          </Text>
-        </View>
+      <View style={{flexDirection: 'column'}}>
+        <View style={{flexDirection: 'row'}}>
+          <View style={{flex: 1}}>
+            <Text style={{fontSize: 16}}>
+              {this.props.nickname}
+            </Text>
+            <Text style={{fontSize: 16, paddingBottom: 10}}>
+              Score: {this.props.score}
+            </Text>
+          </View>
 
-        <View style={{flex: 1, alignItems: 'flex-end'}}>
-          <Text style={{fontSize: 16}}>
-            Round: {this.props.round}
-          </Text>
-          <Text style={{fontSize: 16, paddingBottom: 10}}>
-            Game Code: {this.props.gameCode}
-          </Text>
+          <View style={{flex: 1, alignItems: 'flex-end'}}>
+            <Text style={{fontSize: 16}}>
+              Round: {this.props.round}
+            </Text>
+            <Text style={{fontSize: 16, paddingBottom: 10}}>
+              Game Code: {this.props.gameCode}
+            </Text>
+          </View>
+        </View>
+        <View>
+          <Text style={{fontSize: 20, textAlign: 'center'}}>{timeLeft}</Text>
+          <Text style={{fontSize: 14, textAlign: 'center', paddingBottom: 20}}>{responsesInMessage}</Text>
         </View>
       </View>
     );
