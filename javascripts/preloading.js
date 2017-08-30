@@ -1,10 +1,7 @@
 // Tools for preloading things
 /* @flow */
 
-import {NativeModules} from 'react-native';
-import Expo from 'expo';
-
-const FS = NativeModules.ExponentFileSystem;
+import {FileSystem} from 'expo';
 
 import type {ImageUrl} from './flow/types';
 
@@ -22,13 +19,13 @@ export const preloadGif = async (image: ImageUrl): Promise<string> => {
   }
 
   try {
-    const fileName = `ExponentAsset-Gif-${image.id}.${fileExt}`;
+    const fileName = `${FileSystem.cacheDirectory}MRW-Gif-${image.id}.${fileExt}`;
     console.log(`Downloading ${image.url} as ${fileName}`);
     let md5, uri;
-    ({md5, uri} = await FS.downloadAsync(
+    ({uri} = await FileSystem.downloadAsync(
       image.url,
       fileName,
-      {cache: true, md5: true}
+      {md5: false}
     ));
     return uri;
   } catch (e) {
