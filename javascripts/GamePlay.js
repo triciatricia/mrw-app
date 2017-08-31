@@ -215,9 +215,10 @@ export default class GamePlay extends React.Component {
     if (
       typeof this.props.timeLeft !== 'undefined' &&
       this.props.timeLeft !== null &&
-      this.props.timeLeft <= 0
+      this.props.timeLeft <= 0 &&
+      this.props.gameInfo.responsesIn > 0
     ) {
-      // Time is up for this round.
+      // Time is up for this round and at least one response is in.
       return <View><Text style={{fontSize: 18}}>Time&#39;s up! Gathering responses...</Text></View>;
     }
 

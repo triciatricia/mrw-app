@@ -41,6 +41,11 @@ export default class GameStatusBar extends React.Component {
         responsesInMessage = this.props.responsesIn + ' ';
         responsesInMessage += this.props.responsesIn == 1 ? 'player has' : 'players have';
         responsesInMessage += ' responded so far.';
+      } else if (
+        this.props.timeLeft !== null &&
+        typeof this.props.timeLeft !== 'undefined' &&
+        this.props.timeLeft <= 0) {
+        responsesInMessage = 'No one has responded yet. Waiting for at least one response...';
       }
     }
     return (
