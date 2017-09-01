@@ -15,7 +15,7 @@ import Sentry from 'sentry-expo';
 import {preloadGif} from './preloading';
 import GamePlay from './GamePlay';
 import GameOver from './GameOver';
-import networking from './networking';
+import {postToServer, invalidState} from './networking';
 import NewGame from './NewGame';
 import NewPlayer from './NewPlayer';
 import Settings from './Settings';
@@ -313,6 +313,58 @@ export default class App extends React.Component {
     );
   };
 
+  _handleServerResponse = (action, res, postData) => {
+    if (res.errorMessage) {
+      this.setState({
+        errorMessage: res.errorMessage
+      });
+      this._setSentryContext();
+      Sentry.captureMessage('Error message set: ' + res.errorMessage, {
+        level: 'info'
+      });
+    } else {
+      // Check for an invalid state
+      if (invalidState(res, action, postData, this.state.gameInfo, this.state.playerInfo)) {
+        this._setSentryContext();
+        Sentry.captureMessage('postToServer response invalid state: ' + action, {
+          level: action === 'leaveGame' ? 'info' : 'warning',
+          extra: res
+        });
+        return;
+      }
+      if (res.result.hasOwnProperty('gameInfo') && res.result.gameInfo) {
+        this.setState({gameInfo: res.result.gameInfo});
+
+        // Update time left in round if applicable and over 2000 ms off
+        if (res.result.gameInfo.hasOwnProperty('timeLeft') &&
+          (typeof this.state.timeLeft === 'undefined' ||
+            this.state.timeLeft === null ||
+            Math.abs(this.state.timeLeft - res.result.gameInfo.timeLeft) > 2000)) {
+          this.setState({
+            timeLeft: res.result.gameInfo.timeLeft < 0 ? 0 : res.result.gameInfo.timeLeft
+          });
+        }
+
+        if (this.state.lastImageIdCached === null ||
+          (res.result.gameInfo.imageQueue &&
+            res.result.gameInfo.imageQueue.length > 0 &&
+            this.state.lastImageIdCached < res.result.gameInfo.imageQueue[0].id)) {
+          this._fillImageCache();
+        }
+        this._saveState();
+      }
+      if (res.result.hasOwnProperty('playerInfo') && res.result.playerInfo) {
+        this.setState({playerInfo: res.result.playerInfo});
+        this._saveState();
+      }
+      if (action != 'getGameInfo') {
+        this.setState({
+          errorMessage: null
+        });
+      }
+    }
+  };
+
   _pollGameInfo = async () => {
     if (this.state.gameInfo !== null) {
       await this._postToServer('getGameInfo');
@@ -362,15 +414,7 @@ export default class App extends React.Component {
 
       // If the player wanted to leave the game, reset everything.
       if (action == 'leaveGame') {
-        this.setState({
-          gameInfo: null,
-          playerInfo: null,
-          errorMessage: null,
-          imageCache: {},
-          lastImageIdCached: null,
-          timeLeft: null,
-        });
-        this._saveState();
+        this._resetState();
       }
 
       if (action == 'joinGame' || action == 'createNewGame') {
@@ -381,57 +425,10 @@ export default class App extends React.Component {
         this._saveState();
       }
 
-      const res = await networking.postToServer(postData);
+      const res = await postToServer(postData);
 
-      if (res.errorMessage) {
-        this.setState({
-          errorMessage: res.errorMessage
-        });
-        this._setSentryContext();
-        Sentry.captureMessage('Error message set: ' + res.errorMessage, {
-          level: 'info'
-        });
-      } else {
-        // Check for an invalid state
-        if (this._invalidState(res, action, postData)) {
-          this._setSentryContext();
-          Sentry.captureMessage('postToServer response invalid state: ' + action, {
-            level: action === 'leaveGame' ? 'info' : 'warning',
-            extra: res
-          });
-          return;
-        }
-        if (res.result.hasOwnProperty('gameInfo') && res.result.gameInfo) {
-          this.setState({gameInfo: res.result.gameInfo});
+      this._handleServerResponse(action, res, postData);
 
-          // Update time left in round if applicable and over 2000 ms off
-          if (res.result.gameInfo.hasOwnProperty('timeLeft') &&
-            (typeof this.state.timeLeft === 'undefined' ||
-              this.state.timeLeft === null ||
-              Math.abs(this.state.timeLeft - res.result.gameInfo.timeLeft) > 2000)) {
-            this.setState({
-              timeLeft: res.result.gameInfo.timeLeft < 0 ? 0 : res.result.gameInfo.timeLeft
-            });
-          }
-
-          if (this.state.lastImageIdCached === null ||
-            (res.result.gameInfo.imageQueue &&
-              res.result.gameInfo.imageQueue.length > 0 &&
-              this.state.lastImageIdCached < res.result.gameInfo.imageQueue[0].id)) {
-            this._fillImageCache();
-          }
-          this._saveState();
-        }
-        if (res.result.hasOwnProperty('playerInfo') && res.result.playerInfo) {
-          this.setState({playerInfo: res.result.playerInfo});
-          this._saveState();
-        }
-        if (action != 'getGameInfo') {
-          this.setState({
-            errorMessage: null
-          });
-        }
-      }
     } catch(error) {
       console.log(error);
       this.setState({
@@ -440,49 +437,17 @@ export default class App extends React.Component {
     }
   };
 
-  // Compare the result from a network message to current state
-  _invalidState = (res, action, postData) => {
-    if (!res.hasOwnProperty('result')) {
-      return true;
-    }
-    const gameInfo = this.state.gameInfo;
-    const playerInfo = this.state.playerInfo;
-    if (
-      action != 'leaveGame' &&
-      res.result.gameInfo &&
-      gameInfo != null &&
-      gameInfo.hasOwnProperty('id') &&
-      (!res.result.gameInfo.hasOwnProperty('id') ||
-       res.result.gameInfo.id != gameInfo.id)
-    ) {
-      return true;
-    }
-    if (res.result.hasOwnProperty('playerInfo') &&
-        playerInfo != null && playerInfo.hasOwnProperty('id') &&
-        action != 'logOut' && action != 'leaveGame' && res.result.playerInfo != null) {
-      if (!res.result.playerInfo.hasOwnProperty('id') || res.result.playerInfo.id != playerInfo.id) {
-        return true;
-      }
-    }
-    if (gameInfo == null && res.result.gameInfo &&
-        action != 'joinGame' && action != 'createNewGame') {
-      return true;
-    }
-    // Check if the gif is older.
-    if (res.result.hasOwnProperty('gameInfo') &&
-      res.result.gameInfo != null &&
-      res.result.gameInfo.hasOwnProperty('image') &&
-      gameInfo != null &&
-      gameInfo.hasOwnProperty('image') &&
-      res.result.gameInfo.image != null &&
-      gameInfo.image != null &&
-      res.result.gameInfo.image.id < gameInfo.image.id &&
-      (action !== 'skipImage' || (postData.image &&
-        postData.image.id !== res.result.gameInfo.image.id))) {
-        return true;
-      }
-    return false;
-  };
+  _resetState = () => {
+    this.setState({
+      gameInfo: null,
+      playerInfo: null,
+      errorMessage: null,
+      imageCache: {},
+      lastImageIdCached: null,
+      timeLeft: null,
+    });
+    this._saveState();
+  }
 }
 
 const styles = StyleSheet.create({
