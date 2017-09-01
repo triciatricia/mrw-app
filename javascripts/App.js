@@ -1,6 +1,6 @@
 /* @flow */
 
-import {SQLite, AppLoading} from 'expo';
+import {AppLoading} from 'expo';
 import {
   StyleSheet,
   Text,
@@ -19,11 +19,12 @@ import networking from './networking';
 import NewGame from './NewGame';
 import NewPlayer from './NewPlayer';
 import Settings from './Settings';
+import Database from './database';
 import WaitingToStart from './WaitingToStart';
 
 import type {GameInfo, PlayerInfo, ImageUrl} from './flow/types';
 
-const db = SQLite.openDatabase('db.db');
+const db = new Database();
 
 type propTypes = {};
 
@@ -58,22 +59,12 @@ export default class App extends React.Component {
 
   componentDidMount() {
     // Create the sqlite tables if they haven't been created.
-    db.transaction(
-      tx => {
-        tx.executeSql(
-          'CREATE TABLE IF NOT EXISTS info (key TEXT PRIMARY KEY, value TEXT);',
-          [],
-          (tx, res) => {
-            tx.executeSql(
-              'INSERT OR IGNORE INTO info VALUES ("gameInfo", null), ("playerInfo", null), ("errorMessage", null);'
-            );
-          },
-          (tx, err) => {
-            console.log(err);
-            this.setState({errorMessage: 'Error accessing database'});
-          });
-      },
-      err => console.log(err));
+    db.initializeTables(
+      err => {
+        console.log(err);
+        this.setState({errorMessage: 'Error accessing database'});
+      }
+    );
 
     try {
       this._loadSavedState();
@@ -91,69 +82,36 @@ export default class App extends React.Component {
 
   _loadSavedState() {
     // Load saved state from sqlite database
-    db.transaction(
-      tx => {
-        tx.executeSql(
-          'SELECT * FROM info',
-          [],
-          (tx, res) => {
-            let savedVals = {}
-            try {
-              for (const row in res.rows._array) {
-                savedVals[res.rows._array[row].key] = JSON.parse(res.rows._array[row].value);
-              }
-            } catch (err) {
-              console.log('Error processing saved data.');
-              console.log(err);
-              this.setState({
-                errorMessage: 'Error processing saved data.',
-                appIsReady: true,
-              });
-              return;
-            }
+    db.loadSavedState(
+      (savedVals, err) => {
+        if (err) {
+          console.log(err);
+          this.setState({
+            errorMessage: 'Error processing saved data.',
+            appIsReady: true,
+          });
+          return;
+        }
 
-            console.log('Loading saved state');
-            console.log(savedVals);
+        this.setState({
+          gameInfo: savedVals != null && savedVals.hasOwnProperty('gameInfo') ? savedVals.gameInfo : null,
+          playerInfo: savedVals != null && savedVals.hasOwnProperty('playerInfo') ? savedVals.playerInfo : null,
+          errorMessage: savedVals != null && savedVals.hasOwnProperty('errorMessage') ? savedVals.errorMessage : null,
+          settingsVisible: false,
+          appIsReady: true,
+        });
 
-            this.setState({
-              gameInfo: savedVals.hasOwnProperty('gameInfo') ? savedVals.gameInfo : null,
-              playerInfo: savedVals.hasOwnProperty('playerInfo') ? savedVals.playerInfo : null,
-              errorMessage: savedVals.hasOwnProperty('errorMessage') ? savedVals.errorMessage : null,
-              settingsVisible: false,
-              appIsReady: true,
-            });
-
-            this._setSentryContext();
-          },
-          (tx, err) => {
-            console.log('No saved state.');
-            this.setState({appIsReady: true});
-          }
-        );
-    },
-    err => {
-      console.log(err);
-      this.setState({appIsReady: true});
-    });
+        this._setSentryContext();
+      }
+    );
   }
 
   _saveState() {
     // Save state to sqlite database
-    this._updateSavedInfo('gameInfo', this.state.gameInfo);
-    this._updateSavedInfo('playerInfo', this.state.playerInfo);
-    this._updateSavedInfo('errorMessage', this.state.errorMessage);
+    db.updateSavedInfo('gameInfo', this.state.gameInfo);
+    db.updateSavedInfo('playerInfo', this.state.playerInfo);
+    db.updateSavedInfo('errorMessage', this.state.errorMessage);
     this._setSentryContext();
-  }
-
-  _updateSavedInfo(key, value) {
-    db.transaction(
-      tx => {
-        tx.executeSql(
-          'UPDATE info SET value=? WHERE key=?',
-          [JSON.stringify(value), key],
-          (tx, res) => {},
-          (tx, err) => {console.log('Error saving state.')});
-      });
   }
 
   _setSettingsVisible(isVisible) {
