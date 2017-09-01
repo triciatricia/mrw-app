@@ -1,6 +1,5 @@
 /* @flow */
 
-import React from 'react';
 import {SQLite, AppLoading} from 'expo';
 import {
   StyleSheet,
@@ -9,16 +8,19 @@ import {
   View,
   Image,
 } from 'react-native';
+import Button from 'react-native-button';
+import React from 'react';
 import Sentry from 'sentry-expo';
-import NewGame from './NewGame';
-import NewPlayer from './NewPlayer';
-import WaitingToStart from './WaitingToStart';
+
+import {preloadGif} from './preloading';
 import GamePlay from './GamePlay';
 import GameOver from './GameOver';
 import networking from './networking';
-import {preloadGif} from './preloading';
+import NewGame from './NewGame';
+import NewPlayer from './NewPlayer';
 import Settings from './Settings';
-import Button from 'react-native-button';
+import WaitingToStart from './WaitingToStart';
+
 import type {GameInfo, PlayerInfo, ImageUrl} from './flow/types';
 
 const db = SQLite.openDatabase('db.db');
