@@ -10,16 +10,16 @@ import {
 } from 'react-native';
 import Button from 'react-native-button';
 import React from 'react';
-import Sentry from 'sentry-expo';
 
+import * as Reporting from './reporting';
+import {invalidState, postToServer} from './networking';
 import {preloadGif} from './preloading';
+import Database from './database';
 import GamePlay from './GamePlay';
 import GameOver from './GameOver';
-import {postToServer, invalidState} from './networking';
 import NewGame from './NewGame';
 import NewPlayer from './NewPlayer';
 import Settings from './Settings';
-import Database from './database';
 import WaitingToStart from './WaitingToStart';
 
 import type {GameInfo, PlayerInfo, ImageUrl} from './flow/types';
@@ -101,7 +101,7 @@ export default class App extends React.Component {
           appIsReady: true,
         });
 
-        this._setSentryContext();
+        Reporting.setSentryContext(this.state);
       }
     );
   }
@@ -111,50 +111,11 @@ export default class App extends React.Component {
     db.updateSavedInfo('gameInfo', this.state.gameInfo);
     db.updateSavedInfo('playerInfo', this.state.playerInfo);
     db.updateSavedInfo('errorMessage', this.state.errorMessage);
-    this._setSentryContext();
+    Reporting.setSentryContext(this.state);
   }
 
   _setSettingsVisible(isVisible) {
     this.setState({settingsVisible: isVisible});
-  }
-
-  _redactPlayerInfo() {
-    // Remove the response.
-    let redactedPlayerInfo = Object.assign({}, this.state.playerInfo);
-    if (redactedPlayerInfo.hasOwnProperty('response') && redactedPlayerInfo.response) {
-      redactedPlayerInfo.response = 'hidden';
-    }
-    return redactedPlayerInfo;
-  }
-
-  _redactGameInfo() {
-    // Remove choices
-    let redactedGameInfo = Object.assign({}, this.state.gameInfo);
-
-    if (this.state.gameInfo && redactedGameInfo.hasOwnProperty('choices') && redactedGameInfo.choices) {
-      redactedGameInfo.choices = Object.assign({}, this.state.gameInfo.choices);
-      for (let i in redactedGameInfo.choices) {
-        redactedGameInfo.choices[i] = 'hidden';
-      }
-    }
-
-    return redactedGameInfo;
-  }
-
-  _redactedStateData() {
-    return {
-      playerInfo: this._redactPlayerInfo(),
-      gameInfo: this._redactGameInfo(),
-      errorMessage: this.state.errorMessage,
-      settingsVisible: this.state.settingsVisible
-    };
-  }
-
-  _setSentryContext() {
-    Sentry.setUserContext({
-      id: this.state.playerInfo && this.state.playerInfo.hasOwnProperty('id') ? this.state.playerInfo.id : null
-    });
-    Sentry.setExtraContext(this._redactedStateData());
   }
 
   render() {
@@ -318,18 +279,16 @@ export default class App extends React.Component {
       this.setState({
         errorMessage: res.errorMessage
       });
-      this._setSentryContext();
-      Sentry.captureMessage('Error message set: ' + res.errorMessage, {
-        level: 'info'
-      });
+      Reporting.reportError(res.errorMessage, this.state);
     } else {
       // Check for an invalid state
       if (invalidState(res, action, postData, this.state.gameInfo, this.state.playerInfo)) {
-        this._setSentryContext();
-        Sentry.captureMessage('postToServer response invalid state: ' + action, {
-          level: action === 'leaveGame' ? 'info' : 'warning',
-          extra: res
-        });
+        Reporting.captureMessage(
+          'postToServer response invalid state: ' + action,
+          this.state,
+          action === 'leaveGame' ? 'info' : 'warning',
+          Reporting.redactedRes(res)
+        );
         return;
       }
       if (res.result.hasOwnProperty('gameInfo') && res.result.gameInfo) {
@@ -389,20 +348,7 @@ export default class App extends React.Component {
         ? this.state.gameInfo.id : null);
 
       // Log actions
-      if (action === 'submitResponse' || action === 'joinGame' || action === 'leaveGame') {
-        this._setSentryContext();
-        Sentry.captureMessage('postToServer action: ' + action, {
-          level: 'info',
-          tags: {type: 'postToServer_action'}
-        });
-      } else if (action !== 'getGameInfo') {
-        this._setSentryContext();
-        Sentry.captureBreadcrumb({
-          message: 'postToServer action: ' + action,
-          category: 'action',
-          data: this._redactedStateData()
-        });
-      }
+      Reporting.logAction(action, this.state);
 
       let postData = {};
       Object.assign(postData, {
