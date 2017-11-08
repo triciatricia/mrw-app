@@ -1,6 +1,7 @@
+// @flow
 // Colors used throughout the app
 module.exports = {
-  blue: '#4472c4',
-  gray: '#eee',
-  darkblue: '#2355ad',
+  BLUE: '#4472c4',
+  GRAY: '#eee',
+  DARK_BLUE: '#2355ad',
 };

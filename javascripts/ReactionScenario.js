@@ -10,7 +10,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import ParaText from './ParaText';
-import COLORS from '../constants/colors';
+import colors from '../constants/colors';
 
 type propTypes = {
   scenario: string,
@@ -33,7 +33,7 @@ export default class ReactionScenario extends React.Component {
         <View style={this.props.wasChosen ? styles.selectedTextView : null}>
           <ParaText style={this.props.wasChosen ? styles.selectedText : {}}>
             {this.props.scenario}
-            <ParaText style={{color: COLORS.blue}}>
+            <ParaText style={{color: colors.BLUE}}>
               {this.props.wasChosen ? ' ' + this.props.submittedBy + ' +1' : null}
             </ParaText>
           </ParaText>
@@ -81,14 +81,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 8,
     borderWidth: 2,
-    borderColor: COLORS.blue,
+    borderColor: colors.BLUE,
     marginRight: 5
   },
   radioButtonCenter: {
     height: 8,
     width: 8,
     borderRadius: 4,
-    backgroundColor: COLORS.blue,
+    backgroundColor: colors.BLUE,
   },
   selectedText: {
     fontWeight: 'bold',
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   },
   selectedTextView: {
     borderRadius: 10,
-    backgroundColor: COLORS.blue,
+    backgroundColor: colors.BLUE,
     paddingLeft: 10,
     paddingRight: 10,
     marginBottom: 10,

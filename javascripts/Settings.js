@@ -52,7 +52,7 @@ export default class Settings extends React.Component {
                 this.props.setSettingsVisible(false)
               }} >
               <Text style={{
-                color: colors.blue,
+                color: colors.BLUE,
                 paddingTop: 10,
                 paddingBottom:10
               }}>Cancel</Text>
