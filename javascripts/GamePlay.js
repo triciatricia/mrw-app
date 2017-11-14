@@ -19,8 +19,8 @@ import ScenarioList from './ScenarioList';
 import GameStatusBar from './GameStatusBar';
 import type {GameInfo, PlayerInfo} from './flow/types';
 
-const WINDOW_WIDTH = Dimensions.get('window').width;
 const WINDOW_HEIGHT = Dimensions.get('window').height;
+const WINDOW_WIDTH = Dimensions.get('window').width;
 
 class ScenarioListForm extends React.Component {
   constructor(props) {
