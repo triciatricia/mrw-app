@@ -7,17 +7,6 @@ import {
 } from 'react-native';
 
 export default class GameStatusBar extends React.Component {
-  formatTime(ms: number) {
-    // ms is in milliseconds.
-    // Returns a string in the xx:xx (mins:secs) format.
-    const mins = Math.floor(ms / 60000);
-    let secs = Math.floor((ms - mins * 60000)/1000);
-    if (secs <= 9) {
-      secs = "0" + secs;
-    }
-    return '' + mins + ':' + secs;
-  }
-
   props: {
     nickname: string,
     score: number,
@@ -36,7 +25,7 @@ export default class GameStatusBar extends React.Component {
       this.props.timeLeft !== null &&
       typeof this.props.timeLeft !== 'undefined'
     ) {
-      timeLeft = <Text>{this.formatTime(this.props.timeLeft)}</Text>;
+      timeLeft = <Text>{formatTime(this.props.timeLeft)}</Text>;
       if (this.props.responsesIn > 0) {
         responsesInMessage = this.props.responsesIn + ' ';
         responsesInMessage += this.props.responsesIn == 1 ? 'player has' : 'players have';
@@ -76,4 +65,15 @@ export default class GameStatusBar extends React.Component {
       </View>
     );
   }
+}
+
+function formatTime(ms: number): string {
+  // ms is in milliseconds.
+  // Returns a string in the xx:xx (mins:secs) format.
+  const mins = Math.floor(ms / 60000);
+  let secs = Math.floor((ms - mins * 60000)/1000);
+  if (secs <= 9) {
+    secs = "0" + secs;
+  }
+  return '' + mins + ':' + secs;
 }
