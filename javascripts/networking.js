@@ -11,9 +11,8 @@ export const postToServer = async (data) => {
       },
       body: JSON.stringify(data)
     });
-    let res = await response.json();
-    return res;
-  } catch(error) {
+    return await response.json();
+  } catch (error) {
     return {errorMessage: 'Error communicating with server'};
   }
 };
@@ -55,7 +54,7 @@ export const invalidState = (res, action, postData, gameInfo, playerInfo) => {
     res.result.gameInfo.image.id < gameInfo.image.id &&
     (action !== 'skipImage' || (postData.image &&
       postData.image.id !== res.result.gameInfo.image.id))) {
-      return true;
-    }
+    return true;
+  }
   return false;
 };

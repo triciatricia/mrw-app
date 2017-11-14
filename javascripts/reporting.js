@@ -22,7 +22,7 @@ export function redactPlayerInfo(playerInfo: ?PlayerInfo): PlayerInfo {
 }
 
 export function redactGameInfo(gameInfo: ?GameInfo): GameInfo {
-  // Remove choices
+  // Remove choices (for privacy).
   let redactedGameInfo = Object.assign({}, gameInfo);
 
   if (gameInfo && redactedGameInfo.hasOwnProperty('choices') && redactedGameInfo.choices) {

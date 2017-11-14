@@ -11,7 +11,7 @@ import Button from 'react-native-button';
 
 export default class Settings extends React.Component {
   render() {
-    return(
+    return (
       <Modal
         animationType='fade'
         transparent={false}
@@ -61,6 +61,6 @@ export default class Settings extends React.Component {
 
        </View>
       </Modal>
-    )
+    );
   }
 }

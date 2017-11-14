@@ -48,8 +48,14 @@ export default class NewPlayer extends React.Component {
                 underlineColorAndroid='transparent' />
             </View>
             <Button
-              containerStyle={[styles.submitContainer, {backgroundColor: this.state.nickname.trim() === '' ? '#eee' : '#4472C4'}]}
-              style={[styles.submitText, {color: this.state.nickname.trim() === '' ? '#333' : '#fff'}]}
+              containerStyle={[
+                styles.submitContainer,
+                {backgroundColor: this.state.nickname.trim() === '' ? '#eee' : '#4472C4'}
+              ]}
+              style={[
+                styles.submitText,
+                {color: this.state.nickname.trim() === '' ? '#333' : '#fff'}
+              ]}
               onPress={() => {
                 Keyboard.dismiss();
                 this.props.createPlayer(this.state.nickname.trim());
