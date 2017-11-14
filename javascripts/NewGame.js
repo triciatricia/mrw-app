@@ -50,7 +50,7 @@ export default class NewGame extends React.Component {
             <View style={styles.inputView}>
               <TextInput
                 style={styles.input}
-                placeholder='Enter game code:'
+                placeholder='Game code...'
                 onChangeText={(text) => this.setState({gameCode: text})}
                 value={this.state.gameCode}
                 autoCorrect={false}
