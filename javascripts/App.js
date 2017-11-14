@@ -159,7 +159,7 @@ export default class App extends React.Component {
           {settingsLink}
         </View>
         <Settings
-          setSettingsVisible={(visible) => {this._setSettingsVisible(visible)}}
+          setSettingsVisible={this._setSettingsVisible}
           settingsVisible={this.state.settingsVisible}
           leaveGame={() => {this._postToServer('leaveGame')}} />
         <View style={styles.playArea}>
@@ -247,7 +247,7 @@ export default class App extends React.Component {
               gameInfo.image.url = '';
             }
             this.setState({gameInfo: gameInfo});
-            return(this._postToServer('skipImage', {image: prevImage}));
+            return this._postToServer('skipImage', {image: prevImage});
           }}
           gameInfo={this.state.gameInfo}
           imageCache={this.state.imageCache}
