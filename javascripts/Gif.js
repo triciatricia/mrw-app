@@ -7,7 +7,7 @@ import {
   View,
   ActivityIndicator,
 } from 'react-native';
-import Expo, {Video} from 'expo';
+import Expo from 'expo';
 import {preloadGif} from './preloading';
 import Sentry from 'sentry-expo';
 
@@ -97,7 +97,6 @@ export default class Gif extends React.Component {
       );
     }
     if (this._isGif(this.props.source.url) && this.state.localUri != null) {
-
       return (
         <Image
           style={{height: this.props.height, marginBottom: this.props.marginBottom}}
@@ -124,7 +123,7 @@ export default class Gif extends React.Component {
             console.log(e);
           }
         }
-        />
+      />
     );
   }
 
