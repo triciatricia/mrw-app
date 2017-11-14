@@ -1,5 +1,5 @@
 import Expo from 'expo';
-import App from './javascripts/App';
+import App from './components/App';
 import Sentry from 'sentry-expo';
 
 Sentry.enableInExpoDevelopment = true;

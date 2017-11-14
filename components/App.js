@@ -11,10 +11,10 @@ import {
 import Button from 'react-native-button';
 import React from 'react';
 
-import * as Reporting from './reporting';
-import {invalidState, postToServer} from './networking';
-import {preloadGif} from './preloading';
-import Database from './database';
+import * as Reporting from '../libraries/reporting';
+import {invalidState, postToServer} from '../libraries/networking';
+import {preloadGif} from '../libraries/preloading';
+import Database from '../libraries/database';
 import GamePlay from './GamePlay';
 import GameOver from './GameOver';
 import NewGame from './NewGame';
@@ -22,7 +22,7 @@ import NewPlayer from './NewPlayer';
 import Settings from './Settings';
 import WaitingToStart from './WaitingToStart';
 
-import type {GameInfo, PlayerInfo, ImageUrl} from './flow/types';
+import type {GameInfo, PlayerInfo, ImageUrl} from '../flow/types';
 
 const db = new Database();
 

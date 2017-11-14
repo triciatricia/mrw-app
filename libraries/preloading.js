@@ -3,7 +3,7 @@
 
 import {FileSystem} from 'expo';
 
-import type {ImageUrl} from './flow/types';
+import type {ImageUrl} from '../flow/types';
 
 export const preloadGif = async (image: ImageUrl): Promise<string> => {
   // Preload a gif or video.

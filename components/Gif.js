@@ -8,10 +8,10 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import Expo from 'expo';
-import {preloadGif} from './preloading';
+import {preloadGif} from '../libraries/preloading';
 import Sentry from 'sentry-expo';
 
-import type {ImageUrl} from './flow/types';
+import type {ImageUrl} from '../flow/types';
 
 type propTypes = {
   width: number,

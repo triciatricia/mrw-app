@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import Button from 'react-native-button';
 import ErrorMessage from './ErrorMessage';
-import type { GameInfo, PlayerInfo } from './flow/types';
+import type { GameInfo, PlayerInfo } from '../flow/types';
 
 type propTypes = {
   gameInfo: GameInfo,

@@ -3,7 +3,7 @@
 
 import Sentry from 'sentry-expo';
 
-import type {GameInfo, PlayerInfo} from './flow/types';
+import type {GameInfo, PlayerInfo} from '../flow/types';
 
 type State = {
   playerInfo: ?PlayerInfo,

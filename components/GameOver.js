@@ -13,7 +13,7 @@ import {
 import Button from 'react-native-button';
 import ParaText from './ParaText';
 import ErrorMessage from './ErrorMessage';
-import type { GameInfo, PlayerInfo } from './flow/types';
+import type { GameInfo, PlayerInfo } from '../flow/types';
 
 const WINDOW_HEIGHT: number = Dimensions.get('window').height;
 const HEADER_HEIGHT = 70;
