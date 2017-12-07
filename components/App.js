@@ -275,11 +275,10 @@ export default class App extends React.Component {
   };
 
   _handleServerResponse = (action, res, postData) => {
-    if (res.errorMessage) {
-      this.setState({
-        errorMessage: res.errorMessage
-      });
-      Reporting.reportError(res.errorMessage, this.state);
+    const errorMessage = res.errorMessage;
+    if (errorMessage) {
+      this.setState({errorMessage});
+      Reporting.reportError(errorMessage, this.state);
     } else {
       // Check for an invalid state
       if (invalidState(res, action, postData, this.state.gameInfo, this.state.playerInfo)) {
@@ -291,28 +290,32 @@ export default class App extends React.Component {
         );
         return;
       }
-      if (res.result.hasOwnProperty('gameInfo') && res.result.gameInfo) {
-        this.setState({gameInfo: res.result.gameInfo});
+      if (res.result && res.result.gameInfo) {
+        const gameInfo = res.result.gameInfo;
+        this.setState({gameInfo});
 
         // Update time left in round if applicable and over 2000 ms off
-        if (res.result.gameInfo.hasOwnProperty('timeLeft') &&
+        const newTimeLeft = gameInfo.timeLeft;
+        if (typeof newTimeLeft !== 'undefined' &&
           (typeof this.state.timeLeft === 'undefined' ||
             this.state.timeLeft === null ||
-            Math.abs(this.state.timeLeft - res.result.gameInfo.timeLeft) > 2000)) {
+            Math.abs(this.state.timeLeft - newTimeLeft) > 2000)) {
           this.setState({
-            timeLeft: res.result.gameInfo.timeLeft < 0 ? 0 : res.result.gameInfo.timeLeft
+            timeLeft: newTimeLeft < 0 ? 0 : newTimeLeft
           });
         }
 
-        if (this.state.lastImageIdCached === null ||
-          (res.result.gameInfo.imageQueue &&
-            res.result.gameInfo.imageQueue.length > 0 &&
-            this.state.lastImageIdCached < res.result.gameInfo.imageQueue[0].id)) {
+        const lastImageIdCached = this.state.lastImageIdCached;
+        if (lastImageIdCached === null ||
+          (gameInfo.imageQueue &&
+            typeof lastImageIdCached !== 'undefined' &&
+            gameInfo.imageQueue.length > 0 &&
+            lastImageIdCached < gameInfo.imageQueue[0].id)) {
           this._fillImageCache();
         }
         this._saveState();
       }
-      if (res.result.hasOwnProperty('playerInfo') && res.result.playerInfo) {
+      if (res.result && res.result.playerInfo) {
         this.setState({playerInfo: res.result.playerInfo});
         this._saveState();
       }
@@ -350,12 +353,7 @@ export default class App extends React.Component {
       // Log actions
       Reporting.logAction(action, this.state);
 
-      let postData = {};
-      Object.assign(postData, {
-        gameID: gameID,
-        playerID: playerID,
-        action: action,
-      });
+      let postData = {gameID, playerID, action};
       Object.assign(postData, data);
 
       // If the player wanted to leave the game, reset everything.

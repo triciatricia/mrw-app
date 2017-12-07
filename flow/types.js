@@ -25,6 +25,7 @@ export type GameInfo = {
   displayOrder: ?string,
   imageQueue: ?Array<ImageUrl>,
   responsesIn: number,
+  timeLeft?: number,
 };
 
 export type PlayerInfo = {
@@ -36,4 +37,24 @@ export type PlayerInfo = {
   score: ?number,
   game: ?number,
   submittedScenario: ?boolean,
+};
+
+export type ServerPostData = {
+  gameID: number | null,
+  playerID: number | null,
+  action: string,
+  gameCode?: string,
+  nickname?: string,
+  choiceID?: string,
+  round?: number,
+  response?: string,
+  image?: ?ImageUrl,
+};
+
+export type ServerResult = {
+  result?: {
+    gameInfo: GameInfo | null,
+    playerInfo: PlayerInfo | null,
+  },
+  errorMessage: null | string,
 };

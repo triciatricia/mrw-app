@@ -2,7 +2,9 @@
 // Functions for communicating with the MRW server.
 import CONF from '../constants/conf';
 
-export const postToServerPromise = async (data) => {
+import type {GameInfo, PlayerInfo, ServerPostData, ServerResult} from '../flow/types';
+
+export const postToServerPromise = async (data: ServerPostData): Promise<ServerResult> => {
   // Send game info to the server
   // res is an object with keys 'errorMessage' and 'result'.
   // res = {errorMessage: ..., result: {playerInfo: ..., gameInfo: ...}}
@@ -21,44 +23,48 @@ export const postToServerPromise = async (data) => {
   }
 };
 
-export const invalidState = (res, action, postData, gameInfo, playerInfo) => {
+export const invalidState = (
+  res: ServerResult,
+  action: string,
+  postData: ServerPostData,
+  gameInfo: ?GameInfo,
+  playerInfo: ?PlayerInfo,
+) => {
    // Compare the result from a network message to current state
-  if (!res.hasOwnProperty('result')) {
+  if (!res.result) {
     return true;
   }
+  const newGameInfo = res.result.gameInfo;
+  const newPlayerInfo = res.result.playerInfo;
+
+  // Check if game and player IDs match
+  if (action != 'leaveGame' && newGameInfo && gameInfo && newGameInfo.id !== gameInfo.id) {
+    return true;
+  }
+  if (action != 'leaveGame' && newPlayerInfo && playerInfo && newPlayerInfo.id !== playerInfo.id) {
+    return true;
+  }
+
+  // Check if game or player info is missing
+  if (((gameInfo == null && newGameInfo) || (gameInfo && newGameInfo == null)) &&
+      action != 'joinGame' && action != 'createNewGame' && action != 'leaveGame') {
+    return true;
+  }
+  if (((playerInfo == null && newPlayerInfo) || (playerInfo && newPlayerInfo == null)) &&
+      action != 'createPlayer' && action != 'leaveGame') {
+    return true;
+  }
+
+  // Check if the gif is older.
   if (
-    action != 'leaveGame' &&
-    res.result.gameInfo &&
-    gameInfo != null &&
-    gameInfo.hasOwnProperty('id') &&
-    (!res.result.gameInfo.hasOwnProperty('id') ||
-     res.result.gameInfo.id != gameInfo.id)
+    newGameInfo &&
+    newGameInfo.image &&
+    gameInfo &&
+    gameInfo.image &&
+    newGameInfo.image.id < gameInfo.image.id
   ) {
     return true;
   }
-  if (res.result.hasOwnProperty('playerInfo') &&
-      playerInfo != null && playerInfo.hasOwnProperty('id') &&
-      action != 'logOut' && action != 'leaveGame' && res.result.playerInfo != null) {
-    if (!res.result.playerInfo.hasOwnProperty('id') || res.result.playerInfo.id != playerInfo.id) {
-      return true;
-    }
-  }
-  if (gameInfo == null && res.result.gameInfo &&
-      action != 'joinGame' && action != 'createNewGame') {
-    return true;
-  }
-  // Check if the gif is older.
-  if (res.result.hasOwnProperty('gameInfo') &&
-    res.result.gameInfo != null &&
-    res.result.gameInfo.hasOwnProperty('image') &&
-    gameInfo != null &&
-    gameInfo.hasOwnProperty('image') &&
-    res.result.gameInfo.image != null &&
-    gameInfo.image != null &&
-    res.result.gameInfo.image.id < gameInfo.image.id &&
-    (action !== 'skipImage' || (postData.image &&
-      postData.image.id !== res.result.gameInfo.image.id))) {
-    return true;
-  }
+
   return false;
 };
