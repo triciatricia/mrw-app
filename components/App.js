@@ -114,7 +114,7 @@ export default class App extends React.Component {
     Reporting.setSentryContext(this.state);
   }
 
-  _setSettingsVisible(isVisible) {
+  _setSettingsVisible = isVisible => {
     this.setState({settingsVisible: isVisible});
   }
 
