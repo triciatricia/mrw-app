@@ -1,9 +1,13 @@
+// @flow
+// Functions for communicating with the MRW server.
+import CONF from '../constants/conf';
+
 export const postToServerPromise = async (data) => {
   // Send game info to the server
   // res is an object with keys 'errorMessage' and 'result'.
   // res = {errorMessage: ..., result: {playerInfo: ..., gameInfo: ...}}
   try {
-    let response = await fetch('http://192.241.187.67:4000/api/game', {
+    let response = await fetch(CONF.MRW_SERVER, {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
