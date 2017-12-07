@@ -12,7 +12,7 @@ import Button from 'react-native-button';
 import React from 'react';
 
 import * as Reporting from '../libraries/reporting';
-import {invalidState, postToServer} from '../libraries/networking';
+import {invalidState, postToServerPromise} from '../libraries/networking';
 import {preloadGif} from '../libraries/preloading';
 import Database from '../libraries/database';
 import GamePlay from './GamePlay';
@@ -371,7 +371,7 @@ export default class App extends React.Component {
         this._saveState();
       }
 
-      const res = await postToServer(postData);
+      const res = await postToServerPromise(postData);
 
       this._handleServerResponse(action, res, postData);
 

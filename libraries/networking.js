@@ -1,4 +1,4 @@
-export const postToServer = async (data) => {
+export const postToServerPromise = async (data) => {
   // Send game info to the server
   // res is an object with keys 'errorMessage' and 'result'.
   // res = {errorMessage: ..., result: {playerInfo: ..., gameInfo: ...}}
