@@ -46,8 +46,7 @@ export default class Gif extends React.Component {
 
   componentWillReceiveProps(nextProps: propTypes) {
     if (nextProps.source.url != this.props.source.url) {
-      console.log('switching from ' + this.props.source.url + ' to ' +
-        nextProps.source.url);
+      console.log('switching to ' + nextProps.source.url);
       this.setState({
         imageLoading: true,
       });
@@ -80,7 +79,7 @@ export default class Gif extends React.Component {
       return (
         <ActivityIndicator
           style={{width: this.props.width, height: 16, position: 'absolute'}}
-          animating={this.state.imageLoading}
+          animating={true}
           size={'large'} />
       );
     }
