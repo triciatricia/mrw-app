@@ -29,7 +29,6 @@ type stateTypes = {
 export default class Gif extends React.Component {
   props: propTypes;
   state: stateTypes;
-  videoComponent: ?Expo.Video;
 
   constructor(props: propTypes) {
     super(props);
@@ -38,7 +37,6 @@ export default class Gif extends React.Component {
       mounted: false,
       localUri: null,
     };
-    this.videoComponent = null;
   }
 
   componentDidMount() {
@@ -77,16 +75,6 @@ export default class Gif extends React.Component {
     });
   }
 
-  async _handleVideoRef(videoComponent: Expo.Video) {
-    // TODO, See how to update the Expo.Video
-    // component to automatically unload the video.
-    const prevVideo = this.videoComponent;
-    if (prevVideo && prevVideo._root) {
-      await prevVideo.unloadAsync();
-    }
-    this.videoComponent = videoComponent;
-  }
-
   _renderMedia() {
     if (this.state.imageLoading || this.props.source.url == '') {
       return (
@@ -116,7 +104,6 @@ export default class Gif extends React.Component {
         shouldPlay={true}
         isMuted={true}
         isLooping={true}
-        ref={this._handleVideoRef}
         onError={
           (e) => {
             console.log('Error loading video ' + this.props.source.url);
