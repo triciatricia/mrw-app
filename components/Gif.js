@@ -2,6 +2,7 @@
 
 import React from 'react';
 import {
+  Clipboard,
   Image,
   Text,
   View,
@@ -10,6 +11,8 @@ import {
 import Expo from 'expo';
 import {preloadGif} from '../libraries/preloading';
 import Sentry from 'sentry-expo';
+
+import Popover from './Popover';
 
 import type {ImageUrl} from '../flow/types';
 
@@ -26,9 +29,7 @@ type stateTypes = {
   mounted: boolean,
 };
 
-export default class Gif extends React.Component {
-  props: propTypes;
-  state: stateTypes;
+export default class Gif extends React.Component<propTypes, stateTypes> {
 
   constructor(props: propTypes) {
     super(props);
@@ -93,6 +94,9 @@ export default class Gif extends React.Component {
     }
 
     return (
+      <Popover
+        text='Copy URL to Clipboard'
+        handleButtonPress={() => Clipboard.setString(this.props.source.url)}>
       <Expo.Video
         style={{
           height: this.props.height,
@@ -110,6 +114,7 @@ export default class Gif extends React.Component {
           }
         }
       />
+      </Popover>
     );
   }
 
