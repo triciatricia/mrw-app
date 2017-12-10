@@ -17,6 +17,7 @@ import {preloadGif} from '../libraries/preloading';
 import Database from '../libraries/database';
 import GamePlay from './GamePlay';
 import GameOver from './GameOver';
+import MessageBanner from './MessageBanner';
 import NewGame from './NewGame';
 import NewPlayer from './NewPlayer';
 import Settings from './Settings';
@@ -27,19 +28,19 @@ import type {GameInfo, PlayerInfo, ImageUrl} from '../flow/types';
 const db = new Database();
 
 type propTypes = {};
+type stateTypes = {
+  gameInfo: ?GameInfo,
+  playerInfo: ?PlayerInfo,
+  errorMessage: ?string,
+  settingsVisible: boolean,
+  appIsReady: boolean,
+  imageCache: {[number]: string},
+  lastImageIdCached: ?number,
+  timeLeft: ?number,
+  networkError: boolean,
+};
 
-export default class App extends React.Component {
-  props: propTypes;
-  state: {
-    gameInfo: ?GameInfo,
-    playerInfo: ?PlayerInfo,
-    errorMessage: ?string,
-    settingsVisible: boolean,
-    appIsReady: boolean,
-    imageCache: {[number]: string},
-    lastImageIdCached: ?number,
-    timeLeft: ?number,
-  }
+export default class App extends React.Component<propTypes, stateTypes> {
   downloading: boolean;
 
   constructor(props: propTypes) {
@@ -53,6 +54,7 @@ export default class App extends React.Component {
       imageCache: {},
       lastImageIdCached: null,
       timeLeft: null,
+      networkError: false,
     };
     this.downloading = false;
   }
@@ -150,6 +152,16 @@ export default class App extends React.Component {
     const playArea = this._getPlayArea();
     const isNewGame = this.state.gameInfo === null;
 
+    let messageBanner;
+    if (this.state.networkError) {
+      messageBanner = (
+        <MessageBanner
+          text='Please check your internet connection. My Reaction When may also be down.'
+          title='Network Error'
+          type='error' />
+      );
+    }
+
     return (
       <View style={styles.container}>
         <View style={isNewGame ? styles.headerLarge : styles.headerSmall}>
@@ -164,6 +176,7 @@ export default class App extends React.Component {
           leaveGame={() => {this._postToServer('leaveGame')}} />
         <View style={styles.playArea}>
           {playArea}
+          {messageBanner}
         </View>
       </View>
     );
@@ -275,6 +288,9 @@ export default class App extends React.Component {
   };
 
   _handleServerResponse = (action, res, postData) => {
+    this.setState({
+      networkError: false,
+    });
     const errorMessage = res.errorMessage;
     if (errorMessage) {
       this.setState({errorMessage});
@@ -342,43 +358,42 @@ export default class App extends React.Component {
   };
 
   _postToServer = async (action, data) => {
+    let playerID = (
+      (this.state.playerInfo && this.state.playerInfo.hasOwnProperty('id'))
+       ? this.state.playerInfo.id : null);
+    let gameID = (
+      (this.state.gameInfo && this.state.gameInfo.hasOwnProperty('id'))
+      ? this.state.gameInfo.id : null);
+
+    // Log actions
+    Reporting.logAction(action, this.state);
+
+    let postData = {gameID, playerID, action};
+    Object.assign(postData, data);
+
+    // If the player wanted to leave the game, reset everything.
+    if (action == 'leaveGame') {
+      this._resetState();
+    }
+
+    if (action == 'joinGame' || action == 'createNewGame') {
+      this.setState({
+        imageCache: {},
+        lastImageIdCached: null,
+      });
+      this._saveState();
+    }
+
     try {
-      let playerID = (
-        (this.state.playerInfo && this.state.playerInfo.hasOwnProperty('id'))
-         ? this.state.playerInfo.id : null);
-      let gameID = (
-        (this.state.gameInfo && this.state.gameInfo.hasOwnProperty('id'))
-        ? this.state.gameInfo.id : null);
-
-      // Log actions
-      Reporting.logAction(action, this.state);
-
-      let postData = {gameID, playerID, action};
-      Object.assign(postData, data);
-
-      // If the player wanted to leave the game, reset everything.
-      if (action == 'leaveGame') {
-        this._resetState();
-      }
-
-      if (action == 'joinGame' || action == 'createNewGame') {
-        this.setState({
-          imageCache: {},
-          lastImageIdCached: null,
-        });
-        this._saveState();
-      }
-
       const res = await postToServerPromise(postData);
-
       this._handleServerResponse(action, res, postData);
-
     } catch(error) {
       console.log(error);
       this.setState({
-        errorMessage: 'Error communicating to server'
+        networkError: true,
       });
     }
+
   };
 
   _resetState = () => {

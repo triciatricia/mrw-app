@@ -8,19 +8,16 @@ export const postToServerPromise = async (data: ServerPostData): Promise<ServerR
   // Send game info to the server
   // res is an object with keys 'errorMessage' and 'result'.
   // res = {errorMessage: ..., result: {playerInfo: ..., gameInfo: ...}}
-  try {
-    let response = await fetch(CONF.MRW_SERVER, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data)
-    });
-    return await response.json();
-  } catch (error) {
-    return {errorMessage: 'Error communicating with server'};
-  }
+  // Passes errors on - does not catch them.
+  let response = await fetch(CONF.MRW_SERVER, {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data)
+  });
+  return await response.json();
 };
 
 export const invalidState = (

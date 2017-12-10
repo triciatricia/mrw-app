@@ -55,6 +55,7 @@ export type ServerResult = {
   result?: {
     gameInfo: GameInfo | null,
     playerInfo: PlayerInfo | null,
+    networkError?: boolean,
   },
   errorMessage: null | string,
 };
