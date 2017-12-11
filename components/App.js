@@ -122,7 +122,12 @@ export default class App extends React.Component<propTypes, stateTypes> {
 
   render() {
     if (!this.state.appIsReady) {
-      return <AppLoading />;
+      return (
+        <AppLoading
+          startAsync={async () => {} }
+          onError={() => {}}
+          onFinish={() => {}} />
+      );
     }
 
     let settingsLink;
@@ -368,7 +373,7 @@ export default class App extends React.Component<propTypes, stateTypes> {
     // Log actions
     Reporting.logAction(action, this.state);
 
-    let postData = {gameID, playerID, action};
+    let postData: Object = {gameID, playerID, action};
     Object.assign(postData, data);
 
     // If the player wanted to leave the game, reset everything.

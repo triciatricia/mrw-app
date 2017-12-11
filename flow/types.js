@@ -10,7 +10,7 @@ export type ImageUrl = {
 
 export type GameInfo = {
   id: number,
-  round: ?number,
+  round: number | null,
   image: ?ImageUrl,
   waitingForScenarios: boolean,
   reactorID: ?number,
@@ -34,7 +34,7 @@ export type PlayerInfo = {
   accessToken: ?string,
   roundOfLastResponse: ?number,
   response: ?string,
-  score: ?number,
+  score: number | null,
   game: ?number,
   submittedScenario: ?boolean,
 };

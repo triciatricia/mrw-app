@@ -18,12 +18,11 @@ type propTypes = {
   errorMessage: ?string,
 };
 
-export default class WaitingToStart extends React.Component {
-  props: propTypes;
-  state: {
-    isLoading: boolean,
-  };
+type stateTypes = {
+  isLoading: boolean,
+};
 
+export default class WaitingToStart extends React.Component<propTypes, stateTypes> {
   constructor(props: propTypes) {
     super(props);
     this.state = {

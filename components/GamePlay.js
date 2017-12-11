@@ -22,7 +22,20 @@ import type {GameInfo, PlayerInfo} from '../flow/types';
 const WINDOW_HEIGHT = Dimensions.get('window').height;
 const WINDOW_WIDTH = Dimensions.get('window').width;
 
-class ScenarioListForm extends React.Component {
+type scenarioPropTypes = {
+  gameInfo: GameInfo,
+  playerInfo: PlayerInfo,
+  errorMessage: ?string,
+  endGame: () => Promise<void>,
+  nextRound: () => Promise<void>,
+  chooseScenario: (choiceID: string) => Promise<void>,
+};
+
+type scenarioStateTypes = {
+  isLoading: boolean,
+};
+
+class ScenarioListForm extends React.Component<scenarioPropTypes, scenarioStateTypes> {
   constructor(props) {
     super(props);
     this.state = {
@@ -140,13 +153,12 @@ type propTypes = {
   timeLeft: ?number,
 };
 
-export default class GamePlay extends React.Component {
-  props: propTypes;
-  state: {
-    scenario: string,
-    loading: boolean,
-  };
+type stateTypes = {
+  scenario: string,
+  loading: boolean,
+};
 
+export default class GamePlay extends React.Component<propTypes, stateTypes> {
   constructor(props: propTypes) {
     super(props);
     this.state = {

@@ -18,12 +18,11 @@ type propTypes = {
   errorMessage: ?string,
 };
 
-export default class NewPlayer extends React.Component {
-  props: propTypes;
-  state: {
-    nickname: string,
-  };
+type stateTypes = {
+  nickname: string,
+};
 
+export default class NewPlayer extends React.Component<propTypes, stateTypes> {
   constructor(props: propTypes) {
     super(props);
     this.state = {

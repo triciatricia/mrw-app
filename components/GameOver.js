@@ -25,12 +25,11 @@ type propTypes = {
   errorMessage: ?string,
 };
 
-export default class GameOver extends React.Component {
-  props: propTypes;
-  state: {
-    isLoading: boolean,
-  };
+type stateTypes = {
+  isLoading: boolean,
+};
 
+export default class GameOver extends React.Component<propTypes, stateTypes> {
   constructor(props: propTypes) {
     super(props);
     this.state = {

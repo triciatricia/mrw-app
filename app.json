@@ -9,12 +9,11 @@
     "orientation": "portrait",
     "primaryColor": "#cccccc",
     "icon": "images/mrw_face.png",
-    "loading": {
-      "icon": "images/mrw_face.png",
-      "hideExponentText": false
-    },
     "packagerOpts": {
       "assetExts": ["ttf", "mp4"]
+    },
+    "splash": {
+      "image": "./images/splash_image.png"
     },
     "ios": {
       "supportsTablet": true

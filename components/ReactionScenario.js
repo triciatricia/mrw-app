@@ -21,9 +21,7 @@ type propTypes = {
   submittedBy: string,
 };
 
-export default class ReactionScenario extends React.Component {
-  props: propTypes;
-
+export default class ReactionScenario extends React.Component<propTypes> {
   render() {
     if (this.props.useRadio) {
       return this._radioChoices();

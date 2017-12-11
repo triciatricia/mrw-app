@@ -6,17 +6,17 @@ import {
   View,
 } from 'react-native';
 
-export default class GameStatusBar extends React.Component {
-  props: {
-    nickname: string,
-    score: number,
-    round: number,
-    gameCode: string,
-    waitingForScenarios: bool,
-    timeLeft: ?number,
-    responsesIn: number,
-  };
+type propTypes = {
+  nickname: string,
+  score: number,
+  round: number,
+  gameCode: string,
+  waitingForScenarios: bool,
+  timeLeft: ?number,
+  responsesIn: number,
+};
 
+export default class GameStatusBar extends React.Component<propTypes> {
   render() {
     let timeLeft;
     let responsesInMessage;

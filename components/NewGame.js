@@ -19,12 +19,11 @@ type propTypes = {
   errorMessage: ?string,
 };
 
-export default class NewGame extends React.Component {
-  props: propTypes;
-  state: {
-    gameCode: string,
-  };
+type stateTypes = {
+  gameCode: string,
+};
 
+export default class NewGame extends React.Component<propTypes, stateTypes> {
   constructor(props: propTypes) {
     super(props);
     this.state = {

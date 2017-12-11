@@ -18,14 +18,13 @@ type propTypes = {
   winningResponseSubmittedBy: ?string,
   isReactor: boolean,
   chooseScenario: (choiceID: string) => Promise<void>,
-}
+};
 
-export default class ScenarioList extends React.Component {
-  props: propTypes;
-  state: {
-    selectedScenario: ?string,
-  };
+type stateTypes = {
+  selectedScenario: ?string,
+};
 
+export default class ScenarioList extends React.Component<propTypes, stateTypes> {
   constructor(props: propTypes) {
     super(props);
     this.state = {
