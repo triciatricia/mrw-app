@@ -42,13 +42,9 @@ export const invalidState = (
     return true;
   }
 
-  // Check if game or player info is missing
+  // Check if game info is missing
   if (((gameInfo == null && newGameInfo) || (gameInfo && newGameInfo == null)) &&
       action != 'joinGame' && action != 'createNewGame' && action != 'leaveGame') {
-    return true;
-  }
-  if (((playerInfo == null && newPlayerInfo) || (playerInfo && newPlayerInfo == null)) &&
-      action != 'createPlayer' && action != 'leaveGame') {
     return true;
   }
 
