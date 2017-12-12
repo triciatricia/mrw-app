@@ -14,6 +14,8 @@ import Sentry from 'sentry-expo';
 
 import Popover from './Popover';
 
+import COLORS from '../constants/colors';
+
 import type {ImageUrl} from '../flow/types';
 
 type propTypes = {
@@ -28,6 +30,7 @@ type stateTypes = {
   localUri: ?string,
   mounted: boolean,
   downloadResumable: Expo.FileSystem.DownloadResumable | null,
+  downloadPercentDisplay: string,
 };
 
 export default class Gif extends React.Component<propTypes, stateTypes> {
@@ -39,6 +42,7 @@ export default class Gif extends React.Component<propTypes, stateTypes> {
       mounted: false,
       localUri: null,
       downloadResumable: null,
+      downloadPercentDisplay: '0',
     };
   }
 
@@ -86,12 +90,22 @@ export default class Gif extends React.Component<propTypes, stateTypes> {
         totalBytesWritten: number,
         totalBytesExpectedToWrite: number,
       }
-    ) => {};
+    ) => {
+      this.setState({
+        downloadPercentDisplay: (
+          downloadData.totalBytesWritten /
+          downloadData.totalBytesExpectedToWrite * 100
+        ).toFixed(0),
+      });
+    };
 
     const saveDownloadResumable = (
       downloadResumable: Expo.FileSystem.DownloadResumable
     ) => {
-      this.setState({downloadResumable});
+      this.setState({
+        downloadPercentDisplay: '0',
+        downloadResumable: downloadResumable,
+      });
     };
 
     source.localUri = await preloadGif(source, checkDownloadProgress, saveDownloadResumable);
@@ -111,10 +125,20 @@ export default class Gif extends React.Component<propTypes, stateTypes> {
 
     if (this.state.imageLoading || !localUri || this.props.source.url == '') {
       return (
-        <ActivityIndicator
-          style={{width: this.props.width, height: 16, position: 'absolute'}}
-          animating={true}
-          size={'large'} />
+        <View style={{alignItems: 'center'}}>
+          <ActivityIndicator
+            style={{width: this.props.width, height: 16, position: 'absolute'}}
+            animating={true}
+            color={COLORS.MED_GRAY}
+            size='large' />
+          <Text style={{
+            textAlign: 'center',
+            color: COLORS.DARK_GRAY,
+            backgroundColor: 'transparent',
+          }}>
+            {this.state.downloadPercentDisplay !== '100' ? this.state.downloadPercentDisplay + '%' : null}
+          </Text>
+        </View>
       );
     }
     if (this._isGif(this.props.source.url) && this.state.localUri != null) {

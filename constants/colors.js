@@ -6,4 +6,6 @@ module.exports = {
   DARK_BLUE: '#2355AD',
   CORAL: '#EF5C4f',
   YELLOW: '#FFBA39',
+  DARK_GRAY: '#333',
+  MED_GRAY: '#BBB',
 };
