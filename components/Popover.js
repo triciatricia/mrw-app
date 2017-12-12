@@ -100,6 +100,7 @@ export default class Popover extends Component<propTypes, stateTypes> {
           <Animated.View style={{opacity: this.state.opacity,}}>
             <TouchableWithoutFeedback
               onLongPress={this._showPopover}
+              onPress={Keyboard.dismiss}
               onPressIn={this._fade}
               onPressOut={this._resetOpacity} >
 
