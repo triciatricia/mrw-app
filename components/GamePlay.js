@@ -295,7 +295,7 @@ export default class GamePlay extends React.Component<propTypes, stateTypes> {
       return <ErrorMessage errorMessage={'Error retrieving gif url.'} />;
     }
 
-    let gifSource = this.props.gameInfo.image;
+    let gifSource = Object.assign({}, this.props.gameInfo.image);
     if (this.props.imageCache.hasOwnProperty(gifSource.id)) {
       // TODO Can we assume the OS has not deleted the downloded image?
       gifSource.localUri = this.props.imageCache[gifSource.id];

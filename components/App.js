@@ -187,7 +187,7 @@ export default class App extends React.Component<propTypes, stateTypes> {
     );
   }
 
-  async _fillImageCache(): Promise<void> {
+  async _fillImageCachePromise(): Promise<void> {
     // Refresh the local image cache.
     // Prefetch if the image hasn't been saved.
     let gameInfo = this.state.gameInfo;
@@ -198,11 +198,15 @@ export default class App extends React.Component<propTypes, stateTypes> {
       !this.downloading) {
       this.downloading = true;
       let imageCache = this.state.imageCache;
-      let imageQueue = gameInfo.imageQueue;
+      let imageQueue = gameInfo.imageQueue.slice();
 
-      // TODO Promise.all
       for (let i = imageQueue.length - 1; i >= 0; i--) {
         const image = imageQueue[i];
+        if (this.state.gameInfo && this.state.gameInfo.image &&
+          image.id < this.state.gameInfo.image.id) {
+            // This image is not needed anymore. Do not cache.
+            continue
+          }
         if (!imageCache.hasOwnProperty(image.id)) {
           imageCache[image.id] = await preloadGif(image);
         }
@@ -259,7 +263,7 @@ export default class App extends React.Component<propTypes, stateTypes> {
           nextRound={() => this._postToServer('nextRound')}
           endGame={() => this._postToServer('endGame')}
           skipImage={() => {
-            const prevImage = this.state.gameInfo ? this.state.gameInfo.image : null;
+            const prevImage = this.state.gameInfo ? Object.assign({}, this.state.gameInfo.image) : null;
             let gameInfo = this.state.gameInfo;
             if (gameInfo && gameInfo.image && gameInfo.image.hasOwnProperty('url')) {
               gameInfo.image.url = '';
@@ -332,7 +336,7 @@ export default class App extends React.Component<propTypes, stateTypes> {
             typeof lastImageIdCached !== 'undefined' &&
             gameInfo.imageQueue.length > 0 &&
             lastImageIdCached < gameInfo.imageQueue[0].id)) {
-          this._fillImageCache();
+          this._fillImageCachePromise();
         }
         this._saveState();
       }
