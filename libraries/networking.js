@@ -9,14 +9,17 @@ export const postToServerPromise = async (data: ServerPostData): Promise<ServerR
   // res is an object with keys 'errorMessage' and 'result'.
   // res = {errorMessage: ..., result: {playerInfo: ..., gameInfo: ...}}
   // Passes errors on - does not catch them.
-  let response = await fetch(CONF.MRW_SERVER, {
-    method: 'POST',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data)
-  });
+  let response = await Promise.race([
+    fetch(CONF.MRW_SERVER, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data)
+    }),
+    new Promise((resolve, reject) => setTimeout(() => reject('Timeout'), 10000))
+  ]);
   return await response.json();
 };
 
