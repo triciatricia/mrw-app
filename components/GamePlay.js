@@ -176,6 +176,12 @@ export default class GamePlay extends React.Component<propTypes, stateTypes> {
     }
   }
 
+  componentWillReceiveProps(nextProps: propTypes) {
+    if (nextProps.gameInfo.round != this.props.gameInfo.round) {
+      this.setState({scenario: ''});
+    }
+  }
+
   _isReactor() {
     return this.props.gameInfo.reactorID == this.props.playerInfo.id;
   }
@@ -217,10 +223,7 @@ export default class GamePlay extends React.Component<propTypes, stateTypes> {
   }
 
   _submitResponse = () => {
-    this.props.submitResponse(this.state.scenario);
-    this.setState({
-      scenario: ''
-    });
+    this.props.submitResponse(this.state.scenario.trim());
   };
 
   _scenarioSubmissionForm() {
