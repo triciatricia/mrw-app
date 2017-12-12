@@ -98,7 +98,7 @@ export function logAction(
 ): void {
   setSentryContext(state);
 
-  if (action === 'submitResponse' || action === 'joinGame' || action === 'leaveGame') {
+  if (action === 'submitResponse' || action === 'joinGame' || action === 'leaveGame' || action === 'skipImage') {
     Sentry.captureMessage('postToServer action: ' + action, {
       level: 'info',
       tags: {type: 'postToServer_action'}
