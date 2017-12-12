@@ -384,6 +384,7 @@ export default class App extends React.Component<propTypes, stateTypes> {
     }
   };
 
+  _pauseUnneededDownloads = async (newImageId: number) => {
     // Pause image/video downloads that are older than the current one.
     const downloadResumables = this.state.downloadResumables;
     const imageIds = Object.keys(downloadResumables);
@@ -392,6 +393,7 @@ export default class App extends React.Component<propTypes, stateTypes> {
       const imageId = parseInt(imageIds[i]);
       if (imageId < newImageId && !this.state.imageCache[imageId] && downloadResumables[imageId]) {
         try {
+          await downloadResumables[imageId].pauseAsync();
           console.log(`Paused download of image ${imageId}`);
           delete downloadResumables[imageId];
           this.setState({downloadResumables});
