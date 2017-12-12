@@ -69,10 +69,14 @@ export default class Gif extends React.Component<propTypes, stateTypes> {
 
   async _loadImage(source) {
     source.localUri = await preloadGif(source);
-    this.setState({
-      imageLoading: false,
-      localUri: source.localUri,
-    });
+    // Check to make sure the source hadn't been overwritten (image hasn't been
+    // skipped) in the time it took to download.
+    if (this.props.source.id <= source.id) {
+      this.setState({
+        imageLoading: false,
+        localUri: source.localUri,
+      });
+    }
   }
 
   _renderMedia() {
