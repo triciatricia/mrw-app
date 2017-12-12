@@ -1,6 +1,6 @@
 /* @flow */
 
-import {AppLoading} from 'expo';
+import {AppLoading, FileSystem} from 'expo';
 import {
   StyleSheet,
   Text,
@@ -38,6 +38,7 @@ type stateTypes = {
   lastImageIdCached: ?number,
   timeLeft: ?number,
   networkError: boolean,
+  downloadResumables: {[number]: FileSystem.DownloadResumable},
 };
 
 export default class App extends React.Component<propTypes, stateTypes> {
@@ -55,6 +56,7 @@ export default class App extends React.Component<propTypes, stateTypes> {
       lastImageIdCached: null,
       timeLeft: null,
       networkError: false,
+      downloadResumables: {},
     };
     this.downloading = false;
   }
@@ -208,7 +210,17 @@ export default class App extends React.Component<propTypes, stateTypes> {
             continue
           }
         if (!imageCache.hasOwnProperty(image.id)) {
-          imageCache[image.id] = await preloadGif(image);
+
+          const saveDownloadResumable = (
+            downloadResumable: FileSystem.DownloadResumable
+          ) => {
+            const downloadResumables = this.state.downloadResumables;
+            downloadResumables[image.id] = downloadResumable;
+            this.setState({downloadResumables});
+          };
+
+          imageCache[image.id] = await preloadGif(image, () => {}, saveDownloadResumable);
+
         }
       }
 
@@ -316,6 +328,12 @@ export default class App extends React.Component<propTypes, stateTypes> {
         return;
       }
       if (res.result && res.result.gameInfo) {
+        if (this.state.gameInfo && this.state.gameInfo.image && res.result.gameInfo.image &&
+          this.state.gameInfo.image.id < res.result.gameInfo.image.id) {
+          // New image
+          this._pauseUnneededDownloads(res.result.gameInfo.image.id);
+        }
+
         const gameInfo = res.result.gameInfo;
         this.setState({gameInfo});
 
@@ -365,6 +383,24 @@ export default class App extends React.Component<propTypes, stateTypes> {
       });
     }
   };
+
+    // Pause image/video downloads that are older than the current one.
+    const downloadResumables = this.state.downloadResumables;
+    const imageIds = Object.keys(downloadResumables);
+
+    for (let i = 0; i < imageIds.length; i++) {
+      const imageId = parseInt(imageIds[i]);
+      if (imageId < newImageId && !this.state.imageCache[imageId] && downloadResumables[imageId]) {
+        try {
+          console.log(`Paused download of image ${imageId}`);
+          delete downloadResumables[imageId];
+          this.setState({downloadResumables});
+        } catch(err) {
+          // Image already done downloading or paused TODO how to check?
+        }
+      }
+    }
+  }
 
   _postToServer = async (action, data) => {
     let playerID = (

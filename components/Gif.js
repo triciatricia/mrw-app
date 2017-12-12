@@ -27,6 +27,7 @@ type stateTypes = {
   imageLoading: boolean,
   localUri: ?string,
   mounted: boolean,
+  downloadResumable: Expo.FileSystem.DownloadResumable | null,
 };
 
 export default class Gif extends React.Component<propTypes, stateTypes> {
@@ -37,6 +38,7 @@ export default class Gif extends React.Component<propTypes, stateTypes> {
       imageLoading: true,
       mounted: false,
       localUri: null,
+      downloadResumable: null,
     };
   }
 
@@ -47,15 +49,17 @@ export default class Gif extends React.Component<propTypes, stateTypes> {
 
   componentWillReceiveProps(nextProps: propTypes) {
     if (nextProps.source.url != this.props.source.url) {
-      console.log('switching to ' + nextProps.source.url);
-      this.setState({
-        imageLoading: true,
-      });
+      if (nextProps.source.url !== '') {
+        console.log('switching to ' + nextProps.source.url);
+      }
       if (nextProps.source.url !== null &&
         nextProps.source.url !== '' &&
         nextProps.source.id > this.props.source.id) {
         this._loadImage(nextProps.source);
       }
+      this.setState({
+        imageLoading: true,
+      });
     }
   }
 
@@ -68,7 +72,29 @@ export default class Gif extends React.Component<propTypes, stateTypes> {
   }
 
   async _loadImage(source) {
-    source.localUri = await preloadGif(source);
+    // Cancel previous download
+    if (this.state.imageLoading && this.state.downloadResumable) {
+      try {
+        await this.state.downloadResumable.pauseAsync();
+      } catch(err) {
+        console.log(err);
+      }
+    }
+
+    const checkDownloadProgress = (
+      downloadData: {
+        totalBytesWritten: number,
+        totalBytesExpectedToWrite: number,
+      }
+    ) => {};
+
+    const saveDownloadResumable = (
+      downloadResumable: Expo.FileSystem.DownloadResumable
+    ) => {
+      this.setState({downloadResumable});
+    };
+
+    source.localUri = await preloadGif(source, checkDownloadProgress, saveDownloadResumable);
     // Check to make sure the source hadn't been overwritten (image hasn't been
     // skipped) in the time it took to download.
     if (this.props.source.id <= source.id) {
@@ -76,6 +102,7 @@ export default class Gif extends React.Component<propTypes, stateTypes> {
         imageLoading: false,
         localUri: source.localUri,
       });
+      console.log('_loadImage done: ', this.state.localUri);
     }
   }
 

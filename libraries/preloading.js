@@ -5,9 +5,18 @@ import {FileSystem} from 'expo';
 
 import type {ImageUrl} from '../flow/types';
 
-export const preloadGif = async (image: ImageUrl): Promise<string> => {
+export const preloadGif = async (
+  image: ImageUrl,
+  callback: (
+    {totalBytesWritten: number, totalBytesExpectedToWrite: number}
+  ) => void,
+  processDownloadRef: (downloadResumable: FileSystem.DownloadResumable) => void
+): Promise<string> => {
   // Preload a gif or video.
-  // Follows https://github.com/expo/expo-sdk/blob/master/src/Asset.js#L118-L126
+  // The download data can be accessed using the callback.
+  // The processDownloadRef callback returns a DownloadResumable so you
+  // can pause or resume the download. 
+  // https://docs.expo.io/versions/latest/sdk/filesystem.html
   if (image.prefetched && image.localUri) {
     return image.localUri;
   }
@@ -20,16 +29,29 @@ export const preloadGif = async (image: ImageUrl): Promise<string> => {
 
   const fileName = `${FileSystem.cacheDirectory}MRW-Gif-${image.id}.${fileExt}`;
   console.log(`Downloading ${image.url} as ${fileName}`);
+
+  const downloadResumable = FileSystem.createDownloadResumable(
+    image.url,
+    fileName,
+    {},
+    callback
+  );
+
+  processDownloadRef(downloadResumable);
+
   let uri;
   try {
-    ({uri} = await FileSystem.downloadAsync(
-      image.url,
-      fileName,
-      {md5: false}
-    ));
+
+    const downloadResult = (await downloadResumable.downloadAsync());
+    if (downloadResult) {
+      uri = downloadResult.uri;
+      return uri;
+    }
+    console.log(`Download of ${image.url} was disrupted.`);
+    return '';
+
   } catch (e) {
     console.log(`Error downloading ${image.url}`);
     throw e;
   }
-  return uri;
 };
