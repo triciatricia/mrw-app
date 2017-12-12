@@ -2,11 +2,11 @@
 
 import React from 'react';
 import {
+  ActivityIndicator,
   Clipboard,
   Image,
   Text,
   View,
-  ActivityIndicator,
 } from 'react-native';
 import Expo from 'expo';
 import {preloadGif} from '../libraries/preloading';

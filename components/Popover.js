@@ -3,7 +3,16 @@
 
 import * as React from 'react';
 import {Component} from 'react';
-import {Animated, Modal, Text, View, StyleSheet, Platform, TouchableWithoutFeedback} from 'react-native';
+import {
+  Animated,
+  Keyboard,
+  Modal,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableWithoutFeedback,
+  View, 
+} from 'react-native';
 import {Constants} from 'expo';
 import Button from 'react-native-button';
 
