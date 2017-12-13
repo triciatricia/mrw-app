@@ -18,7 +18,7 @@ export const postToServerPromise = async (data: ServerPostData): Promise<ServerR
       },
       body: JSON.stringify(data)
     }),
-    new Promise((resolve, reject) => setTimeout(() => reject('Timeout'), 10000))
+    new Promise((resolve, reject) => setTimeout(() => reject('Timeout'), 20000))
   ]);
   return await response.json();
 };
