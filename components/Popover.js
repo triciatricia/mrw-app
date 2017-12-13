@@ -11,7 +11,7 @@ import {
   StyleSheet,
   Text,
   TouchableWithoutFeedback,
-  View, 
+  View,
 } from 'react-native';
 import {Constants} from 'expo';
 import Button from 'react-native-button';
@@ -100,8 +100,10 @@ export default class Popover extends Component<propTypes, stateTypes> {
           <Animated.View style={{opacity: this.state.opacity,}}>
             <TouchableWithoutFeedback
               onLongPress={this._showPopover}
-              onPress={Keyboard.dismiss}
-              onPressIn={this._fade}
+              onPressIn={() => {
+                this._fade();
+                Keyboard.dismiss();
+              }}
               onPressOut={this._resetOpacity} >
 
               {this.props.children}
