@@ -21,7 +21,8 @@ class Database {
           [],
           (tx, res) => {
             tx.executeSql(
-              'INSERT OR IGNORE INTO info VALUES ("gameInfo", null), ("playerInfo", null), ("errorMessage", null);'
+              ('INSERT OR IGNORE INTO info VALUES ("gameInfo", null), ' +
+                '("playerInfo", null), ("errorMessage", null), ("pushToken", null), ("newInstall", "true");')
             );
           },
           (tx, err) => {
@@ -31,40 +32,39 @@ class Database {
       cb);
   }
 
-  loadSavedState(
-    cb: (savedVals: ?Object, err: ?(string | Error)) => void
-  ): void {
-    // Load the saved state of the app from the SQLite database.
-    this.db.transaction(
-      tx => {
-        tx.executeSql(
-          'SELECT * FROM info',
-          [],
-          (tx, res) => {
-            let savedVals = {}
-            try {
-              for (const row in res.rows._array) {
-                savedVals[res.rows._array[row].key] = JSON.parse(res.rows._array[row].value);
+  loadSavedStatePromise(): Promise<Object> {
+    return new Promise((resolve, reject) => {
+      // Load the saved state of the app from the SQLite database.
+      this.db.transaction(
+        tx => {
+          tx.executeSql(
+            'SELECT * FROM info',
+            [],
+            (tx, res) => {
+              let savedVals = {}
+              try {
+                for (const row in res.rows._array) {
+                  savedVals[res.rows._array[row].key] = JSON.parse(res.rows._array[row].value);
+                }
+              } catch (err) {
+                console.log('Error processing saved data.');
+                reject(err);
               }
-            } catch (err) {
-              console.log('Error processing saved data.');
-              cb(null, err);
-              return;
+
+              console.log('Loading saved state');
+              console.log(savedVals);
+
+              resolve(savedVals);
+            },
+            (tx, err) => {
+              console.log('No saved state.');
+              resolve({});
             }
-
-            console.log('Loading saved state');
-            console.log(savedVals);
-
-            cb(savedVals, null);
-          },
-          (tx, err) => {
-            console.log('No saved state.');
-            cb({}, null);
-          }
-        );
-    },
-    err => {
-      cb(null, err);
+          );
+      },
+      err => {
+        reject(err);
+      });
     });
   }
 

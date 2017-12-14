@@ -2,6 +2,7 @@
 
 import {AppLoading, FileSystem} from 'expo';
 import {
+  AppState,
   StyleSheet,
   Text,
   TouchableHighlight,
@@ -13,6 +14,7 @@ import React from 'react';
 
 import * as Reporting from '../libraries/reporting';
 import {invalidState, postToServerPromise} from '../libraries/networking';
+import {registerPushNotificationsPromise} from '../libraries/permissions';
 import {preloadGif} from '../libraries/preloading';
 import Database from '../libraries/database';
 import GamePlay from './GamePlay';
@@ -39,6 +41,8 @@ type stateTypes = {
   timeLeft: ?number,
   networkError: boolean,
   downloadResumables: {[number]: FileSystem.DownloadResumable},
+  appState: ?string,
+  pushToken: string | null,
 };
 
 export default class App extends React.Component<propTypes, stateTypes> {
@@ -57,6 +61,8 @@ export default class App extends React.Component<propTypes, stateTypes> {
       timeLeft: null,
       networkError: false,
       downloadResumables: {},
+      appState: AppState.currentState,
+      pushToken: null,
     };
     this.downloading = false;
   }
@@ -76,6 +82,9 @@ export default class App extends React.Component<propTypes, stateTypes> {
       this.setState({appIsReady: true});
     }
 
+    // Save whether the app is in the foreground
+    AppState.addEventListener('change', (nextAppState) => this.setState({appState: nextAppState}));
+
     // Start polling game info
     this._pollGameInfo();
     setInterval(this._pollGameInfo, 1000);
@@ -84,30 +93,40 @@ export default class App extends React.Component<propTypes, stateTypes> {
     setInterval(this._roundCountdown, 1000);
   }
 
-  _loadSavedState() {
+  componentWillUnmount() {
+    AppState.removeEventListener('change', (nextAppState) => this.setState({appState: nextAppState}));
+  }
+
+  async _loadSavedState() {
     // Load saved state from sqlite database
-    db.loadSavedState(
-      (savedVals, err) => {
-        if (err) {
-          console.log(err);
-          this.setState({
-            errorMessage: 'Error processing saved data.',
-            appIsReady: true,
-          });
-          return;
-        }
+    let savedVals;
+    try {
+      savedVals = await db.loadSavedStatePromise();
+    } catch (err) {
+      console.log(err);
+      this.setState({
+        errorMessage: 'Error processing saved data.',
+        appIsReady: true,
+      });
+      return;
+    }
 
-        this.setState({
-          gameInfo: savedVals != null && savedVals.hasOwnProperty('gameInfo') ? savedVals.gameInfo : null,
-          playerInfo: savedVals != null && savedVals.hasOwnProperty('playerInfo') ? savedVals.playerInfo : null,
-          errorMessage: savedVals != null && savedVals.hasOwnProperty('errorMessage') ? savedVals.errorMessage : null,
-          settingsVisible: false,
-          appIsReady: true,
-        });
+    this.setState({
+      gameInfo: savedVals != null && savedVals.gameInfo ? savedVals.gameInfo : null,
+      playerInfo: savedVals != null && savedVals.playerInfo ? savedVals.playerInfo : null,
+      errorMessage: savedVals != null && savedVals.errorMessage ? savedVals.errorMessage : null,
+      pushToken: savedVals != null && savedVals.pushToken ? savedVals.pushToken : this.state.pushToken,
+      settingsVisible: false,
+      appIsReady: true,
+    });
 
-        Reporting.setSentryContext(this.state);
-      }
-    );
+    // Attempt to get a push notification token if one isn't saved.
+    if (!savedVals || !savedVals.pushToken) {
+      const pushToken = await registerPushNotificationsPromise();
+      this.setState({pushToken});
+    }
+
+    Reporting.setSentryContext(this.state);
   }
 
   _saveState() {
@@ -115,6 +134,7 @@ export default class App extends React.Component<propTypes, stateTypes> {
     db.updateSavedInfo('gameInfo', this.state.gameInfo);
     db.updateSavedInfo('playerInfo', this.state.playerInfo);
     db.updateSavedInfo('errorMessage', this.state.errorMessage);
+    db.updateSavedInfo('pushToken', this.state.pushToken);
     Reporting.setSentryContext(this.state);
   }
 
@@ -254,7 +274,10 @@ export default class App extends React.Component<propTypes, stateTypes> {
       return (
         <NewPlayer
           createPlayer={
-            (nickname: string) => this._postToServer('createPlayer', {nickname})
+            (nickname: string) => this._postToServer('createPlayer', {
+              nickname: nickname,
+              pushToken: this.state.pushToken,
+            })
           }
           errorMessage={this.state.errorMessage} />
       );
@@ -417,6 +440,11 @@ export default class App extends React.Component<propTypes, stateTypes> {
 
     let postData: Object = {gameID, playerID, action};
     Object.assign(postData, data);
+
+    // Check if the app is active.
+    if (this.state.appState === 'active') {
+      postData.appIsActive = true;
+    }
 
     // If the player wanted to leave the game, reset everything.
     if (action == 'leaveGame') {
