@@ -319,7 +319,8 @@ export default class App extends React.Component<propTypes, stateTypes> {
           startGame={() => this._postToServer('startGame')}
           gameInfo={this.state.gameInfo}
           playerInfo={this.state.playerInfo}
-          errorMessage={this.state.errorMessage} />
+          errorMessage={this.state.errorMessage}
+          imageCache={this.state.imageCache} />
       );
     }
     return (

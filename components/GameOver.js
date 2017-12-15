@@ -11,9 +11,15 @@ import {
   Dimensions,
 } from 'react-native';
 import Button from 'react-native-button';
+import Swiper from 'react-native-swiper';
+
+import Gif from './Gif';
 import ParaText from './ParaText';
 import ErrorMessage from './ErrorMessage';
-import type { GameInfo, PlayerInfo } from '../flow/types';
+
+import COLORS from '../constants/colors';
+
+import type { GameInfo, PlayerInfo, ImageUrl } from '../flow/types';
 
 const WINDOW_HEIGHT: number = Dimensions.get('window').height;
 const HEADER_HEIGHT = 70;
@@ -23,6 +29,7 @@ type propTypes = {
   playerInfo: PlayerInfo,
   startGame: () => Promise<void>,
   errorMessage: ?string,
+  imageCache: {[number]: string},
 };
 
 type stateTypes = {
@@ -75,21 +82,103 @@ export default class GameOver extends React.Component<propTypes, stateTypes> {
           'Loading...' :
           'Again!'}
       </Button>);
+
+    const gifCarousel = this._renderGifCarousel();
+
     return (
       <ScrollView style={styles.main}>
-        <View style={{minHeight: WINDOW_HEIGHT - HEADER_HEIGHT, justifyContent: 'center'}}>
-        <ParaText style={styles.h2Text}>And we&#39;re done!</ParaText>
+        <View style={{minHeight: WINDOW_HEIGHT - HEADER_HEIGHT - 340, justifyContent: 'center'}}>
+          <ParaText style={styles.h2Text}>And we&#39;re done!</ParaText>
 
-        <View>{this._renderScoreTable()}</View>
+          {gifCarousel}
 
-        {rematchButton}
+          <View>{this._renderScoreTable()}</View>
 
-        <ErrorMessage
-          errorMessage={this.props.errorMessage} />
+          {rematchButton}
+
+          <ErrorMessage
+            errorMessage={this.props.errorMessage} />
         </View>
       </ScrollView>
     );
   }
+
+  // Function to render a carousel displaying gifs and their scenarios.
+  _renderGifCarousel = () => {
+    const gameImages = this.props.gameInfo.gameImages;
+
+    if (!gameImages) {
+      return;
+    }
+
+    const gifsAndScenarios = gameImages.map(this._renderGif);
+    // TODO Remove this when iOS stops showing the last item as part of the first.
+    gifsAndScenarios.push(this._renderGif(gameImages[0], gameImages[0].gameImageId - 1));
+
+    return (
+      <Swiper
+        autoplay={true}
+        removeClippedSubviews={false}
+        showsPagination={false}
+        height={300}
+        ref='swiper'
+        autoplayTimeout={4}
+        style={{
+          paddingTop: 20,
+          paddingBottom: 20,
+        }}
+        showsButtons={false}
+        onIndexChanged={(i) => {
+          // TODO Remove this when iOS stops showing the last item as part of the first.
+          if (gifsAndScenarios && i === gifsAndScenarios.length - 1 && this.refs.swiper) {
+            this.refs.swiper.scrollBy(-(gifsAndScenarios.length - 2), false);
+          }
+        }} >
+        {gifsAndScenarios}
+      </Swiper>);
+  }
+
+  // Function to render a gif with the scenario below.
+  _renderGif = (
+    source: {
+      gameImageId: number,
+      imageUrl: string,
+      scenario: string,
+      reactorNickname: string,
+    },
+    id?: number,
+  ) => {
+    if (!id) {
+      id = source.gameImageId;
+    }
+
+    const scenario = `${source.reactorNickname}'s reaction when ${source.scenario}`;
+    const prefetched = this.props.imageCache.hasOwnProperty(source.gameImageId);
+    const localUri = this.props.imageCache[source.gameImageId];
+
+    return (
+      <View style={{flex: 1, justifyContent: 'center'}} key={id}>
+        <Gif
+          style={{flex: 1, alignItems: 'stretch', justifyContent: 'center'}}
+          width={200}
+          height={200}
+          marginBottom={6}
+          key={`gif_${id}`}
+          source={{url: source.imageUrl, id: source.gameImageId, prefetched: prefetched, localUri: localUri}} />
+        <View
+          style={{
+            flex: 1,
+            alignItems: 'center',
+            height: 40,
+          }}
+          key={`text_${id}`} >
+          <Text>
+            {scenario}
+          </Text>
+        </View>
+      </View>
+    );
+  };
 }
 
 const styles = StyleSheet.create({

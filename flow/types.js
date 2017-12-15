@@ -24,8 +24,16 @@ export type GameInfo = {
   lastGif: ?string,
   displayOrder: ?string,
   imageQueue: ?Array<ImageUrl>,
+  roundStarted: ?number,
+  firstImageID: ?number,
   responsesIn: number,
   timeLeft?: number,
+  gameImages?: Array<{
+    gameImageId: number,
+    imageUrl: string,
+    scenario: string,
+    reactorNickname: string,
+  }>,
 };
 
 export type PlayerInfo = {
