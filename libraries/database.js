@@ -22,7 +22,7 @@ class Database {
           (tx, res) => {
             tx.executeSql(
               ('INSERT OR IGNORE INTO info VALUES ("gameInfo", null), ' +
-                '("playerInfo", null), ("errorMessage", null), ("pushToken", null), ("newInstall", "true");')
+                '("playerInfo", null), ("errorMessage", null), ("pushToken", null), ("newInstall", "true"), ("imageCache", null);')
             );
           },
           (tx, err) => {

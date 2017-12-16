@@ -23,6 +23,8 @@ type propTypes = {
   height: number,
   marginBottom: number,
   source: ImageUrl,
+  gameID: number,
+  addToImageCache: (id: number, url: string) => void,
 };
 
 type stateTypes = {
@@ -108,7 +110,7 @@ export default class Gif extends React.Component<propTypes, stateTypes> {
       });
     };
 
-    source.localUri = await preloadGif(source, checkDownloadProgress, saveDownloadResumable);
+    source.localUri = await preloadGif(source, this.props.gameID, this.props.addToImageCache, checkDownloadProgress, saveDownloadResumable);
     // Check to make sure the source hadn't been overwritten (image hasn't been
     // skipped) in the time it took to download.
     if (this.props.source.id <= source.id) {

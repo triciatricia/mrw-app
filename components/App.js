@@ -15,7 +15,7 @@ import React from 'react';
 import * as Reporting from '../libraries/reporting';
 import {invalidState, postToServerPromise} from '../libraries/networking';
 import {registerPushNotificationsPromise} from '../libraries/permissions';
-import {preloadGif} from '../libraries/preloading';
+import {deleteGifCache, preloadGif} from '../libraries/preloading';
 import Database from '../libraries/database';
 import GamePlay from './GamePlay';
 import GameOver from './GameOver';
@@ -116,6 +116,7 @@ export default class App extends React.Component<propTypes, stateTypes> {
       playerInfo: savedVals != null && savedVals.playerInfo ? savedVals.playerInfo : null,
       errorMessage: savedVals != null && savedVals.errorMessage ? savedVals.errorMessage : null,
       pushToken: savedVals != null && savedVals.pushToken ? savedVals.pushToken : this.state.pushToken,
+      imageCache: savedVals != null && savedVals.imageCache ? savedVals.imageCache : this.state.imageCache,
       settingsVisible: false,
       appIsReady: true,
     });
@@ -135,6 +136,7 @@ export default class App extends React.Component<propTypes, stateTypes> {
     db.updateSavedInfo('playerInfo', this.state.playerInfo);
     db.updateSavedInfo('errorMessage', this.state.errorMessage);
     db.updateSavedInfo('pushToken', this.state.pushToken);
+    db.updateSavedInfo('imageCache', this.state.imageCache);
     Reporting.setSentryContext(this.state);
   }
 
@@ -200,7 +202,13 @@ export default class App extends React.Component<propTypes, stateTypes> {
         <Settings
           setSettingsVisible={this._setSettingsVisible}
           settingsVisible={this.state.settingsVisible}
-          leaveGame={() => {this._postToServer('leaveGame')}} />
+          leaveGame={() => {
+            if (this.state.imageCache) {
+              deleteGifCache(Object.values(this.state.imageCache));
+            }
+            this._postToServer('leaveGame');
+            this.setState({appIsReady: false});
+          }} />
         <View style={styles.playArea}>
           {playArea}
           {messageBanner}
@@ -239,13 +247,11 @@ export default class App extends React.Component<propTypes, stateTypes> {
             this.setState({downloadResumables});
           };
 
-          imageCache[image.id] = await preloadGif(image, () => {}, saveDownloadResumable);
-
+          await preloadGif(image, gameInfo.id, this._addToImageCache, () => {}, saveDownloadResumable);
         }
       }
 
       this.setState({
-        imageCache: imageCache,
         lastImageIdCached: imageQueue[0].id,
       });
       this.downloading = false;
@@ -310,7 +316,8 @@ export default class App extends React.Component<propTypes, stateTypes> {
           imageCache={this.state.imageCache}
           playerInfo={this.state.playerInfo}
           errorMessage={this.state.errorMessage}
-          timeLeft={this.state.timeLeft} />
+          timeLeft={this.state.timeLeft}
+          addToImageCache={this._addToImageCache} />
       );
     }
     if (this.state.gameInfo.gameOver) {
@@ -320,7 +327,8 @@ export default class App extends React.Component<propTypes, stateTypes> {
           gameInfo={this.state.gameInfo}
           playerInfo={this.state.playerInfo}
           errorMessage={this.state.errorMessage}
-          imageCache={this.state.imageCache} />
+          imageCache={this.state.imageCache}
+          addToImageCache={this._addToImageCache} />
       );
     }
     return (
@@ -351,6 +359,7 @@ export default class App extends React.Component<propTypes, stateTypes> {
         );
         return;
       }
+
       if (res.result && res.result.gameInfo) {
         if (this.state.gameInfo && this.state.gameInfo.image && res.result.gameInfo.image &&
           this.state.gameInfo.image.id < res.result.gameInfo.image.id) {
@@ -447,11 +456,6 @@ export default class App extends React.Component<propTypes, stateTypes> {
       postData.appIsActive = true;
     }
 
-    // If the player wanted to leave the game, reset everything.
-    if (action == 'leaveGame') {
-      this._resetState();
-    }
-
     if (action == 'joinGame' || action == 'createNewGame') {
       this.setState({
         imageCache: {},
@@ -470,6 +474,11 @@ export default class App extends React.Component<propTypes, stateTypes> {
       });
     }
 
+    // If the player wanted to leave the game, reset everything.
+    if (action == 'leaveGame') {
+      this._resetState();
+    }
+
   };
 
   _resetState = () => {
@@ -480,8 +489,16 @@ export default class App extends React.Component<propTypes, stateTypes> {
       imageCache: {},
       lastImageIdCached: null,
       timeLeft: null,
+      downloadResumables: {},
+      appIsReady: true,
     });
     this._saveState();
+  }
+
+  _addToImageCache = (id: number, url: string) => {
+    const newImageCache = this.state.imageCache;
+    newImageCache[id] = url;
+    this.setState({imageCache: newImageCache});
   }
 }
 

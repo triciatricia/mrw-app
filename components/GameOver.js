@@ -30,6 +30,7 @@ type propTypes = {
   startGame: () => Promise<void>,
   errorMessage: ?string,
   imageCache: {[number]: string},
+  addToImageCache: (id: number, url: string) => void,
 };
 
 type stateTypes = {
@@ -42,6 +43,17 @@ export default class GameOver extends React.Component<propTypes, stateTypes> {
     this.state = {
       isLoading: false
     };
+  }
+
+  shouldComponentUpdate(nextProps: propTypes, nextState: stateTypes) {
+    return (
+      (nextProps.gameInfo.round != this.props.gameInfo.round) ||
+      (nextProps.errorMessage != this.props.errorMessage) ||
+      (this.state.isLoading != nextState.isLoading) ||
+      (Object.keys(this.props.gameInfo.scores).length != Object.keys(nextProps.gameInfo.scores).length) ||
+      (Object.keys(this.props.imageCache).length != Object.keys(nextProps.imageCache).length) ||
+      (!this.props.gameInfo.gameImages)
+    );
   }
 
   _startGame = () => {
@@ -118,7 +130,7 @@ export default class GameOver extends React.Component<propTypes, stateTypes> {
     return (
       <Swiper
         autoplay={true}
-        removeClippedSubviews={false}
+        removeClippedSubviews={true}
         showsPagination={false}
         height={300}
         ref='swiper'
@@ -164,6 +176,8 @@ export default class GameOver extends React.Component<propTypes, stateTypes> {
           height={200}
           marginBottom={6}
           key={`gif_${id}`}
+          addToImageCache={this.props.addToImageCache}
+          gameID={this.props.gameInfo.id}
           source={{url: source.imageUrl, id: source.gameImageId, prefetched: prefetched, localUri: localUri}} />
         <View
           style={{

@@ -151,6 +151,7 @@ type propTypes = {
   errorMessage: ?string,
   imageCache: {[number]: string},
   timeLeft: ?number,
+  addToImageCache: (id: number, url: string) => void,
 };
 
 type stateTypes = {
@@ -316,7 +317,9 @@ export default class GamePlay extends React.Component<propTypes, stateTypes> {
         width={WINDOW_WIDTH - 40}
         height={WINDOW_HEIGHT / 2 - 60}
         marginBottom={20}
-        source={gifSource} />
+        source={gifSource}
+        gameID={this.props.gameInfo.id}
+        addToImageCache={this.props.addToImageCache} />
     );
 
     return (
