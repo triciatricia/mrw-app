@@ -186,7 +186,7 @@ export default class GameOver extends React.Component<propTypes, stateTypes> {
             height: 40,
           }}
           key={`text_${id}`} >
-          <Text>
+          <Text style={{fontSize: 16}}>
             {scenario}
           </Text>
         </View>
