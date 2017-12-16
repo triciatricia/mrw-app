@@ -151,12 +151,14 @@ type propTypes = {
   errorMessage: ?string,
   imageCache: {[number]: string},
   timeLeft: ?number,
+  onChangeGameStatusBarVisibility: (isVisible: boolean) => void,
   addToImageCache: (id: number, url: string) => void,
 };
 
 type stateTypes = {
   scenario: string,
   loading: boolean,
+  gameStatusBarVisible: boolean,
 };
 
 export default class GamePlay extends React.Component<propTypes, stateTypes> {
@@ -165,8 +167,10 @@ export default class GamePlay extends React.Component<propTypes, stateTypes> {
     this.state = {
       scenario: '',
       loading: false,
+      gameStatusBarVisible: true,
     };
   }
+  statusBar: ?View;
 
   componentDidUpdate(prevProps: propTypes) {
     if (prevProps.gameInfo.image &&
@@ -180,6 +184,17 @@ export default class GamePlay extends React.Component<propTypes, stateTypes> {
   componentWillReceiveProps(nextProps: propTypes) {
     if (nextProps.gameInfo.round != this.props.gameInfo.round) {
       this.setState({scenario: ''});
+    }
+    if (this.statusBar) {
+      this.statusBar.measure((x, y, w, h, px, py) => {
+        const isVisible = py >= 0;
+        if (isVisible != this.state.gameStatusBarVisible) {
+          this.props.onChangeGameStatusBarVisibility(py >= 0);
+          this.setState({
+            gameStatusBarVisible: isVisible,
+          });
+        }
+      });
     }
   }
 
@@ -324,15 +339,19 @@ export default class GamePlay extends React.Component<propTypes, stateTypes> {
 
     return (
       <ScrollView style={styles.main} keyboardShouldPersistTaps='handled'>
-        <KeyboardAvoidingView behavior='position' contentContainerStyle={{paddingBottom: 40}}>
-          <GameStatusBar
-            nickname={this.props.playerInfo.nickname}
-            score={this.props.playerInfo.score}
-            round={this.props.gameInfo.round}
-            gameCode={this.props.gameInfo.id.toString()}
-            waitingForScenarios={this.props.gameInfo.waitingForScenarios}
-            timeLeft={this.props.timeLeft}
-            responsesIn={this.props.gameInfo.responsesIn} />
+        <KeyboardAvoidingView
+          behavior='position'
+          contentContainerStyle={{paddingBottom: 40}}>
+          <View ref={v => {this.statusBar = v;}}>
+            <GameStatusBar
+              nickname={this.props.playerInfo.nickname}
+              score={this.props.playerInfo.score}
+              round={this.props.gameInfo.round}
+              gameCode={this.props.gameInfo.id.toString()}
+              waitingForScenarios={this.props.gameInfo.waitingForScenarios}
+              timeLeft={this.props.timeLeft}
+              responsesIn={this.props.gameInfo.responsesIn} />
+          </View>
 
           {gif}
 

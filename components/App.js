@@ -3,6 +3,7 @@
 import {AppLoading, FileSystem} from 'expo';
 import {
   AppState,
+  Platform,
   StyleSheet,
   Text,
   TouchableHighlight,
@@ -35,6 +36,7 @@ type stateTypes = {
   playerInfo: ?PlayerInfo,
   errorMessage: ?string,
   settingsVisible: boolean,
+  gameStatusBarVisible: boolean,
   appIsReady: boolean,
   imageCache: {[number]: string},
   lastImageIdCached: ?number,
@@ -55,6 +57,7 @@ export default class App extends React.Component<propTypes, stateTypes> {
       playerInfo: null,
       errorMessage: null,
       settingsVisible: false,
+      gameStatusBarVisible: true,
       appIsReady: false,
       imageCache: {},
       lastImageIdCached: null,
@@ -181,6 +184,20 @@ export default class App extends React.Component<propTypes, stateTypes> {
     const playArea = this._getPlayArea();
     const isNewGame = this.state.gameInfo === null;
 
+    let timer;
+    // Display the timer if the game status bar isn't visible.
+    // Right now this only works for iOS.
+    if (
+      Platform.OS === 'ios' &&
+      !this.state.gameStatusBarVisible &&
+      this.state.gameInfo &&
+      this.state.gameInfo.waitingForScenarios &&
+      this.state.timeLeft !== null &&
+      typeof this.state.timeLeft !== 'undefined'
+    ) {
+      timer = <Text style={{fontSize: 16}}>{formatTime(this.state.timeLeft)}</Text>;
+    }
+
     let messageBanner;
     if (this.state.networkError) {
       messageBanner = (
@@ -197,6 +214,7 @@ export default class App extends React.Component<propTypes, stateTypes> {
           <Image
             source={require('../images/mrw.png')}
             style={isNewGame ? styles.mrwLogoLarge : styles.mrwLogoSmall} />
+          {timer}
           {settingsLink}
         </View>
         <Settings
@@ -317,6 +335,7 @@ export default class App extends React.Component<propTypes, stateTypes> {
           playerInfo={this.state.playerInfo}
           errorMessage={this.state.errorMessage}
           timeLeft={this.state.timeLeft}
+          onChangeGameStatusBarVisibility={isVisible => this.setState({gameStatusBarVisible: isVisible})}
           addToImageCache={this._addToImageCache} />
       );
     }
@@ -500,6 +519,18 @@ export default class App extends React.Component<propTypes, stateTypes> {
     newImageCache[id] = url;
     this.setState({imageCache: newImageCache});
   }
+}
+
+function formatTime(ms: number): string {
+  // ms is in milliseconds.
+  // Returns a string in the xx:xx (mins:secs) format.
+  // TODO move this out of the way.
+  const mins = Math.floor(ms / 60000);
+  let secs = Math.floor((ms - mins * 60000)/1000);
+  if (secs <= 9) {
+    secs = "0" + secs;
+  }
+  return '' + mins + ':' + secs;
 }
 
 const styles = StyleSheet.create({
