@@ -6,10 +6,12 @@ import {
   Text,
   View,
   ScrollView,
+  Share,
   TextInput,
   Platform,
   Dimensions,
 } from 'react-native';
+import { Entypo } from '@expo/vector-icons';
 import Button from 'react-native-button';
 import Swiper from 'react-native-swiper';
 
@@ -23,6 +25,7 @@ import type { GameInfo, PlayerInfo, ImageUrl } from '../flow/types';
 
 const WINDOW_HEIGHT: number = Dimensions.get('window').height;
 const HEADER_HEIGHT = 70;
+const MAX_GIFS_SHOWN = 10; // Only show up to 10 gifs in the carousel
 
 type propTypes = {
   gameInfo: GameInfo,
@@ -35,13 +38,24 @@ type propTypes = {
 
 type stateTypes = {
   isLoading: boolean,
+  swiperGif: {
+    gameImageId: number,
+    imageUrl: string,
+    scenario: string,
+    reactorNickname: string,
+  } | null,
 };
 
 export default class GameOver extends React.Component<propTypes, stateTypes> {
   constructor(props: propTypes) {
     super(props);
     this.state = {
-      isLoading: false
+      isLoading: false,
+      swiperGif: (
+        this.props.gameInfo.gameImages ?
+        this.props.gameInfo.gameImages[Math.max(0, this.props.gameInfo.gameImages.length - MAX_GIFS_SHOWN)] :
+        null
+      ),
     };
   }
 
@@ -52,7 +66,8 @@ export default class GameOver extends React.Component<propTypes, stateTypes> {
       (this.state.isLoading != nextState.isLoading) ||
       (Object.keys(this.props.gameInfo.scores).length != Object.keys(nextProps.gameInfo.scores).length) ||
       (Object.keys(this.props.imageCache).length != Object.keys(nextProps.imageCache).length) ||
-      (!this.props.gameInfo.gameImages)
+      (!this.props.gameInfo.gameImages) ||
+      (nextState.swiperGif != this.state.swiperGif)
     );
   }
 
@@ -117,37 +132,54 @@ export default class GameOver extends React.Component<propTypes, stateTypes> {
 
   // Function to render a carousel displaying gifs and their scenarios.
   _renderGifCarousel = () => {
-    const gameImages = this.props.gameInfo.gameImages;
-
-    if (!gameImages) {
+    if (!this.props.gameInfo.gameImages) {
       return;
     }
 
+    const gameImages = this.props.gameInfo.gameImages.slice(-MAX_GIFS_SHOWN);
     const gifsAndScenarios = gameImages.map(this._renderGif);
     // TODO Remove this when iOS stops showing the last item as part of the first.
     gifsAndScenarios.push(this._renderGif(gameImages[0], gameImages[0].gameImageId - 1));
+    const shareButton = this._renderShareButton();
+
+    let gifsIntroText = 'Take a look at these awesome reactions...';
+    if (this.props.gameInfo.gameImages && this.props.gameInfo.gameImages.length > MAX_GIFS_SHOWN) {
+      gifsIntroText = `Here are the last ${MAX_GIFS_SHOWN} reactions! Pretty awesome, right?`;
+    }
 
     return (
-      <Swiper
-        autoplay={true}
-        removeClippedSubviews={true}
-        showsPagination={false}
-        height={300}
-        ref='swiper'
-        autoplayTimeout={4}
-        style={{
-          paddingTop: 20,
-          paddingBottom: 20,
-        }}
-        showsButtons={false}
-        onIndexChanged={(i) => {
-          // TODO Remove this when iOS stops showing the last item as part of the first.
-          if (gifsAndScenarios && i === gifsAndScenarios.length - 1 && this.refs.swiper) {
-            this.refs.swiper.scrollBy(-(gifsAndScenarios.length - 2), false);
-          }
-        }} >
-        {gifsAndScenarios}
-      </Swiper>);
+      <View>
+        <Text style={{fontSize: 20}}>
+          {gifsIntroText}
+        </Text>
+        <Swiper
+          autoplay={true}
+          removeClippedSubviews={true}
+          showsPagination={true}
+          dotStyle={{backgroundColor: COLORS.MED_GRAY}}
+          activeDotStyle={{backgroundColor: COLORS.BLUE}}
+          height={345}
+          ref='swiper'
+          autoplayTimeout={4}
+          style={styles.swiper}
+          showsButtons={true}
+          nextButton={<Entypo name="chevron-right" size={40} color={COLORS.BLUE} />}
+          prevButton={<Entypo name="chevron-left" size={40} color={COLORS.BLUE} />}
+          onIndexChanged={(i) => {
+            if (i < gameImages.length) {
+              this.setState({
+                swiperGif: gameImages[i],
+              });
+            }
+            // TODO Remove this when iOS stops showing the last item as part of the first.
+            if (gifsAndScenarios && i === gifsAndScenarios.length - 1 && this.refs.swiper) {
+              this.refs.swiper.scrollBy(-(gifsAndScenarios.length - 2), false);
+            }
+          }} >
+          {gifsAndScenarios}
+        </Swiper>
+        {shareButton}
+      </View>);
   }
 
   // Function to render a gif with the scenario below.
@@ -169,29 +201,55 @@ export default class GameOver extends React.Component<propTypes, stateTypes> {
     const localUri = this.props.imageCache[source.gameImageId];
 
     return (
-      <View style={{flex: 1, justifyContent: 'center'}} key={id}>
-        <Gif
-          style={{flex: 1, alignItems: 'stretch', justifyContent: 'center'}}
-          width={200}
-          height={200}
-          marginBottom={6}
-          key={`gif_${id}`}
-          addToImageCache={this.props.addToImageCache}
-          gameID={this.props.gameInfo.id}
-          source={{url: source.imageUrl, id: source.gameImageId, prefetched: prefetched, localUri: localUri}} />
-        <View
-          style={{
-            flex: 1,
-            alignItems: 'center',
-            height: 40,
-          }}
-          key={`text_${id}`} >
-          <Text style={{fontSize: 16}}>
-            {scenario}
-          </Text>
+      <View style={{flex: 1, justifyContent: 'flex-start', flexDirection: 'column', alignItems: 'center'}} key={id}>
+        <View style={{flex: 1}}>
+          <Gif
+            style={{flex: 1, alignItems: 'stretch', justifyContent: 'center'}}
+            width={200}
+            height={200}
+            marginBottom={6}
+            key={`gif_${id}`}
+            addToImageCache={this.props.addToImageCache}
+            gameID={this.props.gameInfo.id}
+            source={{url: source.imageUrl, id: source.gameImageId, prefetched: prefetched, localUri: localUri}} />
+          <View
+            style={styles.scenarioView}
+            key={`text_${id}`} >
+            <ScrollView>
+              <Text style={{fontSize: 16, flex: 0, paddingRight: 10, paddingLeft: 10, color: 'white'}}>
+                {scenario}
+              </Text>
+            </ScrollView>
+          </View>
         </View>
       </View>
     );
+  };
+
+  _renderShareButton = () => {
+    let shareButton;
+    const swiperGif = this.state.swiperGif;
+    if (swiperGif) {
+      const shareReaction = () => {
+        Share.share({
+          message: `${swiperGif.scenario}\n${swiperGif.imageUrl}`,
+        }, {
+          dialogTitle: `Share ${swiperGif.reactorNickname}'s reaction`,
+        });
+      };
+      shareButton = (
+        <Button
+          containerStyle={styles.shareButton}
+          onPress={shareReaction}>
+          <Entypo
+            name={Platform.OS === 'ios' ? 'share-alternative' : 'share'}
+            size={26}
+            color={COLORS.BLUE} />
+        </Button>
+      );
+    }
+
+    return shareButton;
   };
 }
 
@@ -213,5 +271,28 @@ const styles = StyleSheet.create({
   newGameText: {
     color: '#FFF',
     fontSize: 20,
+  },
+  scenarioView: {
+    width: 335,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    height: 60,
+  },
+  shareButton: {
+    overflow: 'hidden',
+    backgroundColor: 'transparent',
+    flex: 0,
+    position: 'absolute',
+    bottom: 20,
+    right: 10,
+  },
+  swiper: {
+    marginTop: 20,
+    marginBottom: 20,
+    paddingTop: 10,
+    paddingBottom: 10,
+    backgroundColor: 'black',
+    height: 310,
   },
 });
