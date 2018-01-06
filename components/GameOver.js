@@ -232,7 +232,7 @@ export default class GameOver extends React.Component<propTypes, stateTypes> {
     if (swiperGif) {
       const shareReaction = () => {
         Share.share({
-          message: `${swiperGif.scenario}\n${swiperGif.imageUrl}`,
+          message: `${swiperGif.reactorNickname}'s reaction when ${swiperGif.scenario}\n${swiperGif.imageUrl}`,
         }, {
           dialogTitle: `Share ${swiperGif.reactorNickname}'s reaction`,
         });
