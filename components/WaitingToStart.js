@@ -67,7 +67,7 @@ export default class WaitingToStart extends React.Component<propTypes, stateType
     const playersJoinedMessage = (this._nPlayers() + ' player' +
       (this._nPlayers() === 1 ? ' has' : 's have') + ' joined...');
     return (
-      <View style={styles.main}>
+      <View testID='WaitingToStart' style={styles.main}>
         <Text style={{fontSize: 40, paddingBottom: 10}}>
           Waiting to start!
         </Text>
@@ -77,12 +77,12 @@ export default class WaitingToStart extends React.Component<propTypes, stateType
         </Text>
 
         <View style={{alignItems: 'center', paddingBottom: 10}}>
-          <Text style={{fontSize: 22, color: '#4472C4'}}>
+          <Text testID='GameCode' style={{fontSize: 22, color: '#4472C4'}}>
             {this.props.gameInfo.id}
           </Text>
         </View>
 
-        <Text style={{fontSize: 16, color: '#666'}}>
+        <Text testID='PlayersJoinedMessage' style={{fontSize: 16, color: '#666'}}>
           {playersJoinedMessage}
         </Text>
 

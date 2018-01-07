@@ -13,5 +13,32 @@
     "react-native-button": "^2.0.0",
     "react-native-swiper": "1.5.13",
     "sentry-expo": "~1.6.0"
+  },
+  "devDependencies": {
+    "detox": "^6.0.4",
+    "detox-expo-helpers": "^0.2.0",
+    "isomorphic-fetch": "^2.2.1",
+    "jest-expo": "^24.0.0"
+  },
+  "scripts": {
+    "test": "node_modules/.bin/jest",
+    "e2e": "detox test --configuration ios.sim --reuse"
+  },
+  "jest": {
+    "preset": "jest-expo",
+    "transformIgnorePatterns": [
+      "node_modules/(?!((jest-)?react-native|react-clone-referenced-element|expo(nent)?|@expo(nent)?/.*|react-navigation|sentry-expo))"
+    ]
+  },
+  "detox": {
+    "configurations": {
+      "ios.sim": {
+        "binaryPath": "bin/Exponent-2.2.0.app",
+        "type": "ios.simulator",
+        "name": "iPhone 7"
+      }
+    },
+    "test-runner": "jest",
+    "runner-config": "e2e/config.json"
   }
 }

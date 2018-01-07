@@ -119,7 +119,7 @@ export default class GameOver extends React.Component<propTypes, stateTypes> {
 
           {gifCarousel}
 
-          <View>{this._renderScoreTable()}</View>
+          <View testID='ScoreTable'>{this._renderScoreTable()}</View>
 
           {rematchButton}
 

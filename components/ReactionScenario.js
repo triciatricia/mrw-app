@@ -47,6 +47,7 @@ export default class ReactionScenario extends React.Component<propTypes> {
     return (
       <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 10}}>
         <TouchableOpacity
+          testID='ReactionScenarioRadioButton'
           onPress={() => this.props.onScenarioSelection(this.props.id)}
           style={this.props.isChecked ? styles.radioButtonChecked : styles.radioButton}>
           {this.props.isChecked ? <TouchableOpacity style={styles.radioButtonCenter} /> : null}

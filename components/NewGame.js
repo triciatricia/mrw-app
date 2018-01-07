@@ -17,6 +17,7 @@ type propTypes = {
   joinGame: (gameCode: string) => Promise<void>,
   createGame: () => Promise<void>,
   errorMessage: ?string,
+  testID: ?string,
 };
 
 type stateTypes = {
@@ -38,7 +39,7 @@ export default class NewGame extends React.Component<propTypes, stateTypes> {
     const newGameTextColor = this.state.gameCode === '' ? '#fff' : '#333';
 
     return (
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} testID={this.props.testID}>
         <View style={styles.main}>
           <View style={{flex: 0.7, alignItems: 'center', justifyContent: 'center'}}>
             <Text style={styles.h1Text}>Hello!</Text>
@@ -48,6 +49,7 @@ export default class NewGame extends React.Component<propTypes, stateTypes> {
           <View style={{flex: 1, justifyContent: 'center'}}>
             <View style={styles.inputView}>
               <TextInput
+                testID="GameCodeTextInput"
                 style={styles.input}
                 placeholder='Game code...'
                 onChangeText={(text) => this.setState({gameCode: text})}
@@ -58,6 +60,7 @@ export default class NewGame extends React.Component<propTypes, stateTypes> {
                 underlineColorAndroid='transparent' />
             </View>
             <Button
+              testID="JoinGameButton"
               containerStyle={[styles.joinGameContainer, {backgroundColor: joinGameBackground}]}
               style={[styles.joinGameText, {color: joinGameTextColor}]}
               onPress={() => {
@@ -71,6 +74,7 @@ export default class NewGame extends React.Component<propTypes, stateTypes> {
 
           <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
             <Button
+              testID="NewGameButton"
               containerStyle={[styles.newGameContainer, {backgroundColor: newGameBackground}]}
               style={[styles.newGameText, {color: newGameTextColor}]}
               onPress={this.props.createGame} >

@@ -38,6 +38,7 @@ export default class ScenarioList extends React.Component<propTypes, stateTypes>
     if (this.props.isReactor && this.props.winningResponse == null) {
       button = (
         <Button
+          testID='ChooseScenarioButton'
           containerStyle={[styles.buttonContainer, {backgroundColor: this.state.selectedScenario ? '#4472C4' : '#eee'}]}
           style={[styles.buttonText, {color: this.state.selectedScenario ? '#fff' : '#333'}]}
           onPress={() => {
@@ -52,7 +53,7 @@ export default class ScenarioList extends React.Component<propTypes, stateTypes>
 
     return (
       <View>
-        <View>
+        <View testID='ScenarioList'>
           {scenarios}
         </View>
         {button}

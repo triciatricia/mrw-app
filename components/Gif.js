@@ -179,11 +179,13 @@ export default class Gif extends React.Component<propTypes, stateTypes> {
 
   render() {
     return (
-      <View style={{
-        justifyContent: 'center',
-        height: this.props.height,
-        marginBottom: this.props.marginBottom,
-      }}>
+      <View
+        testID='GifView'
+        style={{
+          justifyContent: 'center',
+          height: this.props.height,
+          marginBottom: this.props.marginBottom,
+        }} >
         {this._renderMedia()}
       </View>
     );

@@ -161,6 +161,7 @@ export default class App extends React.Component<propTypes, stateTypes> {
     if (this.state.gameInfo || this.state.playerInfo) {
       settingsLink = (
         <Button
+          testID='LeaveGameButton'
           containerStyle={{
             padding: 6,
             overflow: 'hidden',
@@ -195,7 +196,7 @@ export default class App extends React.Component<propTypes, stateTypes> {
       this.state.timeLeft !== null &&
       typeof this.state.timeLeft !== 'undefined'
     ) {
-      timer = <Text style={{fontSize: 16}}>{formatTime(this.state.timeLeft)}</Text>;
+      timer = <Text testID='TimeLeftTopBar' style={{fontSize: 16}}>{formatTime(this.state.timeLeft)}</Text>;
     }
 
     let messageBanner;
@@ -289,6 +290,7 @@ export default class App extends React.Component<propTypes, stateTypes> {
     if (this.state.gameInfo == null) {
       return (
         <NewGame
+          testID="NewGame"
           joinGame={(gameCode: string) => this._postToServer('joinGame', {gameCode})}
           createGame={() => this._postToServer('createNewGame')}
           errorMessage={this.state.errorMessage} />

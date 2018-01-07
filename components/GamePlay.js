@@ -92,6 +92,7 @@ class ScenarioListForm extends React.Component<scenarioPropTypes, scenarioStateT
       buttons = (
         <View style={{flexDirection: 'row'}}>
           <Button
+            testID='NextRoundButton'
             containerStyle={[
               styles.buttonContainer,
               {backgroundColor: '#4472C4', marginRight: 10}]}
@@ -100,6 +101,7 @@ class ScenarioListForm extends React.Component<scenarioPropTypes, scenarioStateT
             Next
           </Button>
           <Button
+            testID='EndGameButton'
             containerStyle={styles.buttonContainer}
             style={styles.buttonText}
             onPress={this._endGame} >
@@ -124,7 +126,7 @@ class ScenarioListForm extends React.Component<scenarioPropTypes, scenarioStateT
     const reactor = this.props.gameInfo.reactorNickname == null ? 'The reactor' : this.props.gameInfo.reactorNickname;
 
     return (
-      <View>
+      <View testID='ScenarioListForm'>
         <ParaText>{this._getInstructions()}</ParaText>
         {this._renderHeaderText()}
         <ScenarioList
@@ -225,6 +227,7 @@ export default class GamePlay extends React.Component<propTypes, stateTypes> {
           Waiting for responses. Hold on tight!
         </ParaText>
         <Button
+          testID='SkipImageButton'
           containerStyle={[
             styles.buttonContainer,
             {backgroundColor: this.state.loading ? "#ffffff" : "#eeeeee"}
@@ -269,6 +272,7 @@ export default class GamePlay extends React.Component<propTypes, stateTypes> {
         {this._renderHeaderText()}
         <View style={styles.inputView}>
           <TextInput
+            testID='ScenarioTextInput'
             style={styles.input}
             placeholder={placeholder}
             onChangeText={(text) => this.setState({scenario: text})}
@@ -279,13 +283,14 @@ export default class GamePlay extends React.Component<propTypes, stateTypes> {
         </View>
 
         <Button
+          testID='ScenarioSubmissionButton'
           containerStyle={[styles.buttonContainer, {backgroundColor: responseChanged ? '#eee' : '#4472C4'}]}
           style={[styles.buttonText, {color: responseChanged ? '#333' : '#fff'}]}
           onPress={this._submitResponse} >
           {buttonText}
         </Button>
 
-        <ParaText style={{color: 'green'}}>
+        <ParaText testID='ScenarioHelpMessage' style={{color: 'green'}}>
           {helpMessage}
         </ParaText>
       </View>
@@ -338,7 +343,7 @@ export default class GamePlay extends React.Component<propTypes, stateTypes> {
     );
 
     return (
-      <ScrollView style={styles.main} keyboardShouldPersistTaps='handled'>
+      <ScrollView testID='GamePlay' style={styles.main} keyboardShouldPersistTaps='handled'>
         <KeyboardAvoidingView
           behavior='position'
           contentContainerStyle={{paddingBottom: 40}}>

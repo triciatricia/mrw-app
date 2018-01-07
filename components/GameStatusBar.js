@@ -59,7 +59,7 @@ export default class GameStatusBar extends React.Component<propTypes> {
           </View>
         </View>
         <View>
-          <Text style={{fontSize: 20, textAlign: 'center'}}>{timeLeft}</Text>
+          <Text testID='TimeLeft' style={{fontSize: 20, textAlign: 'center'}}>{timeLeft}</Text>
           <Text style={{fontSize: 14, textAlign: 'center', paddingBottom: 20}}>{responsesInMessage}</Text>
         </View>
       </View>

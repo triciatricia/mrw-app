@@ -37,6 +37,7 @@ export default class NewPlayer extends React.Component<propTypes, stateTypes> {
           <View style={{flex: 1, justifyContent: 'center'}}>
             <View style={styles.inputView}>
               <TextInput
+                testID='NicknameTextInput'
                 style={styles.input}
                 placeholder='What do you want to be called?'
                 onChangeText={(text) => this.setState({nickname: text})}
@@ -47,6 +48,7 @@ export default class NewPlayer extends React.Component<propTypes, stateTypes> {
                 underlineColorAndroid='transparent' />
             </View>
             <Button
+              testID='SubmitNicknameButton'
               containerStyle={[
                 styles.submitContainer,
                 {backgroundColor: this.state.nickname.trim() === '' ? '#eee' : '#4472C4'}

@@ -25,6 +25,7 @@ export default class Settings extends React.Component {
             }}>Leave the game?</Text>
 
             <Button
+              testID='LeaveGameConfirmButton'
               containerStyle={{
                 padding: 10,
                 overflow: 'hidden',
