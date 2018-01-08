@@ -133,7 +133,7 @@ export default class GameOver extends React.Component<propTypes, stateTypes> {
   // Function to render a carousel displaying gifs and their scenarios.
   _renderGifCarousel = () => {
     if (!this.props.gameInfo.gameImages) {
-      return;
+      return(<View style={{height: 395}} />);
     }
 
     const gameImages = this.props.gameInfo.gameImages.slice(-MAX_GIFS_SHOWN);
@@ -149,7 +149,7 @@ export default class GameOver extends React.Component<propTypes, stateTypes> {
 
     return (
       <View>
-        <Text style={{fontSize: 20}}>
+        <Text style={{fontSize: 20, height: 50}}>
           {gifsIntroText}
         </Text>
         <Swiper
