@@ -23,7 +23,7 @@ type propTypes = {
   height: number,
   marginBottom: number,
   source: ImageUrl,
-  gameID: number,
+  gameID: string,
   addToImageCache: (id: number, url: string) => void,
 };
 

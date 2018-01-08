@@ -9,7 +9,7 @@ export type ImageUrl = {
 };
 
 export type GameInfo = {
-  id: number,
+  id: string,
   round: number | null,
   image: ?ImageUrl,
   waitingForScenarios: boolean,

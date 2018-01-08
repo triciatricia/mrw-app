@@ -7,7 +7,7 @@ import type {ImageUrl} from '../flow/types';
 
 export const preloadGif = async (
   image: ImageUrl,
-  gameID: number,
+  gameID: string,
   addToImageCache: (id: number, url: string) => void,
   callback: (
     {totalBytesWritten: number, totalBytesExpectedToWrite: number}
