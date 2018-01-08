@@ -1,5 +1,6 @@
 [ignore]
 .*/node_modules/react-native/IntegrationTests/.*
+<PROJECT_ROOT>/bin/.*
 
 [libs]
 ./node_modules/react-native/flow
