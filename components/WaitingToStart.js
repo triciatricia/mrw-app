@@ -2,6 +2,7 @@
 
 import React from 'react';
 import {
+  Platform,
   StyleSheet,
   Text,
   View,
@@ -10,6 +11,8 @@ import {
 import Button from 'react-native-button';
 import ErrorMessage from './ErrorMessage';
 import type { GameInfo, PlayerInfo } from '../flow/types';
+
+import FONTS from '../constants/fonts';
 
 type propTypes = {
   gameInfo: GameInfo,
@@ -77,7 +80,11 @@ export default class WaitingToStart extends React.Component<propTypes, stateType
         </Text>
 
         <View style={{alignItems: 'center', paddingBottom: 10}}>
-          <Text testID='GameCode' style={{fontSize: 22, color: '#4472C4'}}>
+          <Text testID='GameCode' style={{
+            fontSize: 22,
+            color: '#4472C4',
+            fontFamily: Platform.OS === 'android' ? FONTS.ANDROID_MONO : FONTS.IOS_MONO,
+          }}>
             {this.props.gameInfo.id}
           </Text>
         </View>

@@ -13,6 +13,8 @@ import {
 import Button from 'react-native-button';
 import ErrorMessage from './ErrorMessage';
 
+import FONTS from '../constants/fonts';
+
 type propTypes = {
   joinGame: (gameCode: string) => Promise<void>,
   createGame: () => Promise<void>,
@@ -50,13 +52,12 @@ export default class NewGame extends React.Component<propTypes, stateTypes> {
             <View style={styles.inputView}>
               <TextInput
                 testID="GameCodeTextInput"
-                style={styles.input}
-                placeholder='Game code...'
+                style={styles.gameCodeInput}
+                placeholder='Game Code'
                 onChangeText={(text) => this.setState({gameCode: text})}
                 value={this.state.gameCode}
                 autoCorrect={false}
                 autoCapitalize='characters'
-                keyboardType={Platform.OS === 'android' ? 'numeric' : 'numbers-and-punctuation'}
                 underlineColorAndroid='transparent' />
             </View>
             <Button
@@ -106,11 +107,12 @@ const styles = StyleSheet.create({
     borderColor: '#999',
     borderBottomWidth: 1,
   },
-  input: {
+  gameCodeInput: {
     color: '#999',
     fontSize: 26,
     borderBottomWidth: 0,
     height: 40,
+    fontFamily: Platform.OS === 'android' ? FONTS.ANDROID_MONO : FONTS.IOS_MONO,
   },
   joinGameContainer: {
     padding: 10,

@@ -2,9 +2,12 @@
 
 import React from 'react';
 import {
+  Platform,
   Text,
   View,
 } from 'react-native';
+
+import FONTS from '../constants/fonts';
 
 type propTypes = {
   nickname: string,
@@ -54,7 +57,12 @@ export default class GameStatusBar extends React.Component<propTypes> {
               Round: {this.props.round}
             </Text>
             <Text style={{fontSize: 16, paddingBottom: 10}}>
-              Game Code: {this.props.gameCode}
+              Game Code:
+              <Text style={{
+                fontFamily: Platform.OS === 'android' ? FONTS.ANDROID_MONO : FONTS.IOS_MONO,
+              }}>
+                {this.props.gameCode}
+              </Text>
             </Text>
           </View>
         </View>
