@@ -20,7 +20,9 @@ export default class ParaText extends React.Component<propTypes> {
         {...this.props}
         style={[
           {fontSize: 16, paddingBottom: 10},
-          this.props.style]}>
+          this.props.style,
+        ]}
+      >
         {this.props.children}
       </Text>
     );

@@ -1,3 +1,4 @@
+// Displays nickname, score, round, game code, and time left in the round.
 /* @flow */
 
 import React from 'react';
@@ -57,7 +58,7 @@ export default class GameStatusBar extends React.Component<propTypes> {
               Round: {this.props.round}
             </Text>
             <Text style={{fontSize: 16, paddingBottom: 10}}>
-              Game Code:
+              Game Code:&nbsp;
               <Text style={{
                 fontFamily: Platform.OS === 'android' ? FONTS.ANDROID_MONO : FONTS.IOS_MONO,
               }}>

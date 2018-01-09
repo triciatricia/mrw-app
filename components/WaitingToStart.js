@@ -6,7 +6,6 @@ import {
   StyleSheet,
   Text,
   View,
-  TextInput,
 } from 'react-native';
 import Button from 'react-native-button';
 import ErrorMessage from './ErrorMessage';
@@ -17,7 +16,7 @@ import FONTS from '../constants/fonts';
 type propTypes = {
   gameInfo: GameInfo,
   playerInfo: PlayerInfo,
-  startGame: () => Promise<void>,
+  onStartGame: () => Promise<void>,
   errorMessage: ?string,
 };
 
@@ -33,6 +32,13 @@ export default class WaitingToStart extends React.Component<propTypes, stateType
     };
   }
 
+  _onStartGame = () => {
+    this.setState({
+      isLoading: true
+    });
+    this.props.onStartGame();
+  };
+
   _isHost() {
     return this.props.gameInfo.hostID == this.props.playerInfo.id;
   }
@@ -41,13 +47,6 @@ export default class WaitingToStart extends React.Component<propTypes, stateType
     return Object.keys(this.props.gameInfo.scores).length;
   }
 
-  _startGame = () => {
-    this.setState({
-      isLoading: true
-    });
-    this.props.startGame();
-  };
-
   render() {
     let button;
     if (this._isHost()) {
@@ -55,7 +54,7 @@ export default class WaitingToStart extends React.Component<propTypes, stateType
         <Button
           containerStyle={styles.submitContainer}
           style={styles.submitText}
-          onPress={this._startGame}>
+          onPress={this._onStartGame}>
           Start now!
         </Button>
       );

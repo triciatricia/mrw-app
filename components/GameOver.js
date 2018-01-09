@@ -1,23 +1,24 @@
+// Component that displays the score table and last gifs and scenarios created (up to 10).
 /* @flow */
 
 import React from 'react';
 import {
-  StyleSheet,
-  Text,
-  View,
+  Dimensions,
+  Platform,
   ScrollView,
   Share,
+  StyleSheet,
+  Text,
   TextInput,
-  Platform,
-  Dimensions,
+  View,
 } from 'react-native';
 import { Entypo } from '@expo/vector-icons';
 import Button from 'react-native-button';
 import Swiper from 'react-native-swiper';
 
+import ErrorMessage from './ErrorMessage';
 import Gif from './Gif';
 import ParaText from './ParaText';
-import ErrorMessage from './ErrorMessage';
 
 import COLORS from '../constants/colors';
 
@@ -30,7 +31,7 @@ const MAX_GIFS_SHOWN = 10; // Only show up to 10 gifs in the carousel
 type propTypes = {
   gameInfo: GameInfo,
   playerInfo: PlayerInfo,
-  startGame: () => Promise<void>,
+  onStartGame: () => Promise<void>,
   errorMessage: ?string,
   imageCache: {[number]: string},
   addToImageCache: (id: number, url: string) => void,
@@ -71,76 +72,70 @@ export default class GameOver extends React.Component<propTypes, stateTypes> {
     );
   }
 
-  _startGame = () => {
+  _onPressRematchButton = () => {
     this.setState({
       isLoading: true
     });
-    this.props.startGame();
-  }
+    this.props.onStartGame();
+  };
 
-  _renderScoreTable() {
-    // Display scores in descending order with the top bold
-    const scores = this.props.gameInfo.scores;
-    let playersSorted = Object.keys(scores);
-    playersSorted.sort((p1, p2) => (scores[p2] - scores[p1]));
-    const highestScore = scores[playersSorted[0]];
+  // Function to render a gif with the scenario below.
+  _gif = (
+    source: {
+      gameImageId: number,
+      imageUrl: string,
+      scenario: string,
+      reactorNickname: string,
+    },
+    id?: number,
+  ) => {
+    if (!id) {
+      id = source.gameImageId;
+    }
 
-    return playersSorted.map(
-    player => {
-      return (
-        <ParaText
-          key={player}
-          style={{fontWeight: scores[player] == highestScore ? 'bold' : 'normal'}}
-          >
-          {scores[player]} {player}
-        </ParaText>
-      );
-    });
-  }
-
-  render() {
-    const rematchButton = (
-      <Button
-        id="rematchButton"
-        containerStyle={styles.newGameContainer}
-        style={styles.newGameText}
-        onPress={this._startGame}>
-        {this.state.isLoading && this.props.errorMessage == null ?
-          'Loading...' :
-          'Again!'}
-      </Button>);
-
-    const gifCarousel = this._renderGifCarousel();
+    const scenario = `${source.reactorNickname}'s reaction when ${source.scenario}`;
+    const prefetched = this.props.imageCache.hasOwnProperty(source.gameImageId);
+    const localUri = this.props.imageCache[source.gameImageId];
 
     return (
-      <ScrollView style={styles.main}>
-        <View style={{minHeight: WINDOW_HEIGHT - HEADER_HEIGHT - 340, justifyContent: 'center'}}>
-          <ParaText style={styles.h2Text}>And we&#39;re done!</ParaText>
-
-          {gifCarousel}
-
-          <View testID='ScoreTable'>{this._renderScoreTable()}</View>
-
-          {rematchButton}
-
-          <ErrorMessage
-            errorMessage={this.props.errorMessage} />
+      <View style={{flex: 1, justifyContent: 'flex-start', flexDirection: 'column', alignItems: 'center'}} key={id}>
+        <View style={{flex: 1}}>
+          <Gif
+            style={{flex: 1, alignItems: 'stretch', justifyContent: 'center'}}
+            width={200}
+            height={200}
+            marginBottom={6}
+            key={`gif_${id}`}
+            addToImageCache={this.props.addToImageCache}
+            gameID={this.props.gameInfo.id}
+            source={{url: source.imageUrl, id: source.gameImageId, prefetched: prefetched, localUri: localUri}}
+          />
+          <View
+            style={styles.scenarioView}
+            key={`text_${id}`}
+          >
+            <ScrollView>
+              <Text style={{fontSize: 16, flex: 0, paddingRight: 10, paddingLeft: 10, color: 'white'}}>
+                {scenario}
+              </Text>
+            </ScrollView>
+          </View>
         </View>
-      </ScrollView>
+      </View>
     );
-  }
+  };
 
   // Function to render a carousel displaying gifs and their scenarios.
-  _renderGifCarousel = () => {
+  _gifCarousel = () => {
     if (!this.props.gameInfo.gameImages) {
       return(<View style={{height: 395}} />);
     }
 
-    const gameImages = this.props.gameInfo.gameImages.slice(-MAX_GIFS_SHOWN);
-    const gifsAndScenarios = gameImages.map(this._renderGif);
+    const gameImages = this.props.gameInfo.gameImages.slice(-MAX_GIFS_SHOWN).reverse();
+    const gifsAndScenarios = gameImages.map(this._gif);
     // TODO Remove this when iOS stops showing the last item as part of the first.
-    gifsAndScenarios.push(this._renderGif(gameImages[0], gameImages[0].gameImageId - 1));
-    const shareButton = this._renderShareButton();
+    gifsAndScenarios.push(this._gif(gameImages[0], gameImages[0].gameImageId - 1));
+    const shareButton = this._shareButton();
 
     let gifsIntroText = 'Take a look at these awesome reactions...';
     if (this.props.gameInfo.gameImages && this.props.gameInfo.gameImages.length > MAX_GIFS_SHOWN) {
@@ -175,58 +170,35 @@ export default class GameOver extends React.Component<propTypes, stateTypes> {
             if (gifsAndScenarios && i === gifsAndScenarios.length - 1 && this.refs.swiper) {
               this.refs.swiper.scrollBy(-(gifsAndScenarios.length - 2), false);
             }
-          }} >
+          }}
+        >
           {gifsAndScenarios}
         </Swiper>
         {shareButton}
       </View>);
   }
 
-  // Function to render a gif with the scenario below.
-  _renderGif = (
-    source: {
-      gameImageId: number,
-      imageUrl: string,
-      scenario: string,
-      reactorNickname: string,
-    },
-    id?: number,
-  ) => {
-    if (!id) {
-      id = source.gameImageId;
-    }
+  _scoreTable() {
+    // Display scores in descending order with the top bold
+    const scores = this.props.gameInfo.scores;
+    let playersSorted = Object.keys(scores);
+    playersSorted.sort((p1, p2) => (scores[p2] - scores[p1]));
+    const highestScore = scores[playersSorted[0]];
 
-    const scenario = `${source.reactorNickname}'s reaction when ${source.scenario}`;
-    const prefetched = this.props.imageCache.hasOwnProperty(source.gameImageId);
-    const localUri = this.props.imageCache[source.gameImageId];
+    return playersSorted.map(
+    player => {
+      return (
+        <ParaText
+          key={player}
+          style={{fontWeight: scores[player] == highestScore ? 'bold' : 'normal'}}
+        >
+          {scores[player]} {player}
+        </ParaText>
+      );
+    });
+  }
 
-    return (
-      <View style={{flex: 1, justifyContent: 'flex-start', flexDirection: 'column', alignItems: 'center'}} key={id}>
-        <View style={{flex: 1}}>
-          <Gif
-            style={{flex: 1, alignItems: 'stretch', justifyContent: 'center'}}
-            width={200}
-            height={200}
-            marginBottom={6}
-            key={`gif_${id}`}
-            addToImageCache={this.props.addToImageCache}
-            gameID={this.props.gameInfo.id}
-            source={{url: source.imageUrl, id: source.gameImageId, prefetched: prefetched, localUri: localUri}} />
-          <View
-            style={styles.scenarioView}
-            key={`text_${id}`} >
-            <ScrollView>
-              <Text style={{fontSize: 16, flex: 0, paddingRight: 10, paddingLeft: 10, color: 'white'}}>
-                {scenario}
-              </Text>
-            </ScrollView>
-          </View>
-        </View>
-      </View>
-    );
-  };
-
-  _renderShareButton = () => {
+  _shareButton = () => {
     let shareButton;
     const swiperGif = this.state.swiperGif;
     if (swiperGif) {
@@ -240,17 +212,51 @@ export default class GameOver extends React.Component<propTypes, stateTypes> {
       shareButton = (
         <Button
           containerStyle={styles.shareButton}
-          onPress={shareReaction}>
+          onPress={shareReaction}
+        >
           <Entypo
             name={Platform.OS === 'ios' ? 'share-alternative' : 'share'}
             size={26}
-            color={COLORS.BLUE} />
+            color={COLORS.BLUE}
+          />
         </Button>
       );
     }
 
     return shareButton;
   };
+
+  render() {
+    const rematchButton = (
+      <Button
+        id="rematchButton"
+        containerStyle={styles.newGameContainer}
+        style={styles.newGameText}
+        onPress={this._onPressRematchButton}
+      >
+        {this.state.isLoading && this.props.errorMessage == null ?
+          'Loading...' :
+          'Again!'}
+      </Button>);
+
+    const gifCarousel = this._gifCarousel();
+
+    return (
+      <ScrollView style={styles.main}>
+        <View style={{minHeight: WINDOW_HEIGHT - HEADER_HEIGHT - 340, justifyContent: 'center'}}>
+          <ParaText style={styles.h2Text}>And we&#39;re done!</ParaText>
+
+          {gifCarousel}
+
+          <View testID='ScoreTable'>{this._scoreTable()}</View>
+
+          {rematchButton}
+
+          <ErrorMessage errorMessage={this.props.errorMessage} />
+        </View>
+      </ScrollView>
+    );
+  }
 }
 
 const styles = StyleSheet.create({

@@ -9,7 +9,7 @@ type State = {
   playerInfo: ?PlayerInfo,
   gameInfo: ?GameInfo,
   errorMessage: ?string,
-  settingsVisible: boolean
+  leaveGameConfirmationVisible: boolean
 };
 
 export function redactPlayerInfo(playerInfo: ?PlayerInfo): PlayerInfo {
@@ -42,7 +42,7 @@ export function redactedStateData(
     playerInfo: redactPlayerInfo(state.playerInfo),
     gameInfo: redactGameInfo(state.gameInfo),
     errorMessage: state.errorMessage,
-    settingsVisible: state.settingsVisible
+    leaveGameConfirmationVisible: state.leaveGameConfirmationVisible
   };
 }
 

@@ -2,19 +2,20 @@
 
 import React from 'react';
 import {
+  Keyboard,
+  Platform,
   StyleSheet,
   Text,
-  View,
   TextInput,
-  Platform,
-  Keyboard,
   TouchableWithoutFeedback,
+  View,
 } from 'react-native';
 import Button from 'react-native-button';
+
 import ErrorMessage from './ErrorMessage';
 
 type propTypes = {
-  createPlayer: (nickname: string) => Promise<void>,
+  onCreatePlayer: (nickname: string) => Promise<void>,
   errorMessage: ?string,
 };
 
@@ -29,6 +30,11 @@ export default class NewPlayer extends React.Component<propTypes, stateTypes> {
       nickname: ''
     };
   }
+
+  _onPressSubmitNickname = () => {
+    Keyboard.dismiss();
+    this.props.onCreatePlayer(this.state.nickname.trim());
+  };
 
   render() {
     return (
@@ -45,7 +51,8 @@ export default class NewPlayer extends React.Component<propTypes, stateTypes> {
                 autoCorrect={false}
                 autoCapitalize='words'
                 maxLength={35}
-                underlineColorAndroid='transparent' />
+                underlineColorAndroid='transparent'
+              />
             </View>
             <Button
               testID='SubmitNicknameButton'
@@ -57,10 +64,8 @@ export default class NewPlayer extends React.Component<propTypes, stateTypes> {
                 styles.submitText,
                 {color: this.state.nickname.trim() === '' ? '#333' : '#fff'}
               ]}
-              onPress={() => {
-                Keyboard.dismiss();
-                this.props.createPlayer(this.state.nickname.trim());
-              }} >
+              onPress={this._onPressSubmitNickname}
+            >
               Submit Nickname
             </Button>
             <ErrorMessage errorMessage={this.props.errorMessage} />

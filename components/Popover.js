@@ -21,7 +21,7 @@ import COLORS from '../constants/colors';
 const ARROW_HEIGHT = 12;
 
 type propTypes = {
-  handleButtonPress: () => void,
+  onPressButton: () => void,
   text: string,
   children?: React.Node,
 };
@@ -44,31 +44,36 @@ export default class Popover extends Component<propTypes, stateTypes> {
     };
   }
 
-    _showPopover = () => {
-      this._resetOpacity();
-      if (this.buttonView) {
-        this.buttonView.measure((x, y, w, h, px, py) => {
-          let popoverY = py + h;
-          if (Platform.OS === 'android') {
-            popoverY = popoverY - Constants.statusBarHeight;
-          }
-          this.setState({
-            popoverVisible: true,
-            popoverY: popoverY,
-          });
-        });
-      }
-  };
-
-  _hidePopover = () => {
+  _onHidePopover = () => {
     this.setState({
       popoverVisible: false,
     });
   }
 
-  _handleButtonPress = () => {
-    this.props.handleButtonPress();
-    this._hidePopover();
+  _onPressButton = () => {
+    this.props.onPressButton();
+    this._onHidePopover();
+  };
+
+  _onPressIn = () => {
+    this._fade();
+    Keyboard.dismiss();
+  };
+
+  _onShowPopover = () => {
+    this._resetOpacity();
+    if (this.buttonView) {
+      this.buttonView.measure((x, y, w, h, px, py) => {
+        let popoverY = py + h;
+        if (Platform.OS === 'android') {
+          popoverY = popoverY - Constants.statusBarHeight;
+        }
+        this.setState({
+          popoverVisible: true,
+          popoverY: popoverY,
+        });
+      });
+    }
   };
 
   _fade = () => {
@@ -91,20 +96,23 @@ export default class Popover extends Component<propTypes, stateTypes> {
     ).start();
   };
 
+  _doNothing = () => {};
+
+  _setButtonViewRef = v => this.buttonView = v;
+
   render() {
     return (
       <View>
         <View
-          ref={v => {this.buttonView = v;}}
-          onLayout={() => {}} >
+          ref={this._setButtonViewRef}
+          onLayout={this._doNothing}
+        >
           <Animated.View style={{opacity: this.state.opacity,}}>
             <TouchableWithoutFeedback
-              onLongPress={this._showPopover}
-              onPressIn={() => {
-                this._fade();
-                Keyboard.dismiss();
-              }}
-              onPressOut={this._resetOpacity} >
+              onLongPress={this._onShowPopover}
+              onPressIn={this._onPressIn}
+              onPressOut={this._resetOpacity}
+            >
 
               {this.props.children}
 
@@ -115,20 +123,23 @@ export default class Popover extends Component<propTypes, stateTypes> {
         <Modal
           transparent={true}
           visible={this.state.popoverVisible}
-          onRequestClose={this._hidePopover} >
+          onRequestClose={this._onHidePopover}
+        >
           <TouchableWithoutFeedback
-            onPress={this._hidePopover}>
+            onPress={this._onHidePopover}
+          >
             <View style={styles.modalContainer}>
               <View style={[styles.popoverArrow, {
                 top: this.state.popoverY + 3,
-              }]} />
+              }]}/>
               <View style={[styles.popoverBox, {
                 top: this.state.popoverY + ARROW_HEIGHT,
               }]}>
                 <Button
-                  onPress={this._handleButtonPress}
+                  onPress={this._onPressButton}
                   containerStyle={styles.buttonContainer}
-                  style={styles.buttonText} >
+                  style={styles.buttonText}
+                >
                   {this.props.text}
                 </Button>
               </View>

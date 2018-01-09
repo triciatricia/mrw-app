@@ -3,7 +3,13 @@
 // @flow
 
 import React, {Component} from 'react';
-import {Text, View, StyleSheet, Platform, TouchableWithoutFeedback} from 'react-native';
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 import {Constants} from 'expo';
 import Button from 'react-native-button';
 

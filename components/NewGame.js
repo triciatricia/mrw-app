@@ -1,23 +1,25 @@
+// Displays welcome message and interface for starting or joining a game.
 /* @flow */
 
 import React from 'react';
 import {
+  Keyboard,
+  Platform,
   StyleSheet,
   Text,
-  View,
   TextInput,
-  Platform,
-  Keyboard,
   TouchableWithoutFeedback,
+  View,
 } from 'react-native';
 import Button from 'react-native-button';
+
 import ErrorMessage from './ErrorMessage';
 
 import FONTS from '../constants/fonts';
 
 type propTypes = {
-  joinGame: (gameCode: string) => Promise<void>,
-  createGame: () => Promise<void>,
+  onJoinGame: (gameCode: string) => Promise<void>,
+  onCreateGame: () => Promise<void>,
   errorMessage: ?string,
   testID: ?string,
 };
@@ -30,7 +32,7 @@ export default class NewGame extends React.Component<propTypes, stateTypes> {
   constructor(props: propTypes) {
     super(props);
     this.state = {
-      gameCode: ''
+      gameCode: '',
     };
   }
 
@@ -58,7 +60,8 @@ export default class NewGame extends React.Component<propTypes, stateTypes> {
                 value={this.state.gameCode}
                 autoCorrect={false}
                 autoCapitalize='characters'
-                underlineColorAndroid='transparent' />
+                underlineColorAndroid='transparent'
+              />
             </View>
             <Button
               testID="JoinGameButton"
@@ -66,8 +69,9 @@ export default class NewGame extends React.Component<propTypes, stateTypes> {
               style={[styles.joinGameText, {color: joinGameTextColor}]}
               onPress={() => {
                 Keyboard.dismiss();
-                this.props.joinGame(this.state.gameCode.trim());
-              }} >
+                this.props.onJoinGame(this.state.gameCode.trim());
+              }}
+            >
               Join an Existing Game
             </Button>
             <ErrorMessage errorMessage={this.props.errorMessage} />
@@ -78,7 +82,8 @@ export default class NewGame extends React.Component<propTypes, stateTypes> {
               testID="NewGameButton"
               containerStyle={[styles.newGameContainer, {backgroundColor: newGameBackground}]}
               style={[styles.newGameText, {color: newGameTextColor}]}
-              onPress={this.props.createGame} >
+              onPress={this.props.onCreateGame}
+            >
               + New Game
             </Button>
           </View>

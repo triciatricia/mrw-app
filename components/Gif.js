@@ -122,6 +122,13 @@ export default class Gif extends React.Component<propTypes, stateTypes> {
     }
   }
 
+  _onPressCopyButton = () => Clipboard.setString(this.props.source.url);
+
+  _onVideoError = (e) => {
+    console.log('Error loading video ' + this.props.source.url);
+    console.log(e);
+  };
+
   _renderMedia() {
     const localUri = this.state.localUri;
 
@@ -132,7 +139,8 @@ export default class Gif extends React.Component<propTypes, stateTypes> {
             style={{width: this.props.width, height: 16, position: 'absolute'}}
             animating={true}
             color={COLORS.MED_GRAY}
-            size='large' />
+            size='large'
+          />
           <Text style={{
             textAlign: 'center',
             color: COLORS.DARK_GRAY,
@@ -148,14 +156,16 @@ export default class Gif extends React.Component<propTypes, stateTypes> {
         <Image
           style={{height: this.props.height, marginBottom: this.props.marginBottom}}
           resizeMode='contain'
-          source={{uri: this.state.localUri}} />
+          source={{uri: this.state.localUri}}
+        />
       );
     }
 
     return (
       <Popover
         text='Copy URL to Clipboard'
-        handleButtonPress={() => Clipboard.setString(this.props.source.url)}>
+        onPressButton={this._onPressCopyButton}
+      >
         <Expo.Video
           style={{
             height: this.props.height,
@@ -166,12 +176,7 @@ export default class Gif extends React.Component<propTypes, stateTypes> {
           shouldPlay={true}
           isMuted={true}
           isLooping={true}
-          onError={
-            (e) => {
-              console.log('Error loading video ' + this.props.source.url);
-              console.log(e);
-            }
-          }
+          onError={this._onVideoError}
         />
       </Popover>
     );

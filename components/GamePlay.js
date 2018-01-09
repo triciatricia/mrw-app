@@ -1,155 +1,36 @@
+// The component that holds the game when it is being played (not waiting to start or finished).
 /* @flow */
 
 import React from 'react';
 import {
+  Dimensions,
+  KeyboardAvoidingView,
+  ScrollView,
   StyleSheet,
   Text,
-  View,
-  ScrollView,
-  KeyboardAvoidingView,
   TextInput,
-  Image,
-  Dimensions,
+  View,
 } from 'react-native';
 import Button from 'react-native-button';
 import ErrorMessage from './ErrorMessage';
+import GameStatusBar from './GameStatusBar';
 import Gif from './Gif';
 import ParaText from './ParaText';
-import ScenarioList from './ScenarioList';
-import GameStatusBar from './GameStatusBar';
+import ScenarioListForm from './ScenarioListForm';
+
 import type {GameInfo, PlayerInfo} from '../flow/types';
 
 const WINDOW_HEIGHT = Dimensions.get('window').height;
 const WINDOW_WIDTH = Dimensions.get('window').width;
 
-type scenarioPropTypes = {
-  gameInfo: GameInfo,
-  playerInfo: PlayerInfo,
-  errorMessage: ?string,
-  endGame: () => Promise<void>,
-  nextRound: () => Promise<void>,
-  chooseScenario: (choiceID: string) => Promise<void>,
-};
-
-type scenarioStateTypes = {
-  isLoading: boolean,
-};
-
-class ScenarioListForm extends React.Component<scenarioPropTypes, scenarioStateTypes> {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isLoading: false
-    };
-  }
-
-  _isReactor() {
-    return this.props.gameInfo.reactorID == this.props.playerInfo.id;
-  }
-
-  _nextRound = () => {
-    this.props.nextRound();
-    this.setState({
-      isLoading: true
-    });
-  };
-
-  _getInstructions() {
-    const reactor = (this.props.gameInfo.reactorNickname ?
-      this.props.gameInfo.reactorNickname : 'The reactor');
-
-    if (this._isReactor()) {
-      return (
-        this.props.gameInfo.winningResponse ?
-          'Good choice!' : (reactor +
-                            ', read this list out loud and pick your favorite!'));
-    }
-
-    return (
-      this.props.gameInfo.winningResponse ?
-        (reactor + ' has chosen!') :
-        (reactor + ' is choosing their favorite scenario. Hold tight!'));
-  }
-
-  _renderHeaderText = () => {
-    return (
-      <ParaText style={[styles.boldText, {fontSize: 20}]}>
-        {this.props.gameInfo.reactorNickname}&#39;s reaction when...
-      </ParaText>
-    );
-  };
-
-  _endGame = () => {
-    this.props.endGame();
-    this.setState({
-      isLoading: true
-    });
-  };
-
-  render() {
-    let buttons;
-    if (this.props.gameInfo.winningResponse != null) {
-      buttons = (
-        <View style={{flexDirection: 'row'}}>
-          <Button
-            testID='NextRoundButton'
-            containerStyle={[
-              styles.buttonContainer,
-              {backgroundColor: '#4472C4', marginRight: 10}]}
-            style={[styles.buttonText, {color: '#fff'}]}
-            onPress={this._nextRound} >
-            Next
-          </Button>
-          <Button
-            testID='EndGameButton'
-            containerStyle={styles.buttonContainer}
-            style={styles.buttonText}
-            onPress={this._endGame} >
-            End Game
-          </Button>
-        </View>
-      );
-      if (this.state.isLoading && this.props.errorMessage == null) {
-        buttons = <Button>Loading...</Button>;
-      }
-    }
-
-    let waitMessage;
-    if (this.props.gameInfo.winningResponse) {
-      waitMessage = (
-        <ParaText>
-          Waiting for {this.props.gameInfo.reactorNickname} to go to the next round...
-        </ParaText>
-      );
-    }
-
-    const reactor = this.props.gameInfo.reactorNickname == null ? 'The reactor' : this.props.gameInfo.reactorNickname;
-
-    return (
-      <View testID='ScenarioListForm'>
-        <ParaText>{this._getInstructions()}</ParaText>
-        {this._renderHeaderText()}
-        <ScenarioList
-          scenarios={this.props.gameInfo.choices}
-          reactorNickname={reactor}
-          winningResponse={this.props.gameInfo.winningResponse}
-          winningResponseSubmittedBy={this.props.gameInfo.winningResponseSubmittedBy}
-          chooseScenario={this.props.chooseScenario}
-          isReactor={this._isReactor()} />
-        {this._isReactor() ? buttons : waitMessage}
-      </View>
-    );
-  }
-}
-
 type propTypes = {
   gameInfo: GameInfo,
   playerInfo: PlayerInfo,
-  submitResponse: (scenario: string) => Promise<void>,
-  chooseScenario: (choiceID: string) => Promise<void>,
-  nextRound: () => Promise<void>,
-  endGame: () => Promise<void>,
-  skipImage: () => Promise<void>,
+  onSubmitResponse: (scenario: string) => Promise<void>,
+  onChooseScenario: (choiceID: string) => Promise<void>,
+  onNextRound: () => Promise<void>,
+  onEndGame: () => Promise<void>,
+  onSkipImage: () => Promise<void>,
   errorMessage: ?string,
   imageCache: {[number]: string},
   timeLeft: ?number,
@@ -174,15 +55,6 @@ export default class GamePlay extends React.Component<propTypes, stateTypes> {
   }
   statusBar: ?View;
 
-  componentDidUpdate(prevProps: propTypes) {
-    if (prevProps.gameInfo.image &&
-      this.props.gameInfo.image &&
-      prevProps.gameInfo.image.id < this.props.gameInfo.image.id) {
-      // Finished getting a new image url.
-      this.setState({loading: false});
-    }
-  }
-
   componentWillReceiveProps(nextProps: propTypes) {
     if (nextProps.gameInfo.round != this.props.gameInfo.round) {
       this.setState({scenario: ''});
@@ -200,24 +72,29 @@ export default class GamePlay extends React.Component<propTypes, stateTypes> {
     }
   }
 
-  _isReactor() {
-    return this.props.gameInfo.reactorID == this.props.playerInfo.id;
+  componentDidUpdate(prevProps: propTypes) {
+    if (prevProps.gameInfo.image &&
+      this.props.gameInfo.image &&
+      prevProps.gameInfo.image.id < this.props.gameInfo.image.id) {
+      // Finished getting a new image url.
+      this.setState({loading: false});
+    }
   }
 
-  _skipImage = () => {
+  _onPressSkipImage = () => {
     this.setState({
       loading: true,
     });
-    this.props.skipImage();
+    this.props.onSkipImage();
   }
 
-  _renderHeaderText = () => {
-    return (
-      <ParaText style={[styles.boldText, {fontSize: 20}]}>
-        {this.props.gameInfo.reactorNickname}&#39;s reaction when...
-      </ParaText>
-    );
+  _onSubmitResponse = () => {
+    this.props.onSubmitResponse(this.state.scenario.trim());
   };
+
+  _isReactor() {
+    return this.props.gameInfo.reactorID == this.props.playerInfo.id;
+  }
 
   _reactorWaitingForm() {
     return (
@@ -233,16 +110,21 @@ export default class GamePlay extends React.Component<propTypes, stateTypes> {
             {backgroundColor: this.state.loading ? "#ffffff" : "#eeeeee"}
           ]}
           style={styles.buttonText}
-          onPress={this._skipImage}
-          disabled={this.state.loading} >
+          onPress={this._onPressSkipImage}
+          disabled={this.state.loading}
+        >
           {this.state.loading ? "Getting next image..." : "Skip Image"}
         </Button>
       </View>
     );
   }
 
-  _submitResponse = () => {
-    this.props.submitResponse(this.state.scenario.trim());
+  _renderHeaderText = () => {
+    return (
+      <ParaText style={[styles.boldText, {fontSize: 20}]}>
+        {this.props.gameInfo.reactorNickname}&#39;s reaction when...
+      </ParaText>
+    );
   };
 
   _scenarioSubmissionForm() {
@@ -279,14 +161,16 @@ export default class GamePlay extends React.Component<propTypes, stateTypes> {
             value={this.state.scenario}
             autoCapitalize='none'
             maxLength={500}
-            underlineColorAndroid='transparent' />
+            underlineColorAndroid='transparent'
+          />
         </View>
 
         <Button
           testID='ScenarioSubmissionButton'
           containerStyle={[styles.buttonContainer, {backgroundColor: responseChanged ? '#eee' : '#4472C4'}]}
           style={[styles.buttonText, {color: responseChanged ? '#333' : '#fff'}]}
-          onPress={this._submitResponse} >
+          onPress={this._onSubmitResponse}
+        >
           {buttonText}
         </Button>
 
@@ -304,13 +188,16 @@ export default class GamePlay extends React.Component<propTypes, stateTypes> {
       responseForm = (this.props.playerInfo.id == this.props.gameInfo.reactorID ?
         this._reactorWaitingForm() : this._scenarioSubmissionForm());
     } else {
-      responseForm = <ScenarioListForm
-        gameInfo={this.props.gameInfo}
-        playerInfo={this.props.playerInfo}
-        errorMessage={this.props.errorMessage}
-        endGame={this.props.endGame}
-        nextRound={this.props.nextRound}
-        chooseScenario={this.props.chooseScenario} />;
+      responseForm = (
+        <ScenarioListForm
+          gameInfo={this.props.gameInfo}
+          playerInfo={this.props.playerInfo}
+          errorMessage={this.props.errorMessage}
+          onEndGame={this.props.onEndGame}
+          onNextRound={this.props.onNextRound}
+          onChooseScenario={this.props.onChooseScenario}
+        />
+      );
     }
 
     if (this.props.gameInfo.image == null ||
@@ -339,14 +226,16 @@ export default class GamePlay extends React.Component<propTypes, stateTypes> {
         marginBottom={20}
         source={gifSource}
         gameID={this.props.gameInfo.id}
-        addToImageCache={this.props.addToImageCache} />
+        addToImageCache={this.props.addToImageCache}
+      />
     );
 
     return (
       <ScrollView testID='GamePlay' style={styles.main} keyboardShouldPersistTaps='handled'>
         <KeyboardAvoidingView
           behavior='position'
-          contentContainerStyle={{paddingBottom: 40}}>
+          contentContainerStyle={{paddingBottom: 40}}
+        >
           <View ref={v => {this.statusBar = v;}}>
             <GameStatusBar
               nickname={this.props.playerInfo.nickname}
@@ -355,7 +244,8 @@ export default class GamePlay extends React.Component<propTypes, stateTypes> {
               gameCode={this.props.gameInfo.id.toString()}
               waitingForScenarios={this.props.gameInfo.waitingForScenarios}
               timeLeft={this.props.timeLeft}
-              responsesIn={this.props.gameInfo.responsesIn} />
+              responsesIn={this.props.gameInfo.responsesIn}
+            />
           </View>
 
           {gif}

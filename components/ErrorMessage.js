@@ -1,3 +1,5 @@
+// Component to display error messages.
+// @flow
 import React from 'react';
 import {
   StyleSheet,
@@ -5,16 +7,21 @@ import {
   View,
 } from 'react-native';
 
-export default class ErrorMessage extends React.Component {
+type propTypes = {
+  errorMessage: ?string,
+};
+
+export default class ErrorMessage extends React.Component<propTypes> {
   render() {
     return (
       <View style={{paddingTop: 10, paddingBottom: 10}}>
         <Text
-          testID='ErrorMessage' 
+          testID='ErrorMessage'
           style={{
             color: 'red',
             fontSize: 16
-          }} >
+          }}
+        >
           {this.props.errorMessage}
         </Text>
       </View>

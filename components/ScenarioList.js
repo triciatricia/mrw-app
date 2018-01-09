@@ -17,7 +17,7 @@ type propTypes = {
   winningResponse: ?string,
   winningResponseSubmittedBy: ?string,
   isReactor: boolean,
-  chooseScenario: (choiceID: string) => Promise<void>,
+  onChooseScenario: (choiceID: string) => Promise<void>,
 };
 
 type stateTypes = {
@@ -32,8 +32,39 @@ export default class ScenarioList extends React.Component<propTypes, stateTypes>
     };
   }
 
+  _onPressSubmitButton = () => {
+    if (this.state.selectedScenario != null) {
+      this.props.onChooseScenario(this.state.selectedScenario);
+    }
+  };
+
+  _onScenarioSelection = (value: string) => {
+    this.setState({
+      selectedScenario: value
+    });
+  };
+
+  _scenarios() {
+    return Object.getOwnPropertyNames(this.props.scenarios).map(
+      id => (
+        <ReactionScenario
+          scenario={this.props.scenarios[id]}
+          id={id}
+          key={id}
+          useRadio={this.props.isReactor && this.props.winningResponse === null}
+          isChecked={this.state.selectedScenario == id}
+          wasChosen={id == this.props.winningResponse}
+          onScenarioSelection={this._onScenarioSelection}
+          submittedBy={
+            (this.props.winningResponseSubmittedBy != null && id == this.props.winningResponse ?
+              this.props.winningResponseSubmittedBy : '')}
+        />
+      )
+    );
+  }
+
   render() {
-    const scenarios = this._getScenarios();
+    const scenarios = this._scenarios();
     let button;
     if (this.props.isReactor && this.props.winningResponse == null) {
       button = (
@@ -41,14 +72,11 @@ export default class ScenarioList extends React.Component<propTypes, stateTypes>
           testID='ChooseScenarioButton'
           containerStyle={[styles.buttonContainer, {backgroundColor: this.state.selectedScenario ? '#4472C4' : '#eee'}]}
           style={[styles.buttonText, {color: this.state.selectedScenario ? '#fff' : '#333'}]}
-          onPress={() => {
-            if (this.state.selectedScenario != null) {
-              this.props.chooseScenario(this.state.selectedScenario);
-            }
-          }} >
+          onPress={this._onPressSubmitButton}
+        >
           Submit
-          </Button>
-        );
+        </Button>
+      );
     }
 
     return (
@@ -59,27 +87,6 @@ export default class ScenarioList extends React.Component<propTypes, stateTypes>
         {button}
       </View>
     );
-  }
-
-  _getScenarios() {
-    return Object.getOwnPropertyNames(this.props.scenarios).map(
-      (id) => (
-        <ReactionScenario
-          scenario={this.props.scenarios[id]}
-          id={id}
-          key={id}
-          useRadio={this.props.isReactor && this.props.winningResponse === null}
-          isChecked={this.state.selectedScenario == id}
-          wasChosen={id == this.props.winningResponse}
-          onScenarioSelection={(value) => {
-            this.setState({
-              selectedScenario: value
-            });
-          }}
-          submittedBy={
-            (this.props.winningResponseSubmittedBy != null && id == this.props.winningResponse ?
-              this.props.winningResponseSubmittedBy : '')} />
-        ));
   }
 }
 

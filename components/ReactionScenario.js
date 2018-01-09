@@ -1,16 +1,17 @@
-/* Individual scenarios submitted by players */
-
+// Individual scenarios submitted by players
 /* @flow */
 
 import React from 'react';
 import {
-  Text,
-  View,
-  TouchableOpacity,
   StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
+
 import ParaText from './ParaText';
-import colors from '../constants/colors';
+
+import COLORS from '../constants/colors';
 
 type propTypes = {
   scenario: string,
@@ -22,6 +23,30 @@ type propTypes = {
 };
 
 export default class ReactionScenario extends React.Component<propTypes> {
+  _onSelectScenario = () => this.props.onScenarioSelection(this.props.id);
+
+  _radioChoices() {
+    return (
+      <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 10}}>
+        <TouchableOpacity
+          testID='ReactionScenarioRadioButton'
+          onPress={this._onSelectScenario}
+          style={this.props.isChecked ? styles.radioButtonChecked : styles.radioButton}
+        >
+          {this.props.isChecked ? <TouchableOpacity style={styles.radioButtonCenter} /> : null}
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={this._onSelectScenario}
+        >
+          <Text style={{fontSize: 16, marginRight: 20}}>
+            {this.props.scenario}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   render() {
     if (this.props.useRadio) {
       return this._radioChoices();
@@ -31,34 +56,21 @@ export default class ReactionScenario extends React.Component<propTypes> {
         <View style={this.props.wasChosen ? styles.selectedTextView : null}>
           <ParaText style={this.props.wasChosen ? styles.selectedText : {}}>
             {this.props.scenario}
-            <ParaText style={{color: colors.BLUE}}>
+            <ParaText style={{color: COLORS.BLUE}}>
               {this.props.wasChosen ? ' ' + this.props.submittedBy + ' +1' : null}
             </ParaText>
           </ParaText>
-          <ParaText style={[styles.selectedText, {position: 'absolute', right: 10, bottom: 0, backgroundColor: 'transparent'}]}>
+          <ParaText
+            style={[
+              styles.selectedText,
+              {position: 'absolute', right: 10, bottom: 0, backgroundColor: 'transparent'}
+            ]}
+          >
             {this.props.wasChosen ? this.props.submittedBy + ' +1' : null}
           </ParaText>
         </View>
       </View>
     )
-  }
-
-  _radioChoices() {
-    return (
-      <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 10}}>
-        <TouchableOpacity
-          testID='ReactionScenarioRadioButton'
-          onPress={() => this.props.onScenarioSelection(this.props.id)}
-          style={this.props.isChecked ? styles.radioButtonChecked : styles.radioButton}>
-          {this.props.isChecked ? <TouchableOpacity style={styles.radioButtonCenter} /> : null}
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => this.props.onScenarioSelection(this.props.id)}>
-          <Text style={{fontSize: 16, marginRight: 20}}>
-            {this.props.scenario}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    );
   }
 }
 
@@ -80,14 +92,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 8,
     borderWidth: 2,
-    borderColor: colors.BLUE,
+    borderColor: COLORS.BLUE,
     marginRight: 5
   },
   radioButtonCenter: {
     height: 8,
     width: 8,
     borderRadius: 4,
-    backgroundColor: colors.BLUE,
+    backgroundColor: COLORS.BLUE,
   },
   selectedText: {
     fontWeight: 'bold',
@@ -96,7 +108,7 @@ const styles = StyleSheet.create({
   },
   selectedTextView: {
     borderRadius: 10,
-    backgroundColor: colors.BLUE,
+    backgroundColor: COLORS.BLUE,
     paddingLeft: 10,
     paddingRight: 10,
     marginBottom: 10,
