@@ -64,7 +64,7 @@ describe('MRW', () => {
       action: 'submitResponse',
       appIsActive: true,
       round: 1,
-      response: 'Player2\'s Response 😋',
+      response: 'Player2\'s Response Round 1 😋',
     });
 
     await waitFor(element(by.id('ScenarioList'))).toBeVisible().withTimeout(4000);
@@ -77,7 +77,7 @@ describe('MRW', () => {
       action: 'chooseScenario',
       appIsActive: true,
       round: 1,
-      choiceID: '_0',
+      choiceID: '_' + player2ID,
     });
 
     console.log('Going to next round');
@@ -95,13 +95,13 @@ describe('MRW', () => {
       action: 'submitResponse',
       appIsActive: true,
       round: 2,
-      response: 'Player1\'s Response 😋',
+      response: 'Player1\'s Response Round 2 😋',
     });
 
     await waitFor(element(by.id('GamePlay'))).toBeVisible().withTimeout(4000);
     await waitFor(element(by.id('ScenarioTextInput'))).toBeVisible().withTimeout(4000);
     await element(by.id('ScenarioTextInput')).tap();
-    await element(by.id('ScenarioTextInput')).typeText('Simulator\'s Response');
+    await element(by.id('ScenarioTextInput')).typeText('Simulator\'s Response Round 2');
     await element(by.id('ScenarioSubmissionButton')).tap();
 
     await waitFor(element(by.id('ScenarioListForm'))).toBeVisible().withTimeout(4000);
@@ -114,7 +114,7 @@ describe('MRW', () => {
       action: 'chooseScenario',
       appIsActive: true,
       round: 2,
-      choiceID: '_0',
+      choiceID: '_' + player1ID,
     });
 
     console.log('Going to next round');
@@ -136,7 +136,7 @@ describe('MRW', () => {
       action: 'submitResponse',
       appIsActive: true,
       round: 3,
-      response: 'Player1\'s Response 😋',
+      response: 'Player1\'s Response Round 3 😋',
     });
 
     res = await postToServerPromise({
@@ -145,7 +145,7 @@ describe('MRW', () => {
       action: 'submitResponse',
       appIsActive: true,
       round: 3,
-      response: 'Player2\'s Response 😋',
+      response: 'Player2\'s Response Round 3 😋',
     });
 
     await waitFor(element(by.id('ScenarioListForm'))).toBeVisible().withTimeout(4000);
@@ -173,19 +173,6 @@ describe('MRW', () => {
     await element(by.id('LeaveGameConfirmButton')).tap();
 
   });
-
-  /*
-
-  it('should show hello screen after tap', async () => {
-    await element(by.id('hello_button')).tap();
-    await expect(element(by.label('Hello!!!'))).toBeVisible();
-  });
-
-  it('should show world screen after tap', async () => {
-    await element(by.id('world_button')).tap();
-    await expect(element(by.label('World!!!'))).toBeVisible();
-  });
-  */
 });
 
 // Create a game with 2 players. Returns gameID, player1ID, player2ID.
