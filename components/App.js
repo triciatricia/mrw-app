@@ -14,9 +14,9 @@ import Button from 'react-native-button';
 import React from 'react';
 
 import * as Reporting from '../libraries/reporting';
-import {invalidState, postToServerPromise} from '../libraries/networking';
-import {registerPushNotificationsPromise} from '../libraries/permissions';
-import {deleteGifCache, preloadGif} from '../libraries/preloading';
+import {invalidState, postToServerAsync} from '../libraries/networking';
+import {registerPushNotificationsAsync} from '../libraries/permissions';
+import {deleteGifCacheAsync, preloadGifAsync} from '../libraries/preloading';
 import Database from '../libraries/database';
 import GamePlay from './GamePlay';
 import GameOver from './GameOver';
@@ -80,7 +80,7 @@ export default class App extends React.Component<propTypes, stateTypes> {
     );
 
     try {
-      this._loadSavedState();
+      this._loadSavedStateAsync();
     } catch (err) {
       this.setState({appIsReady: true});
     }
@@ -89,8 +89,8 @@ export default class App extends React.Component<propTypes, stateTypes> {
     AppState.addEventListener('change', (nextAppState) => this.setState({appState: nextAppState}));
 
     // Start polling game info
-    this._pollGameInfo();
-    setInterval(this._pollGameInfo, 1000);
+    this._pollGameInfoAsync();
+    setInterval(this._pollGameInfoAsync, 1000);
 
     // Set the countdown timer for waiting for responses
     setInterval(this._roundCountdown, 1000);
@@ -110,7 +110,7 @@ export default class App extends React.Component<propTypes, stateTypes> {
     this.setState({leaveGameConfirmationVisible: false});
   };
 
-  async _fillImageCachePromise(): Promise<void> {
+  async _fillImageCacheAsync(): Promise<void> {
     // Refresh the local image cache.
     // Prefetch if the image hasn't been saved.
     let gameInfo = this.state.gameInfo;
@@ -140,7 +140,7 @@ export default class App extends React.Component<propTypes, stateTypes> {
             this.setState({downloadResumables});
           };
 
-          await preloadGif(image, gameInfo.id, this._addToImageCache, () => {}, saveDownloadResumable);
+          await preloadGifAsync(image, gameInfo.id, this._addToImageCache, () => {}, saveDownloadResumable);
         }
       }
 
@@ -151,11 +151,11 @@ export default class App extends React.Component<propTypes, stateTypes> {
     }
   }
 
-  async _loadSavedState() {
+  async _loadSavedStateAsync() {
     // Load saved state from sqlite database
     let savedVals;
     try {
-      savedVals = await db.loadSavedStatePromise();
+      savedVals = await db.loadSavedStateAsync();
     } catch (err) {
       console.log(err);
       this.setState({
@@ -177,7 +177,7 @@ export default class App extends React.Component<propTypes, stateTypes> {
 
     // Attempt to get a push notification token if one isn't saved.
     if (!savedVals || !savedVals.pushToken) {
-      const pushToken = await registerPushNotificationsPromise();
+      const pushToken = await registerPushNotificationsAsync();
       this.setState({pushToken});
     }
 
@@ -208,7 +208,7 @@ export default class App extends React.Component<propTypes, stateTypes> {
         if (this.state.gameInfo && this.state.gameInfo.image && res.result.gameInfo.image &&
           this.state.gameInfo.image.id < res.result.gameInfo.image.id) {
           // New image
-          this._pauseUnneededDownloads(res.result.gameInfo.image.id);
+          this._pauseUnneededDownloadsAsync(res.result.gameInfo.image.id);
         }
 
         const gameInfo = res.result.gameInfo;
@@ -231,7 +231,7 @@ export default class App extends React.Component<propTypes, stateTypes> {
             typeof lastImageIdCached !== 'undefined' &&
             gameInfo.imageQueue.length > 0 &&
             lastImageIdCached < gameInfo.imageQueue[0].id)) {
-          this._fillImageCachePromise();
+          this._fillImageCacheAsync();
         }
         this._saveState();
       }
@@ -251,34 +251,34 @@ export default class App extends React.Component<propTypes, stateTypes> {
 
   _onChooseScenario = choiceID => {
     if (this.state.gameInfo) {
-      return this._postToServer('chooseScenario',{choiceID: choiceID, round: this.state.gameInfo.round});
+      return this._postToServerAsync('chooseScenario',{choiceID: choiceID, round: this.state.gameInfo.round});
     }
     return new Promise((reject, resolve) => {});
   }
 
-  _onCreateGame = () => this._postToServer('createNewGame');
+  _onCreateGame = () => this._postToServerAsync('createNewGame');
 
   _onCreatePlayer = (nickname: string) => {
-    return (this._postToServer('createPlayer', {
+    return (this._postToServerAsync('createPlayer', {
       nickname: nickname,
       pushToken: this.state.pushToken,
     }));
   };
 
-  _onEndGame = () => this._postToServer('endGame');
+  _onEndGame = () => this._postToServerAsync('endGame');
 
-  _onJoinGame = (gameCode: string) => this._postToServer('joinGame', {gameCode});
+  _onJoinGame = (gameCode: string) => this._postToServerAsync('joinGame', {gameCode});
 
   _onLeaveGame = () => {
     // Function to actually leave the game.
     if (this.state.imageCache) {
-      deleteGifCache(Object.values(this.state.imageCache));
+      deleteGifCacheAsync(Object.values(this.state.imageCache));
     }
-    this._postToServer('leaveGame');
+    this._postToServerAsync('leaveGame');
     this.setState({appIsReady: false});
   };
 
-  _onNextRound = () => this._postToServer('nextRound');
+  _onNextRound = () => this._postToServerAsync('nextRound');
 
   _onPressLeaveGame = () => {
     // Display confirmation buttons.
@@ -292,14 +292,14 @@ export default class App extends React.Component<propTypes, stateTypes> {
       gameInfo.image.url = '';
     }
     this.setState({gameInfo: gameInfo});
-    return this._postToServer('skipImage', {image: prevImage});
+    return this._postToServerAsync('skipImage', {image: prevImage});
   };
 
-  _onStartGame = () => this._postToServer('startGame');
+  _onStartGame = () => this._postToServerAsync('startGame');
 
   _onSubmitResponse = (response: string) => {
     if (this.state.gameInfo) {
-      return this._postToServer('submitResponse', {
+      return this._postToServerAsync('submitResponse', {
         round: this.state.gameInfo.round,
         response: response,
       });
@@ -307,7 +307,7 @@ export default class App extends React.Component<propTypes, stateTypes> {
     return new Promise((reject, resolve) => {});
   }
 
-  _pauseUnneededDownloads = async (newImageId: number) => {
+  _pauseUnneededDownloadsAsync = async (newImageId: number) => {
     // Pause image/video downloads that are older than the current one.
     const downloadResumables = this.state.downloadResumables;
     const imageIds = Object.keys(downloadResumables);
@@ -327,13 +327,13 @@ export default class App extends React.Component<propTypes, stateTypes> {
     }
   }
 
-  _pollGameInfo = async () => {
+  _pollGameInfoAsync = async () => {
     if (this.state.gameInfo !== null) {
-      await this._postToServer('getGameInfo');
+      await this._postToServerAsync('getGameInfo');
     }
   };
 
-  _postToServer = async (action, data) => {
+  _postToServerAsync = async (action, data) => {
     let playerID = (
       (this.state.playerInfo && this.state.playerInfo.hasOwnProperty('id'))
        ? this.state.playerInfo.id : null);
@@ -361,7 +361,7 @@ export default class App extends React.Component<propTypes, stateTypes> {
     }
 
     try {
-      const res = await postToServerPromise(postData);
+      const res = await postToServerAsync(postData);
       this._handleServerResponse(action, res, postData);
     } catch(error) {
       console.log(error);
@@ -391,7 +391,7 @@ export default class App extends React.Component<propTypes, stateTypes> {
     this._saveState();
   }
 
-  _roundCountdown = async () => {
+  _roundCountdown = () => {
     if (typeof this.state.timeLeft !== 'undefined' && this.state.timeLeft !== null) {
       this.setState({
         timeLeft: Math.max(this.state.timeLeft - 1000, 0),

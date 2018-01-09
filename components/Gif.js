@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 import Expo from 'expo';
-import {preloadGif} from '../libraries/preloading';
+import {preloadGifAsync} from '../libraries/preloading';
 import Sentry from 'sentry-expo';
 
 import Popover from './Popover';
@@ -110,7 +110,7 @@ export default class Gif extends React.Component<propTypes, stateTypes> {
       });
     };
 
-    source.localUri = await preloadGif(source, this.props.gameID, this.props.addToImageCache, checkDownloadProgress, saveDownloadResumable);
+    source.localUri = await preloadGifAsync(source, this.props.gameID, this.props.addToImageCache, checkDownloadProgress, saveDownloadResumable);
     // Check to make sure the source hadn't been overwritten (image hasn't been
     // skipped) in the time it took to download.
     if (this.props.source.id <= source.id) {

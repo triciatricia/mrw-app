@@ -4,7 +4,7 @@ import CONF from '../constants/conf';
 
 import type {GameInfo, PlayerInfo, ServerPostData, ServerResult} from '../flow/types';
 
-export const postToServerPromise = async (data: ServerPostData): Promise<ServerResult> => {
+export const postToServerAsync = async (data: ServerPostData): Promise<ServerResult> => {
   // Send game info to the server
   // res is an object with keys 'errorMessage' and 'result'.
   // res = {errorMessage: ..., result: {playerInfo: ..., gameInfo: ...}}

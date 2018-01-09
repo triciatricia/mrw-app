@@ -5,7 +5,7 @@ import {FileSystem} from 'expo';
 
 import type {ImageUrl} from '../flow/types';
 
-export const preloadGif = async (
+export const preloadGifAsync = async (
   image: ImageUrl,
   gameID: string,
   addToImageCache: (id: number, url: string) => void,
@@ -67,7 +67,7 @@ export const preloadGif = async (
 /**
  * Delete the folder containing gifs if it exists.
  */
-export const deleteGifCache = async (files: Array<string>) => {
+export const deleteGifCacheAsync = async (files: Array<string>) => {
   // Don't throw an error if the folder does not exist.
   console.log(`Deleting mp4 gif cache`);
   await Promise.all(files.map((file) => {

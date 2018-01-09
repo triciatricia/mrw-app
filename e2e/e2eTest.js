@@ -1,7 +1,7 @@
 const { reloadApp } = require('detox-expo-helpers');
 
 import fetch from 'isomorphic-fetch';
-import {postToServerPromise} from '../libraries/networking';
+import {postToServerAsync} from '../libraries/networking';
 
 
 describe('MRW', () => {
@@ -36,7 +36,7 @@ describe('MRW', () => {
 
     // Start game
     console.log('Starting game');
-    let res = await postToServerPromise({
+    let res = await postToServerAsync({
       gameID: gameID,
       playerID: player1ID,
       action: 'startGame',
@@ -58,7 +58,7 @@ describe('MRW', () => {
     await element(by.id('ScenarioTextInput')).replaceText('The Best Answer');
     await element(by.id('ScenarioSubmissionButton')).tap();
 
-    res = await postToServerPromise({
+    res = await postToServerAsync({
       gameID: gameID,
       playerID: player2ID,
       action: 'submitResponse',
@@ -71,7 +71,7 @@ describe('MRW', () => {
     await expect(element(by.id('ScenarioList'))).toBeVisible();
 
     console.log('Choosing scenario');
-    res = await postToServerPromise({
+    res = await postToServerAsync({
       gameID: gameID,
       playerID: player1ID,
       action: 'chooseScenario',
@@ -82,14 +82,14 @@ describe('MRW', () => {
 
     console.log('Going to next round');
     // It should be Player2's turn to be the reactor.
-    res = await postToServerPromise({
+    res = await postToServerAsync({
       gameID: gameID,
       playerID: player1ID,
       action: 'nextRound',
       appIsActive: true,
     });
 
-    res = await postToServerPromise({
+    res = await postToServerAsync({
       gameID: gameID,
       playerID: player1ID,
       action: 'submitResponse',
@@ -108,7 +108,7 @@ describe('MRW', () => {
     await expect(element(by.id('ScenarioListForm'))).toBeVisible();
 
     console.log('Choosing scenario');
-    res = await postToServerPromise({
+    res = await postToServerAsync({
       gameID: gameID,
       playerID: player2ID,
       action: 'chooseScenario',
@@ -119,7 +119,7 @@ describe('MRW', () => {
 
     console.log('Going to next round');
     // It should be the simulator's turn to be the reactor.
-    res = await postToServerPromise({
+    res = await postToServerAsync({
       gameID: gameID,
       playerID: player2ID,
       action: 'nextRound',
@@ -130,7 +130,7 @@ describe('MRW', () => {
     await waitFor(element(by.id('SkipImageButton'))).toBeVisible().withTimeout(4000);
     await element(by.id('SkipImageButton')).tap();
 
-    res = await postToServerPromise({
+    res = await postToServerAsync({
       gameID: gameID,
       playerID: player1ID,
       action: 'submitResponse',
@@ -139,7 +139,7 @@ describe('MRW', () => {
       response: 'Player1\'s Response Round 3 😋',
     });
 
-    res = await postToServerPromise({
+    res = await postToServerAsync({
       gameID: gameID,
       playerID: player2ID,
       action: 'submitResponse',
@@ -179,7 +179,7 @@ describe('MRW', () => {
 const createGame = async () => {
   console.log('Creating game.');
 
-  let res = await postToServerPromise({
+  let res = await postToServerAsync({
     gameID: null,
     playerID: null,
     action: 'createNewGame',
@@ -188,7 +188,7 @@ const createGame = async () => {
 
   const gameID = res.result.gameInfo.id;
 
-  res = await postToServerPromise({
+  res = await postToServerAsync({
     gameID: gameID,
     playerID: null,
     action: 'createPlayer',
@@ -198,7 +198,7 @@ const createGame = async () => {
 
   const player1ID = res.result.playerInfo.id;
 
-  res = await postToServerPromise({
+  res = await postToServerAsync({
     gameID: null,
     playerID: null,
     action: 'joinGame',
@@ -206,7 +206,7 @@ const createGame = async () => {
     gameCode: gameID,
   });
 
-  res = await postToServerPromise({
+  res = await postToServerAsync({
     gameID: gameID,
     playerID: null,
     action: 'createPlayer',

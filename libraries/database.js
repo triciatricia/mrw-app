@@ -32,7 +32,7 @@ class Database {
       cb);
   }
 
-  loadSavedStatePromise(): Promise<Object> {
+  loadSavedStateAsync(): Promise<Object> {
     return new Promise((resolve, reject) => {
       // Load the saved state of the app from the SQLite database.
       this.db.transaction(

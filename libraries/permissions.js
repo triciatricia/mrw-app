@@ -3,7 +3,7 @@
 
 import { Permissions, Notifications } from 'expo';
 
-export const registerPushNotificationsPromise = async (): Promise<?string> => {
+export const registerPushNotificationsAsync = async (): Promise<?string> => {
   // Register for push notifications and/or return a token if permission is granted.
   const { status: existingStatus } = await Permissions.getAsync(
     Permissions.NOTIFICATIONS
