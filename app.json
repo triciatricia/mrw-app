@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "mrw-app",
+    "name": "My Reaction When",
     "description": "A really fun party game!",
-    "slug": "mrw-app",
+    "slug": "mrw",
     "privacy": "public",
     "sdkVersion": "23.0.0",
     "version": "0.2.4",
