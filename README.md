@@ -13,7 +13,7 @@ This app works on both iOS and Android, so grab a few friends and try it out!
 </center>
 
 ## How to play
-- **Installation** _My Reaction When_ is currently not in the App Store, but it is published in Expo. Once you have installed the Expo Client from the [App](https://itunes.apple.com/app/apple-store/id982107779?ct=www&mt=8) or [Play](https://play.google.com/store/apps/details?id=host.exp.exponent&referrer=www) Store, load _My Reaction When_ by visiting this link: https://expo.io/@triciatricia/mrw-app
+- **Installation** _My Reaction When_ is currently not in the App Store, but it is published in Expo. Once you have installed the Expo Client from the [App](https://itunes.apple.com/app/apple-store/id982107779?ct=www&mt=8) or [Play](https://play.google.com/store/apps/details?id=host.exp.exponent&referrer=www) Store, load _My Reaction When_ by visiting this link: https://expo.io/@triciatricia/mrw
 - **Game Play**
   1. Make a new game.
   2. Ask your friends to join the game by entering the game code in the app on their phones.
