@@ -18,7 +18,7 @@ describe('MRW', () => {
     await element(by.id('JoinGameButton')).tap();
 
     // Create a game (not using the simulator)
-    const {gameID, player1ID, player2ID} = await createGame();
+    const {gameID, player1ID, player2ID} = await createGameAsync();
 
     // Join the game
     console.log('Joining game');
@@ -176,7 +176,7 @@ describe('MRW', () => {
 });
 
 // Create a game with 2 players. Returns gameID, player1ID, player2ID.
-const createGame = async () => {
+const createGameAsync = async () => {
   console.log('Creating game.');
 
   let res = await postToServerAsync({

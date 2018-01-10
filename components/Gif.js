@@ -50,7 +50,7 @@ export default class Gif extends React.Component<propTypes, stateTypes> {
 
   componentDidMount() {
     this.setState({mounted: true});
-    this._loadImage(this.props.source);
+    this._loadImageAsync(this.props.source);
   }
 
   componentWillReceiveProps(nextProps: propTypes) {
@@ -61,7 +61,7 @@ export default class Gif extends React.Component<propTypes, stateTypes> {
       if (nextProps.source.url !== null &&
         nextProps.source.url !== '' &&
         nextProps.source.id > this.props.source.id) {
-        this._loadImage(nextProps.source);
+        this._loadImageAsync(nextProps.source);
       }
       this.setState({
         imageLoading: true,
@@ -77,7 +77,7 @@ export default class Gif extends React.Component<propTypes, stateTypes> {
     return URI.endsWith('.gif');
   }
 
-  async _loadImage(source) {
+  async _loadImageAsync(source) {
     // Cancel previous download
     if (this.state.imageLoading && this.state.downloadResumable) {
       try {
@@ -118,7 +118,7 @@ export default class Gif extends React.Component<propTypes, stateTypes> {
         imageLoading: false,
         localUri: source.localUri,
       });
-      console.log('_loadImage done: ', this.state.localUri);
+      console.log('_loadImageAsync done: ', this.state.localUri);
     }
   }
 
