@@ -222,7 +222,7 @@ export default class GamePlay extends React.Component<propTypes, stateTypes> {
       <Gif
         style={{flex: 1, alignItems: 'stretch', justifyContent: 'center'}}
         width={WINDOW_WIDTH - 40}
-        height={WINDOW_HEIGHT / 2 - 60}
+        height={WINDOW_HEIGHT / 2 - 90}
         marginBottom={20}
         source={gifSource}
         gameID={this.props.gameInfo.id}

@@ -1,6 +1,6 @@
 /* @flow */
 
-import {AppLoading, FileSystem} from 'expo';
+import {AppLoading, Constants, FileSystem} from 'expo';
 import {
   AppState,
   Platform,
@@ -29,6 +29,10 @@ import WaitingToStart from './WaitingToStart';
 import type {GameInfo, PlayerInfo, ImageUrl} from '../flow/types';
 
 const db = new Database();
+
+const IS_iPHONEX = Platform.OS == 'ios' && Constants.platform.ios.model == 'iPhone X';
+// The model will be 'Simulator' if Expo is being run on a simulator.
+const EXTRA_TOP_PADDING = IS_iPHONEX ? 10 : 0;
 
 type propTypes = {};
 type stateTypes = {
@@ -588,7 +592,8 @@ const styles = StyleSheet.create({
   },
   headerLarge: {
     padding: 20,
-    paddingTop: 40,
+    paddingTop: 45 + EXTRA_TOP_PADDING,
+    paddingBottom: 5,
     alignItems: 'center',
     height: 120,
     flexDirection: 'row',
@@ -601,8 +606,8 @@ const styles = StyleSheet.create({
   headerSmall: {
     paddingLeft: 20,
     paddingRight: 20,
-    paddingTop: 45,
-    paddingBottom: 20,
+    paddingTop: 50 + EXTRA_TOP_PADDING,
+    paddingBottom: 25,
     alignItems: 'center',
     height: 70,
     flexDirection: 'row',

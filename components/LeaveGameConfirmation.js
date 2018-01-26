@@ -30,42 +30,45 @@ export default class LeaveGameConfirmation extends React.Component<propTypes> {
         visible={this.props.leaveGameConfirmationVisible}
         onRequestClose={()=>{}}
       >
-        <View style={{margin: 22, flex: 1}}>
-          <View>
+        <View style={{
+          margin: 22,
+          flex: 1,
+          paddingTop: 20,
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'stretch',
+        }}>
+          <View style={{alignItems: 'center'}}>
             <Text style={{
-              fontSize: 20,
-              paddingBottom: 10
+              fontSize: 30,
             }}>
               Leave the game?
             </Text>
-
-            <Button
-              testID='LeaveGameConfirmButton'
-              containerStyle={{
-                padding: 10,
-                overflow: 'hidden',
-                borderRadius: 10,
-                marginTop: 10,
-                backgroundColor: '#4472C4',
-                marginRight: 10}}
-              style={{color: '#fff'}}
-              onPress={this._onPressLeaveGame}
-            >
-              Yes, leave game
-            </Button>
           </View>
 
-          <View style={{
-            flex: 1,
-            flexDirection: 'row',
-            justifyContent: 'center',
-          }} >
+          <Button
+            testID='LeaveGameConfirmButton'
+            containerStyle={{
+              padding: 10,
+              overflow: 'hidden',
+              borderRadius: 10,
+              marginTop: 10,
+              backgroundColor: '#4472C4',
+              marginRight: 10}}
+            style={{color: '#fff', fontSize: 16}}
+            onPress={this._onPressLeaveGame}
+          >
+            Yes, leave game
+          </Button>
+
+          <View style={{alignItems: 'center'}}>
             <TouchableHighlight
               underlayColor='transparent'
               onPress={this.props.dismissLeaveGame}
             >
               <Text style={{
                 color: colors.BLUE,
+                fontSize: 16,
                 paddingTop: 10,
                 paddingBottom:10
               }}>
@@ -73,7 +76,6 @@ export default class LeaveGameConfirmation extends React.Component<propTypes> {
               </Text>
             </TouchableHighlight>
           </View>
-
        </View>
       </Modal>
     );
