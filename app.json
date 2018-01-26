@@ -5,18 +5,29 @@
     "slug": "mrw",
     "privacy": "public",
     "sdkVersion": "23.0.0",
-    "version": "0.2.4",
+    "version": "1.0.0",
     "orientation": "portrait",
     "primaryColor": "#cccccc",
-    "icon": "images/mrw_face.png",
+    "icon": "images/MRW_icon_iOS.png",
     "packagerOpts": {
       "assetExts": ["ttf", "mp4"]
     },
     "splash": {
       "image": "./images/splash_image.png"
     },
+    "android": {
+      "icon": "images/MRW_icon_android.png",
+      "package": "fun.mrw.mrw",
+      "versionCode": "1"
+    },
     "ios": {
+      "buildNumber": "1.0.0",
+      "bundleIdentifier": "fun.mrw.mrw",
+      "icon": "images/MRW_icon_iOS.png",
       "supportsTablet": true
+    },
+    "notification": {
+      "icon": "images/MRW_icon_notification.png"
     },
     "hooks": {
       "postPublish": [
