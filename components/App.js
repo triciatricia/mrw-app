@@ -25,6 +25,7 @@ import NewGame from './NewGame';
 import NewPlayer from './NewPlayer';
 import LeaveGameConfirmation from './LeaveGameConfirmation';
 import WaitingToStart from './WaitingToStart';
+import WelcomeScreen from './WelcomeScreen';
 
 import type {GameInfo, PlayerInfo, ImageUrl} from '../flow/types';
 
@@ -39,7 +40,9 @@ type stateTypes = {
   gameInfo: ?GameInfo,
   playerInfo: ?PlayerInfo,
   errorMessage: ?string,
+  newInstall: boolean,
   leaveGameConfirmationVisible: boolean,
+  welcomeScreenVisible: boolean,
   gameStatusBarVisible: boolean,
   appIsReady: boolean,
   imageCache: {[number]: string},
@@ -60,7 +63,9 @@ export default class App extends React.Component<propTypes, stateTypes> {
       gameInfo: null,
       playerInfo: null,
       errorMessage: null,
+      newInstall: false,
       leaveGameConfirmationVisible: false,
+      welcomeScreenVisible: false,
       gameStatusBarVisible: true,
       appIsReady: false,
       imageCache: {},
@@ -169,12 +174,23 @@ export default class App extends React.Component<propTypes, stateTypes> {
       return;
     }
 
+    if (savedVals.newInstall) {
+      this.setState({welcomeScreenVisible: true});
+      Reporting.captureMessage(
+        'new_install',
+        this.state,
+        'info',
+        {isDevice: Constants.isDevice}
+      );
+    }
+
     this.setState({
       gameInfo: savedVals != null && savedVals.gameInfo ? savedVals.gameInfo : null,
       playerInfo: savedVals != null && savedVals.playerInfo ? savedVals.playerInfo : null,
       errorMessage: savedVals != null && savedVals.errorMessage ? savedVals.errorMessage : null,
       pushToken: savedVals != null && savedVals.pushToken ? savedVals.pushToken : this.state.pushToken,
       imageCache: savedVals != null && savedVals.imageCache ? savedVals.imageCache : this.state.imageCache,
+      newInstall: false,
       leaveGameConfirmationVisible: false,
       appIsReady: true,
     });
@@ -267,6 +283,14 @@ export default class App extends React.Component<propTypes, stateTypes> {
       nickname: nickname,
       pushToken: this.state.pushToken,
     }));
+  };
+
+  _onDismissWelcomeScreen = () => {
+    this.setState({
+      welcomeScreenVisible: false,
+      newInstall: false,
+    });
+    db.updateSavedInfo('newInstall', false);
   };
 
   _onEndGame = () => this._postToServerAsync('endGame');
@@ -410,6 +434,7 @@ export default class App extends React.Component<propTypes, stateTypes> {
     db.updateSavedInfo('errorMessage', this.state.errorMessage);
     db.updateSavedInfo('pushToken', this.state.pushToken);
     db.updateSavedInfo('imageCache', this.state.imageCache);
+    db.updateSavedInfo('newInstall', this.state.newInstall);
     Reporting.setSentryContext(this.state);
   }
 
@@ -561,6 +586,10 @@ export default class App extends React.Component<propTypes, stateTypes> {
           dismissLeaveGame={this._dismissLeaveGame}
           leaveGameConfirmationVisible={this.state.leaveGameConfirmationVisible}
           onPressConfirmLeaveGame={this._onLeaveGame}
+        />
+        <WelcomeScreen
+          onDismissWelcomeScreen={this._onDismissWelcomeScreen}
+          welcomeScreenVisible={this.state.welcomeScreenVisible}
         />
         <View style={styles.playArea}>
           {playArea}

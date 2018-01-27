@@ -70,7 +70,7 @@ class Database {
 
   updateSavedInfo(
     key: string,
-    value: ?Object | string | number,
+    value: ?Object | string | number | boolean,
   ) {
     this.db.transaction(
       tx => {
