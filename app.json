@@ -18,7 +18,7 @@
     "android": {
       "icon": "images/MRW_icon_android.png",
       "package": "fun.mrw.mrw",
-      "versionCode": "1"
+      "versionCode": 1
     },
     "ios": {
       "buildNumber": "1.0.0",
